@@ -37,10 +37,11 @@ class ProductionStartupGuardTest {
     }
 
     private ProductionStartupGuard configuredGuard(MqttProperties mqttProperties) {
-        ProductionStartupGuard guard = new ProductionStartupGuard(mqttProperties);
-        ReflectionTestUtils.setField(guard, "stubMode", false);
-        ReflectionTestUtils.setField(guard, "wxAppId", "wx_real_appid");
-        ReflectionTestUtils.setField(guard, "wxAppSecret", "real_secret");
+        WechatMiniProperties wechatMiniProperties = new WechatMiniProperties();
+        wechatMiniProperties.setStubMode(false);
+        wechatMiniProperties.setAppId("wx_real_appid");
+        wechatMiniProperties.setAppSecret("real_secret");
+        ProductionStartupGuard guard = new ProductionStartupGuard(mqttProperties, wechatMiniProperties);
         ReflectionTestUtils.setField(guard, "dashboardToken", "dashboard-token");
         ReflectionTestUtils.setField(guard, "adminSeedEnabled", false);
         return guard;
