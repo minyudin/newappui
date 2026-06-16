@@ -1,0 +1,656 @@
+@use 'sass:color';
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+/* ============================================================
+ *  §3 · 操作任务 · Plot Operations
+ *  Folio 分段表 · 三格动作 + 任务行 + 底部 sheet (无圆角)
+ * ============================================================ */
+
+.task-page {
+  min-height: 100vh;
+  background: $paper;
+  padding: bl(3) bl(2.5) calc(bl(3) + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: bl(2.2);
+
+  &__err {
+    @include folio-mono;
+    font-size: 22px;
+    color: $clay;
+    letter-spacing: 0.05em;
+    padding: bl(1.5) bl(2);
+    background: soften($clay, 75%);
+    @include hairline-all;
+    border-color: $clay;
+  }
+}
+
+// ---- 页头 ----
+.task-head {
+  @include hairline-bottom;
+  padding-bottom: bl(2);
+  display: flex;
+  flex-direction: column;
+  gap: bl(0.25);
+
+  &__seal {
+    @include folio-seal;
+    color: $ink;
+    letter-spacing: 0.3em;
+    display: block;
+    margin-bottom: bl(0.5);
+  }
+
+  &__title {
+    font-family: $font-serif;
+    font-size: 42px;
+    font-weight: 500;
+    color: $ink;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    display: block;
+  }
+
+  &__lede {
+    @include folio-em;
+    font-size: 18px;
+    color: $ink-soft;
+    line-height: 1.4;
+    display: block;
+    margin-top: bl(0.25);
+  }
+
+  &__state {
+    font-family: $font-sans;
+    font-size: 14px;
+    color: $ink-faint;
+    letter-spacing: 0.02em;
+    margin-top: bl(0.55);
+    display: block;
+  }
+}
+
+// ---- 分区 (节号) ----
+.task-section {
+  display: flex;
+  flex-direction: column;
+  gap: bl(1);
+
+  &__title {
+    @include folio-seal;
+    font-size: 14px;
+    color: $ink-faint;
+    letter-spacing: 0.3em;
+    padding-bottom: bl(0.75);
+    @include hairline-soft-bottom;
+    display: block;
+  }
+}
+
+.task-empty {
+  padding: bl(5) bl(2);
+  text-align: center;
+  @include folio-em;
+  color: $ink-faint;
+  font-size: 24px;
+}
+
+.task-hint {
+  @include folio-em;
+  font-size: 14px;
+  color: $ink-faint;
+  line-height: 1.45;
+  display: block;
+}
+
+// ---- 摄像头卡 · 快照 + 查看直播 ----
+.camera-list {
+  display: flex;
+  flex-direction: column;
+  gap: bl(1.5);
+}
+
+.camera-card {
+  @include hairline-all;
+  background: $paper-light;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  &--offline {
+    opacity: 0.55;
+  }
+
+  &__frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    overflow: hidden;
+  }
+
+  &__img {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  &__placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6a655c;
+    @include folio-em;
+    font-size: 24px;
+    background: #1b1a18;
+    color: #8a857b;
+  }
+
+  &__badges {
+    position: absolute;
+    top: bl(1);
+    right: bl(1);
+    display: flex;
+    gap: bl(0.5);
+  }
+
+  &__status {
+    @include folio-seal;
+    font-size: 16px;
+    padding: bl(0.25) bl(0.75);
+    letter-spacing: 0.2em;
+    background: rgba(0, 0, 0, 0.65);
+    color: #fff;
+
+    &--on {
+      color: #9cc6a1;
+    }
+
+    &--off {
+      color: #c89b8b;
+    }
+  }
+
+  &__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: bl(1.25) bl(1.5);
+    gap: bl(1);
+    @include hairline-soft-top;
+  }
+
+  &__meta {
+    display: flex;
+    flex-direction: column;
+    gap: bl(0.25);
+    min-width: 0;
+    flex: 1;
+  }
+
+  &__name {
+    font-family: $font-serif;
+    font-size: 26px;
+    color: $ink;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__no {
+    @include folio-mono;
+    font-size: 18px;
+    color: $ink-faint;
+    letter-spacing: 0.05em;
+    display: block;
+  }
+
+  &__cta {
+    @include folio-seal;
+    font-size: 20px;
+    color: $ink;
+    letter-spacing: 0.2em;
+    flex-shrink: 0;
+  }
+}
+
+// ---- 动作列表 · 纵向 hairline 行 (不再用卡片) ----
+.action-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.action-card {
+  padding: bl(1.25) 0;
+  @include hairline-soft-bottom;
+  display: grid;
+  grid-template-columns: bl(2.5) 1fr bl(1.8);
+  gap: bl(1.5);
+  align-items: center;
+  transition: background 0.15s $ease-folio;
+
+  &:first-child { border-top: 1px solid $line-soft; }
+  &:active:not(.action-card--disabled) { background: $paper-light; }
+
+  &--disabled {
+    opacity: 0.55;
+  }
+
+  &__info {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__name {
+    font-family: $font-serif;
+    font-size: 20px;
+    font-weight: 500;
+    color: $ink;
+    line-height: 1.2;
+    display: block;
+  }
+
+  &__device {
+    @include folio-mono;
+    font-size: 14px;
+    color: $sage;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    display: block;
+  }
+
+  &__reason {
+    @include folio-em;
+    font-size: 14px;
+    color: $clay;
+    line-height: 1.3;
+    display: block;
+  }
+
+  &__arrow {
+    font-family: $font-serif;
+    font-size: 22px;
+    color: $ink-faint;
+    text-align: right;
+
+    .action-card--disabled & { color: $line; }
+  }
+}
+
+// ---- 动作图标 · folio-mono 编号替代 ----
+.action-icon {
+  width: bl(2.5);
+  height: bl(2.5);
+  background: $paper-light;
+  @include hairline-all;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: $font-serif;
+  font-size: 20px;
+  color: $ink;
+  line-height: 1;
+
+  &::before {
+    content: '·';
+    color: $ink-faint;
+  }
+
+  &--water::before    { content: '水'; color: $fog; }
+  &--fertilize::before { content: '肥'; color: color.adjust($sand, $lightness: -20%); }
+  &--spray::before    { content: '喷'; color: $sage; }
+  &--default::before  { content: '·'; }
+}
+
+// ---- 任务行列表 ----
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.task-card {
+  padding: bl(1.25) 0;
+  @include hairline-soft-bottom;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 2px bl(1.5);
+  transition: background 0.15s $ease-folio;
+
+  &:first-child { border-top: 1px solid $line-soft; }
+  &:active { background: $paper-light; }
+
+  &__head {
+    grid-column: 1;
+    grid-row: 1;
+    display: flex;
+    align-items: baseline;
+    gap: bl(0.75);
+    flex-wrap: wrap;
+  }
+
+  &__name {
+    font-family: $font-serif;
+    font-size: 20px;
+    color: $ink;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  &__no {
+    @include folio-mono;
+    font-size: 13px;
+    color: $ink-faint;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  &__meta {
+    grid-column: 1;
+    grid-row: 2;
+    display: flex;
+    align-items: baseline;
+    gap: bl(0.75);
+    flex-wrap: wrap;
+  }
+
+  &__time {
+    @include folio-mono;
+    font-size: 14px;
+    color: $ink-soft;
+    letter-spacing: 0.08em;
+  }
+
+  &__queue {
+    @include folio-em;
+    font-size: 14px;
+    color: $sage;
+  }
+}
+
+.task-badge {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  @include folio-mono;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: bl(0.2) bl(0.75);
+  @include hairline-all;
+  border-color: $line-soft;
+  background: $paper-light;
+  color: $ink;
+  // height: fit-content 在 WXSS 支持不稳, 改用 inline-block 让内容自适应
+  display: inline-block;
+
+  &--sage  { background: soften($sage,  60%); border-color: $sage;  color: color.adjust($sage,  $lightness: -30%); }
+  &--sand  { background: soften($sand,  50%); border-color: $sand;  color: color.adjust($sand,  $lightness: -35%); }
+  &--fog   { background: soften($fog,   60%); border-color: $fog;   color: color.adjust($fog,   $lightness: -30%); }
+  &--clay  { background: soften($clay,  60%); border-color: $clay;  color: $clay; }
+  &--ink-faint { background: $paper-light; border-color: $line-soft; color: $ink-faint; }
+}
+
+// ---- 底部 sheet · mask + sheet 兄弟节点 ----
+.sheet-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(45, 42, 38, 0.5);
+  z-index: $z-sheet-mask;
+}
+
+.sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  background: $paper;
+  @include hairline-top;
+  padding: bl(3) bl(3) calc(bl(3) + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: bl(1.5);
+  max-height: 85vh;
+  overflow-y: auto;
+  z-index: $z-sheet;
+
+  &__head {
+    @include hairline-soft-bottom;
+    padding-bottom: bl(1.5);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__title {
+    font-family: $font-serif;
+    font-size: 30px;
+    color: $ink;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  &__close {
+    font-family: $font-serif;
+    font-size: 38px;
+    color: $ink-faint;
+    line-height: 1;
+    padding: 0 bl(0.75);
+
+    &:active { color: $ink-soft; }
+  }
+
+  &__device {
+    @include folio-mono;
+    font-size: 14px;
+    color: $ink-soft;
+    letter-spacing: 0.15em;
+    padding: bl(1) bl(1.5);
+    background: $paper-light;
+    @include hairline-all;
+    border-color: $line-soft;
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: bl(1.5);
+    margin-top: bl(0.5);
+  }
+
+  &__err {
+    @include folio-mono;
+    font-size: 14px;
+    color: $clay;
+    letter-spacing: 0.05em;
+    padding: bl(1.25) bl(1.5);
+    background: soften($clay, 75%);
+    @include hairline-all;
+    border-color: $clay;
+  }
+
+  &__submit {
+    @include button-reset;
+    margin-top: bl(1);
+    padding: bl(2.25) bl(3);
+    background: $ink;
+    color: $paper;
+    @include folio-mono;
+    font-size: 16px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-align: center;
+    transition: background 0.2s $ease-folio;
+
+    &::after { border: none; }
+    &:active:not([disabled]) { background: $ink-soft; }
+    &[disabled] { background: $ink-faint; color: $paper-light; }
+  }
+
+  &__foot {
+    @include folio-em;
+    font-size: 13px;
+    color: $ink-faint;
+    line-height: 1.6;
+    display: block;
+  }
+}
+
+.form-item {
+  display: flex;
+  flex-direction: column;
+  gap: bl(0.75);
+
+  &__label {
+    @include folio-mono;
+    font-size: 13px;
+    color: $ink-faint;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+
+    &--opt {
+      color: $ink-faint;
+      opacity: 0.8;
+    }
+  }
+
+  &__req {
+    color: $clay;
+    margin-left: bl(0.25);
+  }
+
+  &__input {
+    box-sizing: border-box;
+    height: bl(4.2);
+    padding: 0 bl(1.5);
+    background: $paper-light;
+    @include hairline-all;
+    font-family: $font-mono;
+    font-size: 16px;
+    color: $ink;
+    letter-spacing: 0.06em;
+    transition: border-color 0.2s $ease-folio;
+
+    &:focus {
+      border-color: $sage;
+      outline: none;
+    }
+  }
+
+  &__hint {
+    @include folio-em;
+    font-size: 12px;
+    color: $ink-faint;
+    line-height: 1.45;
+    display: block;
+  }
+}
+
+.dispatch-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid $line-soft;
+  background: $paper-light;
+
+  &__item {
+    @include folio-mono;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-align: center;
+    padding: bl(0.9) bl(0.8);
+    color: $ink-soft;
+    border-right: 1px solid $line-soft;
+
+    &:last-child {
+      border-right: none;
+    }
+
+    &--active {
+      background: rgba(111, 138, 118, 0.14);
+      color: $ink;
+    }
+  }
+}
+
+
+/* ============================================================
+ *  §3.1 · 今日操作配额卡
+ *   显示 maxDailyOperations 已用/剩余, 让用户清楚 quota
+ * ============================================================ */
+.task-quota {
+  margin-bottom: bl(2);
+  padding: bl(1.5);
+  @include hairline-all;
+  background: $paper-light;
+  display: flex;
+  flex-direction: column;
+  gap: bl(0.75);
+
+  &__row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+
+  &__key {
+    @include folio-mono;
+    font-size: 18px;
+    color: $ink-faint;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+  }
+
+  &__val {
+    font-family: $font-serif;
+    font-size: 26px;
+    color: $ink;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+
+  &__bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    border-radius: 0;
+    margin: bl(0.25) 0;
+  }
+
+  &__bar-fill {
+    height: 100%;
+    transition: width 0.4s $ease-folio, background 0.3s $ease-folio;
+  }
+
+  &__hint {
+    @include folio-em;
+    font-size: 20px;
+    color: $ink-soft;
+    line-height: 1.4;
+  }
+
+  // 状态色 (按剩余次数分档)
+  &--ok &__bar-fill { background: $sage; }
+  &--ok &__val { color: $ink; }
+
+  &--low &__bar-fill { background: $sand; }
+  &--low &__val { color: $sand; }
+  &--low &__hint { color: $sand; }
+
+  &--empty &__bar-fill { background: $clay; }
+  &--empty &__val { color: $clay; }
+  &--empty &__hint { color: $clay; font-weight: 500; }
+}

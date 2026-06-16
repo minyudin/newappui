@@ -1,0 +1,154 @@
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+/**
+ * table-row-fx · 表格行通用微动效 (admin-next 全站)
+ * ============================================================
+ *  之前用 absolute 定位印章 + padding-left hack 导致 USER 列空白 / 数据偏移
+ *  本稿彻底重写: 提供基础 row hover 锚条 + 工具类, 不再处理 §NN 印章定位
+ *
+ *  使用 (推荐内联 cell-stack 工具组合, 不用单独 seal):
+ *    <TableRow className="row-fx">
+ *      <TableCell>
+ *        <RowSeal seal="§01" />          (或下面的 RowCell 组件)
+ *        <span class="row-fx__primary">主标</span>
+ *        <span class="row-fx__secondary">副标 #user 12345</span>
+ *      </TableCell>
+ *
+ *  通用工具类:
+ *    .row-fx              · 行级 hover 锚条 + td 全部 vertical-align top
+ *    .row-fx__lead        · 第一格 §NN 印章 + 双行内容 的 grid 容器
+ *    .row-fx__lead-seal   · §NN 印章 (顶左定位 + 小字)
+ *    .row-fx__lead-body   · 双行 content (primary + secondary)
+ *    .row-fx__primary     · 主标
+ *    .row-fx__secondary   · 副标 (mono 小字)
+ *    .row-fx__dot         · 状态点 (6 色 tone)
+ *    .row-fx__dot--breath · 加呼吸动画
+ *    .row-fx__amount      · 衬线大金额
+ * ============================================================ */
+
+.row-fx {
+  /* 注意: tr 上不要 position: relative
+   * Chrome 在 <tr> 加 position: relative + ::before 会引发表格列轴偏移
+   * (tbody 列被整体右移 1 格), 所以 hover 锚条改挂到第一个 td 的 box-shadow inset */
+  transition: background 0.18s $ease-folio;
+
+  /* 所有 td 顶对齐 · 单行单元格首行 = 双行单元格首行同基线
+   * line-height 必须显式锁定 1.25, 否则单行 td 会继承 html 的 1.6,
+   * 与 .row-fx__primary 的 1.25 不齐, 视觉上其它列会"塌"到副标那一行附近 */
+  > td {
+    vertical-align: top !important;
+    line-height: 1.25;
+    transition: box-shadow 0.2s $ease-folio;
+  }
+
+  /* 左侧 hover 锚条 · 挂在第一个 td 的 inset shadow 上
+   * 不再用 tr::before, 避免 Chrome 表格列轴偏移 bug */
+  &:hover > td:first-child {
+    box-shadow: inset 2px 0 0 $sage;
+  }
+
+  /* ---------- 第一格组合: §NN 印章 + 双行内容 ----------
+   * grid 的 "auto 1fr + column-gap" 写法会让 primary 起点比 th 文字
+   * 起点多出 (印章宽 + gap) ≈ 30px, 视觉上整张表"往右偏一格".
+   * 改用扁平 flex-column: §NN 印章作为一行小字漂在 primary 上方,
+   * primary 的左边缘 = cell 的 padding-left = th 文字左边缘 = 严格对齐. */
+  &__lead {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-width: 0;
+    line-height: 1.25;
+  }
+
+  /* §NN 印章 · 顶部小字, 不挤主标 */
+  &__lead-seal {
+    @include folio-mono;
+    font-size: 9px;
+    color: $ink-faint;
+    letter-spacing: 0.14em;
+    font-weight: 500;
+    line-height: 1;
+    margin-bottom: 2px;
+    flex-shrink: 0;
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  /* 第一格的内容容器 (双行) */
+  &__lead-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-width: 0;
+    line-height: 1.25;
+  }
+
+  /* ---------- 双行单元格 (USER / DEVICE / PLOT) ---------- */
+  &__cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-width: 0;
+    line-height: 1.25;
+  }
+
+  &__primary {
+    color: $ink;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__secondary {
+    @include folio-mono;
+    font-size: 10px;
+    color: $ink-faint;
+    letter-spacing: 0.05em;
+    line-height: 1.4;
+    margin-top: 1px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ---------- 状态点 ---------- */
+  &__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: $ink-faint;
+    display: inline-block;
+    flex-shrink: 0;
+
+    &[data-tone='sage']    { background: $sage; }
+    &[data-tone='moss']    { background: $moss; }
+    &[data-tone='sand']    { background: $sand; }
+    &[data-tone='fog']     { background: $fog; }
+    &[data-tone='clay']    { background: $clay; }
+    &[data-tone='neutral'] { background: $ink-faint; }
+    &[data-tone='ink']     { background: $ink; }
+  }
+
+  &__dot--breath {
+    animation: row-fx-breath 1.6s $ease-breath infinite;
+  }
+
+  /* ---------- 金额衬线大字 ---------- */
+  &__amount {
+    font-family: $font-serif;
+    font-size: 16px;
+    font-feature-settings: 'tnum' 1;
+    color: $ink;
+    letter-spacing: 0.02em;
+
+    &--zero { color: $ink-faint; }
+    &--currency { color: $ink-soft; font-size: 11px; margin-left: 2px; @include folio-mono; }
+  }
+}
+
+@keyframes row-fx-breath {
+  0%, 100% { opacity: 0.55; transform: scale(0.85); }
+  50%      { opacity: 1;   transform: scale(1.2); }
+}

@@ -1,0 +1,42 @@
+/* ============================================================
+ *  Tailwind v4 · Longarch Folio 入口
+ * ------------------------------------------------------------
+ *  莫兰迪柔色 · 印刷品气质 · 无圆角无阴影
+ *  色板与 styles/tokens.scss 保持一致 (一处改 · 两处改)
+ * ============================================================ */
+
+@import "tailwindcss";
+
+@theme {
+  /* ---- 字体栈 ---- */
+  --font-sans: "Inter", "Noto Sans SC", "PingFang SC", system-ui, sans-serif;
+  --font-serif: "EB Garamond", "Noto Serif SC", "Source Han Serif SC", Georgia, serif;
+  --font-mono: "JetBrains Mono", "SF Mono", Consolas, monospace;
+  --font-folio: "DM Mono", "JetBrains Mono", monospace;
+
+  /* ---- 莫兰迪基色 ---- */
+  --color-paper: #e8e8e5;          /* 暖灰底 */
+  --color-paper-deep: #dddad3;     /* 地面 · 比纸深一度 */
+  --color-paper-light: #f1efea;    /* 最浅 · 卡片底 */
+  --color-ink: #2d2a26;            /* 墨灰主文字 */
+  --color-ink-soft: #5a564f;       /* 次级文字 */
+  --color-ink-faint: #8a857b;      /* 三级 / 占位 */
+
+  /* ---- 自然色 (莫兰迪) ---- */
+  --color-sage: #9fb58e;           /* 莫兰迪绿 · 主 accent */
+  --color-fog: #a0bcd0;            /* 雾蓝 */
+  --color-sand: #d9c9a8;           /* 沙黄 */
+  --color-clay: #c5826a;           /* 砖红 · 告警 */
+  --color-slate: #7e9bc0;          /* 柔蓝 · 数据 */
+  --color-moss: #9baa7a;           /* 柔绿 · OK */
+  --color-plum: #a68c9c;           /* 柔紫 · 次级 accent */
+
+  /* ---- hairline ---- */
+  --color-line: #c8c4bb;           /* 主分隔线 */
+  --color-line-soft: #dcd8cf;      /* 次分隔线 */
+
+  /* ---- 缓动 ---- */
+  --ease-folio: cubic-bezier(0.76, 0, 0.24, 1);
+  --ease-snap: cubic-bezier(0.32, 1.56, 0.24, 1);
+  --ease-breath: cubic-bezier(0.45, 0.05, 0.55, 0.95);
+}

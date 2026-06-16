@@ -1,0 +1,149 @@
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+/**
+ * §0.5 · 注册补昵称 · Folio 风
+ * ============================================================
+ *  与 login / adopter-login 同一套页面骨架: 全屏纸底 + 居中卡片
+ *  · state 五态: idle (灰) / checking (蓝) / ok (墨绿) / invalid (砖红)
+ * ============================================================ */
+.setup-nick-page {
+  min-height: 100vh;
+  background: $paper;
+  padding: 80rpx 32rpx 48rpx;
+  display: flex;
+  flex-direction: column;
+
+  &__body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 56rpx;
+  }
+}
+
+.setup-nick-head {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+
+  &__seal {
+    font-family: $font-folio;
+    font-size: 22rpx;
+    letter-spacing: 0.24em;
+    color: $ink-faint;
+    text-transform: uppercase;
+  }
+
+  &__title {
+    font-family: $font-serif;
+    font-size: 56rpx;
+    line-height: 1.2;
+    color: $ink;
+  }
+
+  &__lede {
+    font-family: $font-folio;
+    font-size: 24rpx;
+    color: $ink-soft;
+  }
+
+  &__hint {
+    margin-top: 8rpx;
+    font-size: 24rpx;
+    color: $ink-soft;
+    line-height: 1.6;
+  }
+}
+
+.setup-nick-card {
+  border: 1rpx solid $line;
+  background: $paper-light;
+  padding: 32rpx 28rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+
+  &__label {
+    font-family: $font-folio;
+    font-size: 22rpx;
+    letter-spacing: 0.24em;
+    color: $ink-soft;
+    text-transform: uppercase;
+  }
+
+  &__input {
+    border: 1rpx solid $line-soft;
+    background: $paper;
+    padding: 24rpx 20rpx;
+    font-size: 32rpx;
+    color: $ink;
+    transition: border-color 0.2s ease;
+
+    &--ok {
+      border-color: $sage;
+    }
+
+    &--invalid {
+      border-color: $clay;
+    }
+
+    &--checking {
+      border-color: $fog;
+    }
+  }
+
+  &__placeholder {
+    color: $ink-faint;
+  }
+
+  &__state {
+    font-family: $font-folio;
+    font-size: 22rpx;
+    color: $ink-soft;
+    line-height: 1.5;
+
+    &--ok {
+      color: $sage;
+    }
+
+    &--invalid {
+      color: $clay;
+    }
+
+    &--checking {
+      color: $fog;
+    }
+  }
+
+  &__btn {
+    margin-top: 8rpx;
+    background: $ink;
+    color: $paper-light;
+    border-radius: 0;
+    font-family: $font-folio;
+    font-size: 28rpx;
+    letter-spacing: 0.18em;
+    padding: 22rpx 0;
+    line-height: 1;
+
+    &[disabled] {
+      background: $ink-faint;
+      color: $paper-light;
+      opacity: 1;
+    }
+  }
+
+  &__foot {
+    margin-top: 4rpx;
+    text-align: center;
+    padding: 12rpx 0;
+
+    &-text {
+      font-family: $font-folio;
+      font-size: 22rpx;
+      letter-spacing: 0.18em;
+      color: $ink-faint;
+    }
+  }
+}

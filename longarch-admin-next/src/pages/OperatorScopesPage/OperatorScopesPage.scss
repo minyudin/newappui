@@ -1,0 +1,42 @@
+.op-scope-guide {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.op-scope-guide__step {
+  font-family: var(--font-folio, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: rgba(36, 33, 30, 0.52);
+  border: 1px solid rgba(36, 33, 30, 0.12);
+  padding: 5px 10px;
+  background: rgba(250, 245, 236, 0.45);
+}
+
+.op-scope-guide__step.is-active {
+  color: rgba(30, 56, 39, 0.9);
+  border-color: rgba(111, 138, 118, 0.4);
+  background: rgba(111, 138, 118, 0.14);
+}
+
+.op-scope-guide__step.is-done {
+  color: rgba(36, 33, 30, 0.7);
+  border-color: rgba(36, 33, 30, 0.2);
+}
+
+.op-scope-operator-row {
+  transition:
+    background-color 180ms ease,
+    transform 180ms ease;
+}
+
+.op-scope-operator-row:hover {
+  background: rgba(220, 194, 153, 0.2);
+  transform: translateX(2px);
+}
+
+.op-scope-operator-row.is-active {
+  background: rgba(111, 138, 118, 0.18);
+  box-shadow: inset 3px 0 0 rgba(111, 138, 118, 0.75);
+}

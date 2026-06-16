@@ -1,0 +1,378 @@
+@use 'sass:color';
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+/* ============================================================
+ *  §0 · 登录页 · Login
+ *  纸本印章式 · 品牌页首 + 表格化特性 + 墨底主按钮
+ * ============================================================ */
+
+.login-page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  background: $paper;
+  display: flex;
+  flex-direction: column;
+  // 微信编译链对 `calc(rpx + env())` 兼容不稳定，避免在此处做混合计算
+  padding: bl(3.75) bl(2.6) bl(2.35);
+  gap: bl(1.8);
+}
+
+// ---- 印章 · Folio 封面 ----
+.login-cover {
+  @include hairline-bottom;
+  padding-bottom: bl(1.9);
+  margin-bottom: bl(1.3);
+
+  &__seal {
+    @include folio-seal;
+    color: $ink;
+    letter-spacing: 0.22em;
+    display: block;
+    margin-bottom: bl(0.75);
+  }
+
+  &__title {
+    font-family: $font-serif;
+    font-size: 72px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: $ink;
+    margin-bottom: bl(0.45);
+    display: block;
+  }
+
+  &__title-cn {
+    @include folio-mono;
+    font-size: 20px;
+    font-weight: 400;
+    color: $ink-faint;
+    letter-spacing: 0.16em;
+    display: block;
+    margin-bottom: bl(0.75);
+  }
+
+  &__lede {
+    font-family: $font-serif;
+    font-size: 24px;
+    font-weight: 500;
+    color: $ink;
+    line-height: 1.4;
+    max-width: 20ch;
+    display: block;
+  }
+
+  // ---- 节气印章占位 · 内部由 TermStamp 组件控制外观 ----
+  &__term {
+    margin-top: bl(1.1);
+    padding-top: bl(0.9);
+    @include hairline-soft-top;
+    display: flex;
+  }
+}
+
+// ---- §01 · 特性列表 (hairline 行) ----
+.login-features {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: bl(1.1);
+}
+
+.login-feature {
+  display: grid;
+  grid-template-columns: bl(3) 1fr;
+  align-items: center;
+  gap: bl(1.5);
+  padding: bl(1.2) 0;
+  @include hairline-soft-bottom;
+
+  &:last-child { border-bottom: none; }
+
+  &__no {
+    @include folio-mono;
+    font-size: 22px;
+    font-weight: 500;
+    color: $ink;
+    letter-spacing: 0.08em;
+    line-height: 1;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__title {
+    font-family: $font-sans;
+    font-size: 28px;
+    font-weight: 600;
+    color: $ink;
+    line-height: 1.2;
+    display: block;
+  }
+
+  &__sub {
+    font-family: $font-sans;
+    font-size: 18px;
+    font-weight: 400;
+    color: $ink-soft;
+    line-height: 1.3;
+    display: block;
+  }
+}
+
+// ---- 运行信息 / 能力说明 ----
+.login-meta {
+  @include hairline-soft-top;
+  @include hairline-soft-bottom;
+  padding: bl(0.65) 0 bl(0.5);
+  margin-bottom: bl(1.05);
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: bl(1.1);
+    row-gap: bl(0.45);
+    margin-bottom: bl(0.55);
+  }
+
+  &__cell {
+    min-width: 0;
+  }
+
+  &__key {
+    font-family: $font-sans;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    color: $ink-faint;
+  }
+
+  &__val {
+    font-family: $font-sans;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+    color: $ink-soft;
+    display: block;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__bulletin {
+    @include hairline-soft-top;
+    display: grid;
+    grid-template-columns: bl(4.2) 1fr;
+    align-items: baseline;
+    gap: bl(0.8);
+    padding-top: bl(0.45);
+  }
+
+  &__bulletin-k {
+    font-family: $font-sans;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    color: $ink-faint;
+  }
+
+  &__bulletin-v {
+    @include folio-em;
+    font-size: 14px;
+    line-height: 1.45;
+    color: $ink-soft;
+  }
+}
+
+// ---- 错误行 ----
+.login-err {
+  font-family: $font-sans;
+  font-size: 17px;
+  font-weight: 500;
+  color: $clay;
+  padding: bl(1) bl(1.5);
+  background: soften($clay, 70%);
+  @include hairline-all;
+  border-color: $clay;
+  display: block;
+}
+
+// ---- 底部 CTA 区 ----
+.login-bottom {
+  margin-top: auto;
+  padding-top: bl(1.5);
+  @include hairline-soft-top;
+  display: flex;
+  flex-direction: column;
+  gap: bl(0.85);
+}
+
+// operator 登录入口已拆到独立页面 pages/operator-login
+
+// 主 CTA · 微信登录 (引导唯一正规路径)
+.login-cta {
+  @include button-reset;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: bl(1.2);
+  padding: bl(1.75) bl(2);
+  background: $ink;
+  color: $paper;
+  transition: background 0.2s $ease-folio;
+  border-radius: 2px;
+
+  &::after { content: none; border: none; }
+
+  &__label {
+    font-family: $font-sans;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: $paper;
+  }
+
+  &__arrow {
+    font-family: $font-serif;
+    font-size: 26px;
+    color: $paper;
+  }
+
+  &:active:not([disabled]) { background: $ink-soft; }
+
+  &[disabled] {
+    background: $ink-faint;
+    color: $paper-light;
+  }
+}
+
+// 次级入口分组的 hairline 标题行 · "§ · 其他身份"
+.login-alt {
+  @include hairline-soft-top;
+  padding-top: bl(0.7);
+  margin-top: bl(0.3);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+
+  &__seal {
+    @include folio-seal;
+    font-size: 14px;
+    color: $ink-soft;
+    letter-spacing: 0.3em;
+  }
+  &__sub {
+    @include folio-mono;
+    font-size: 11px;
+    color: $ink-faint;
+    letter-spacing: 0.18em;
+  }
+}
+
+// 次级入口 · 认养 / 操作员 / 分享码 — 共享样式 + 不同色调 accent
+%login-secondary {
+  @include button-reset;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: bl(1);
+  padding: bl(1.1) bl(1.5);
+  color: $ink;
+  border-radius: 2px;
+  @include hairline-all;
+  border-color: $line;
+  background: $paper-light;
+  text-align: left;
+
+  &::after { content: none; border: none; }
+
+  &:active:not([disabled]) { background: $paper-deep; }
+  &[disabled] { color: $ink-faint; }
+}
+
+// 次级入口通用装饰块 (§ 编号 + 正副文 + 箭头)
+%login-secondary-no {
+  @include folio-mono;
+  font-size: 14px;
+  letter-spacing: 0.22em;
+  color: $ink-soft;
+}
+%login-secondary-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+%login-secondary-text {
+  font-family: $font-serif;
+  font-size: 22px;
+  font-weight: 500;
+  color: $ink;
+  letter-spacing: 0.04em;
+}
+%login-secondary-sub {
+  font-family: $font-sans;
+  font-size: 14px;
+  color: $ink-faint;
+  letter-spacing: 0.02em;
+}
+%login-secondary-arrow {
+  font-family: $font-serif;
+  font-size: 20px;
+  color: $ink-soft;
+}
+
+.login-adopter {
+  @extend %login-secondary;
+  &__no    { @extend %login-secondary-no; }
+  &__body  { @extend %login-secondary-body; }
+  &__text  { @extend %login-secondary-text; }
+  &__sub   { @extend %login-secondary-sub; }
+  &__arrow { @extend %login-secondary-arrow; }
+}
+
+.login-operator {
+  @extend %login-secondary;
+  border-color: color.adjust($farm-earth, $lightness: 30%);
+  background: color.mix($paper-light, $farm-earth, 94%);
+  &__no    { @extend %login-secondary-no; color: $farm-earth; }
+  &__body  { @extend %login-secondary-body; }
+  &__text  { @extend %login-secondary-text; }
+  &__sub   { @extend %login-secondary-sub; }
+  &__arrow { @extend %login-secondary-arrow; }
+}
+
+.login-guest {
+  @extend %login-secondary;
+  opacity: 0.88;
+  &__no    { @extend %login-secondary-no; }
+  &__body  { @extend %login-secondary-body; }
+  &__text  { @extend %login-secondary-text; }
+  &__sub   { @extend %login-secondary-sub; }
+  &__arrow { @extend %login-secondary-arrow; }
+}
+
+.login-terms {
+  font-family: $font-sans;
+  font-size: 14px;
+  color: $ink-faint;
+  letter-spacing: 0.02em;
+  text-align: center;
+  margin-top: bl(0.5);
+}
+
+.login-link {
+  color: $ink-soft;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+
+  // 尚未接入正式协议页的占位态: 去下划线 + 置灰,
+  // 仍保留点击响应 (toast "即将上线"), 避免被误以为断链.
+  &--soon {
+    color: $ink-faint;
+    text-decoration: none;
+  }
+}

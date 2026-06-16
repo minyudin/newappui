@@ -1,0 +1,189 @@
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+.cmdp {
+  position: fixed;
+  inset: 0;
+  z-index: $z-palette;
+  background: rgba(45, 42, 38, 0.42);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 14vh;
+  animation: cmdp-fade 0.18s $ease-folio;
+
+  &__panel {
+    width: min(720px, 92vw);
+    max-height: 70vh;
+    background: $paper;
+    @include hairline-all;
+    border-color: $ink;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 28px 60px -10px rgba(45, 42, 38, 0.32);
+    animation: cmdp-rise 0.22s $ease-folio;
+  }
+
+  &__bar {
+    display: flex;
+    align-items: center;
+    gap: bl(1.5);
+    padding: bl(1.5) bl(2);
+    @include hairline-soft-bottom;
+  }
+
+  &__seal {
+    @include folio-mono;
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    color: $ink;
+    text-transform: uppercase;
+  }
+
+  &__input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: $font-serif;
+    font-size: 18px;
+    color: $ink;
+    letter-spacing: 0.02em;
+
+    &::placeholder {
+      color: $ink-faint;
+      font-style: italic;
+    }
+  }
+
+  &__count {
+    @include folio-mono;
+    font-size: 11px;
+    color: $ink-faint;
+    letter-spacing: 0.18em;
+    padding-left: bl(1);
+    @include hairline-soft-left;
+  }
+
+  &__body {
+    overflow-y: auto;
+    padding: bl(0.5) 0 bl(1);
+  }
+
+  &__empty {
+    @include folio-mono;
+    font-size: 12px;
+    color: $ink-faint;
+    text-align: center;
+    padding: bl(4);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+
+  &__group {
+    padding: bl(0.75) 0;
+
+    &-label {
+      @include folio-mono;
+      font-size: 10px;
+      letter-spacing: 0.32em;
+      color: $ink-faint;
+      text-transform: uppercase;
+      padding: bl(0.5) bl(2.5);
+    }
+  }
+
+  &__item {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 32px 1fr auto auto;
+    align-items: center;
+    gap: bl(1.5);
+    padding: bl(1.1) bl(2.5);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.12s linear;
+    position: relative;
+
+    &--active {
+      background: rgba($sage, 0.14);
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: var(--accent-current, $sage);
+      }
+    }
+
+    &-seal {
+      @include folio-mono;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      color: $ink-faint;
+    }
+
+    &-title {
+      font-family: $font-serif;
+      font-size: 16px;
+      color: $ink;
+      letter-spacing: -0.005em;
+    }
+
+    &-hint {
+      @include folio-mono;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      color: $ink-faint;
+      text-transform: uppercase;
+    }
+
+    &-key {
+      @include folio-mono;
+      font-size: 12px;
+      color: $ink;
+      letter-spacing: 0.1em;
+      padding: 1px 7px;
+      @include hairline-all;
+      border-color: $line;
+    }
+  }
+
+  &__footer {
+    @include hairline-soft-top;
+    padding: bl(1) bl(2);
+    display: flex;
+    gap: bl(2.5);
+    justify-content: flex-end;
+    @include folio-mono;
+    font-size: 10px;
+    color: $ink-faint;
+    letter-spacing: 0.14em;
+
+    kbd {
+      font-family: $font-mono;
+      font-size: 10px;
+      background: $paper-light;
+      @include hairline-all;
+      border-color: $line-soft;
+      padding: 1px 5px;
+      margin-right: 4px;
+      color: $ink-soft;
+    }
+  }
+}
+
+@keyframes cmdp-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes cmdp-rise {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

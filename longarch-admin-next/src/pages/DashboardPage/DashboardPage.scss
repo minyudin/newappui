@@ -1,0 +1,169 @@
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+/**
+ * DashboardPage · 局部样式
+ * ============================================================
+ *  · KPI 数字等宽表格数字 (tnum feature)
+ *  · 最近任务状态色 (data-status 驱动, 避免 inline style)
+ *  · §1.2 异常呼吸 (B.2)
+ * ============================================================ */
+
+.dashboard-kpi__value {
+  font-feature-settings: 'tnum' 1;
+}
+
+// 任务状态色 · 与 STATUS_COLOR 常量保持一致
+.dashboard-task-status {
+  &[data-status='pending']                      { color: #d9c9a8; }
+  &[data-status='active']                       { color: #a0bcd0; }
+  &[data-status='running']                      { color: #a0bcd0; }
+  &[data-status='success']                      { color: #9baa7a; }
+  &[data-status='failed']                       { color: #c5826a; }
+  &[data-status='cancelled']                    { color: #b8b3a6; }
+  &[data-status='network_pending_confirmation'] { color: #a68c9c; }
+  color: #8a857b; // fallback
+}
+
+// ECharts 容器高度 (替代 inline style={{ height: 220 }})
+.dashboard-chart--h220 { height: 220px; }
+
+
+/* ============================================================
+ *  §1.2 异常呼吸 (B.2)
+ *   · 全局印章: ALL CLEAR (墨绿) / X ITEMS (砖红呼吸)
+ *   · 单卡左上角: count > 0 时 DigitFlipper 自带 alert 砖红呼吸
+ *   · 全清态: 顶部加一道浅墨绿印章 已清 · ALL CLEAR
+ * ============================================================ */
+
+.dashboard-alerts__seal {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  @include folio-mono;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+}
+
+.dashboard-alerts__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dashboard-alerts__seal--clear {
+  color: $moss;
+
+  .dashboard-alerts__dot {
+    background: $moss;
+    /* 全清态 · 静默, 仅一个固定的墨绿点, 不抢主目光 */
+  }
+}
+
+.dashboard-alerts__seal--has {
+  color: $clay;
+
+  .dashboard-alerts__dot {
+    background: $clay;
+    animation: dashboard-alerts-breath 1.6s $ease-breath infinite;
+  }
+}
+
+@keyframes dashboard-alerts-breath {
+  0%, 100% { opacity: 0.5;  transform: scale(0.95); }
+  50%      { opacity: 1;    transform: scale(1.2); }
+}
+
+/* ---- 单张异常卡 · 全清态印章 ---- */
+.dashboard-alert-card {
+  position: relative;
+}
+
+.dashboard-alert-card--clear {
+  /* 顶部细线染墨绿, 暗示"该列已无问题" */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: rgba($moss, 0.55);
+  }
+}
+
+.dashboard-alert-card--has {
+  /* 顶部细线染砖红, 与 DigitFlipper alert 配合, 全卡气氛"在响" */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: rgba($clay, 0.55);
+  }
+}
+
+.dashboard-alert-card__empty-seal {
+  @include folio-mono;
+  font-size: 11px;
+  color: $moss;
+  letter-spacing: 0.2em;
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1px solid rgba($moss, 0.4);
+}
+
+
+/* ============================================================
+ *  §1.1 KPI 多行 hairline · 不依赖 :nth-child 数学
+ *  · 用 box-shadow 1px 黑做细线, 永远落在 cell 右下;
+ *    最右一列 (justify-self: end 不行, 只能借 :last-child / xl 时手动抠)
+ *  · 视觉是 grid 的浅 line-soft 网格, 多行也工整
+ * ============================================================ */
+.kpi-cell {
+  position: relative;
+}
+
+/* 普通态 (无大屏 6 列): 用 right + bottom hairline 拼内网格 */
+.kpi-cell::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--line-soft, #dcd8cf);
+  pointer-events: none;
+}
+
+.kpi-cell::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--line-soft, #dcd8cf);
+  pointer-events: none;
+}
+
+/* 容器最外层已经有 border, 所以最右列 / 最末行的伪元素 hairline 会与其重叠
+   · 不抠也无视觉问题, 1px 重叠看不出
+   · 真要抠可加 :nth-child(...) 但要随断点变化, 不划算 */
+
+/* 数字翻牌在 < 1280 (中屏 3 列) 时缩小一档, 给 4-5 位数留余地 */
+@media (max-width: 1279px) {
+  .kpi-cell .flip {
+    font-size: 36px;
+  }
+}
+
+/* < 640 (移动端 2 列) 再缩 */
+@media (max-width: 639px) {
+  .kpi-cell .flip {
+    font-size: 28px;
+  }
+}

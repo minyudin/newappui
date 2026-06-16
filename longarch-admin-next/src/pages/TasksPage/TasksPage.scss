@@ -1,0 +1,100 @@
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+/**
+ * TasksPage · 行装饰 (索引印章 / 任务号 mono / priority dots / 状态呼吸点)
+ * ============================================================ */
+
+/* 整行 hover 时左侧出 sage 锚条 */
+.tasks-row {
+  position: relative;
+  transition: background 0.18s $ease-folio;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    background: $sage;
+    transition: width 0.2s $ease-folio;
+  }
+
+  &:hover::before {
+    width: 2px;
+  }
+}
+
+/* 索引印章 §01 / §02 */
+.tasks-row__seal {
+  @include folio-mono;
+  font-size: 10px;
+  color: $ink-faint;
+  letter-spacing: 0.12em;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.tasks-row__no {
+  display: inline-block;
+  /* DigitFlipper compact 18px mono 字体 */
+}
+
+/* priority 三段点 ●●○ · 1=低 2=中 3=高 */
+.tasks-row__prio {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.tasks-row__prio-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: $line;
+  display: inline-block;
+}
+
+/* prio=1 → 第一颗亮 / prio=2 → 前两颗 / prio=3 → 全亮且呼吸 */
+.tasks-row__prio[data-prio='1'] .tasks-row__prio-dot:nth-child(1) { background: $sage; }
+.tasks-row__prio[data-prio='2'] .tasks-row__prio-dot:nth-child(1),
+.tasks-row__prio[data-prio='2'] .tasks-row__prio-dot:nth-child(2) { background: $sand; }
+.tasks-row__prio[data-prio='3'] .tasks-row__prio-dot { background: $clay; animation: tasks-prio-breath 1.6s $ease-breath infinite; }
+.tasks-row__prio[data-prio='3'] .tasks-row__prio-dot:nth-child(2) { animation-delay: 0.15s; }
+.tasks-row__prio[data-prio='3'] .tasks-row__prio-dot:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes tasks-prio-breath {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
+}
+
+/* 状态 dot + Badge 组合 */
+.tasks-row__status {
+  display: inline-flex;
+  align-items: center;
+  gap: bl(0.5);
+}
+
+.tasks-row__status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: $ink-faint;
+  flex-shrink: 0;
+}
+
+.tasks-row__status[data-status='pending'] .tasks-row__status-dot   { background: $sand; }
+.tasks-row__status[data-status='queued'] .tasks-row__status-dot    { background: $fog; }
+.tasks-row__status[data-status='running'] .tasks-row__status-dot   { background: $moss; }
+.tasks-row__status[data-status='success'] .tasks-row__status-dot   { background: $sage; }
+.tasks-row__status[data-status='failed'] .tasks-row__status-dot    { background: $clay; }
+.tasks-row__status[data-status='cancelled'] .tasks-row__status-dot { background: $ink-faint; }
+
+.tasks-row__status--breath .tasks-row__status-dot {
+  animation: tasks-status-breath 1.6s $ease-breath infinite;
+}
+
+@keyframes tasks-status-breath {
+  0%, 100% { opacity: 0.55; transform: scale(0.85); }
+  50%      { opacity: 1;   transform: scale(1.2); }
+}

@@ -1,0 +1,62 @@
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+.microbar {
+  margin-top: bl(0.5);
+  padding-top: bl(0.5);
+  @include hairline-soft-top;
+  display: flex;
+  align-items: baseline;
+  gap: bl(1);
+  flex-wrap: wrap;
+
+  &--empty {
+    justify-content: center;
+  }
+
+  &__cell {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+    min-width: bl(2);
+  }
+
+  &__label {
+    @include folio-mono;
+    font-size: 14px;
+    letter-spacing: 0.18em;
+    color: $ink-faint;
+    text-transform: uppercase;
+  }
+
+  &__val {
+    font-family: $font-mono;
+    font-size: 22px;
+    color: $ink;
+    letter-spacing: 0.04em;
+    font-weight: 500;
+  }
+
+  &__cell--stale &__val {
+    color: $ink-faint;
+    text-decoration: line-through;
+    text-decoration-thickness: 1px;
+  }
+
+  &__tag {
+    @include folio-mono;
+    font-size: 13px;
+    letter-spacing: 0.3em;
+    color: $clay;
+    text-transform: uppercase;
+    margin-left: auto;
+  }
+
+  &__dash {
+    @include folio-em;
+    font-size: 18px;
+    color: $ink-faint;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+}

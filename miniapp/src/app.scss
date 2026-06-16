@@ -1,0 +1,448 @@
+@use 'sass:color';
+@use './styles/tokens' as *;
+@use './styles/mixins' as *;
+@use './styles/typography';
+
+/* ============================================================
+ *  Longarch Miniapp · 全局样式
+ *  纸本印刷美学 · 无圆角 · 无阴影 · 无渐变 · 编号至上
+ * ============================================================ */
+
+/* ---- 季节主题 fallback (app.tsx 启动时会被 applySeasonTheme 覆盖) ---- */
+:root {
+  --accent-current:      #{$farm-green};
+  --accent-current-soft: #{color.mix($paper-light, $farm-green, 78%)};
+  --accent-current-ink:  #{color.adjust($farm-green, $lightness: -8%)};
+  --paper-current:       #{$paper};
+}
+
+page {
+  background: $paper;
+  color: $ink;
+  font-family: $font-sans;
+  font-size: 28px;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+  // 极淡的纸颗粒纹理 (小程序网页端会显示)
+  background-image: radial-gradient(rgba(138, 133, 123, 0.04) 1px, transparent 1px);
+  background-size: 6px 6px;
+}
+
+// ---- 按钮全局 reset · 去掉微信默认边框圆角 ----
+// WeChat <button>::after 默认是 `position:absolute; width:200%; height:200%;`
+// 用来画 1px hairline, 不加 pointer-events:none 就会吃到**两倍于按钮**
+// 的热区, 直接覆盖邻居元素 → 所有相邻按钮点击都命中本按钮.
+// 这里直接 `content: none` 把伪元素彻底拿掉, 根治.
+button {
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font-size: inherit;
+  line-height: inherit;
+
+  &::after {
+    content: none;
+    border: none;
+  }
+  &[disabled] { color: $ink-faint; }
+}
+
+/* ============================================================
+ *  通用 folio-page · 被全部业务页共用
+ * ============================================================ */
+.folio-page {
+  min-height: 100vh;
+  padding: bl(3) bl(2.5) bl(6);
+
+  &__header {
+    @include hairline-soft-bottom;
+    padding-bottom: bl(2);
+    margin-bottom: bl(2);
+    display: flex;
+    flex-direction: column;
+    gap: bl(0.5);
+  }
+
+  &__seal {
+    @include folio-seal;
+    color: $ink;
+    letter-spacing: 0.3em;
+    display: block;
+  }
+
+  &__title {
+    font-family: $font-serif;
+    font-size: 48px;
+    font-weight: 500;
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    color: $ink;
+    display: flex;
+    align-items: baseline;
+    gap: bl(0.75);
+    flex-wrap: wrap;
+  }
+
+  &__title-cn {
+    font-family: $font-serif;
+    font-size: 26px;
+    font-weight: 400;
+    color: $ink-soft;
+    letter-spacing: 0.3em;
+  }
+
+  &__lede {
+    @include folio-em;
+    font-size: 22px;
+    color: $ink-soft;
+    max-width: 60ch;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: bl(3);
+  }
+
+  &__section {
+    display: flex;
+    flex-direction: column;
+    gap: bl(1.5);
+  }
+
+  &__section-title {
+    @include folio-seal;
+    font-size: 18px;
+    color: $ink-faint;
+    letter-spacing: 0.3em;
+    display: flex;
+    align-items: baseline;
+    gap: bl(0.75);
+
+    em {
+      @include folio-em;
+      font-size: 22px;
+      text-transform: none;
+    }
+  }
+}
+
+/* ============================================================
+ *  通用 folio-row · 列表行
+ * ============================================================ */
+.folio-row {
+  display: flex;
+  flex-direction: column;
+  gap: bl(0.5);
+  padding: bl(1.25) 0;
+  @include hairline-soft-bottom;
+
+  &:last-child { border-bottom: none; }
+
+  &__meta {
+    @include folio-mono;
+    font-size: 18px;
+    color: $ink-faint;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  &__title {
+    font-family: $font-serif;
+    font-size: 30px;
+    font-weight: 500;
+    color: $ink;
+    line-height: 1.2;
+  }
+
+  &__sub {
+    @include folio-em;
+    font-size: 22px;
+  }
+
+  &__status {
+    @include folio-mono;
+    font-size: 18px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: $ink-soft;
+  }
+}
+
+/* ============================================================
+ *  通用 folio-btn · 主按钮 (墨底白字) 与 ghost
+ * ============================================================ */
+.folio-btn {
+  @include button-reset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: bl(1.25);
+  padding: bl(2.25) bl(3);
+  background: $ink;
+  color: $paper;
+  font-family: $font-mono;
+  font-size: 26px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  transition: background 0.2s $ease-folio;
+  width: 100%;
+
+  &__arrow {
+    font-family: $font-serif;
+    font-size: 32px;
+    color: $paper;
+  }
+
+  &:active:not([disabled]) { background: $ink-soft; }
+  &[disabled] { background: $ink-faint; color: $paper-light; }
+
+  &--ghost {
+    background: transparent;
+    color: $ink;
+    @include hairline-all;
+    &:active:not([disabled]) { background: $paper-light; }
+    &[disabled] { color: $ink-faint; border-color: $line-soft; }
+    .folio-btn__arrow { color: $ink; }
+  }
+
+  &--accent {
+    background: $sage;
+    color: $paper-light;
+    &:active:not([disabled]) { background: color.adjust($sage, $lightness: -5%); }
+  }
+}
+
+/* ============================================================
+ *  通用 folio-tag · 状态徽章 (色底淡 · 墨色字)
+ * ============================================================ */
+.folio-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: bl(0.5) bl(1.25);
+  @include folio-mono;
+  font-size: 20px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: $ink;
+  @include hairline-all;
+  border-color: $line-soft;
+  background: $paper-light;
+
+  &--sage  { background: soften($sage,  60%); border-color: $sage; color: color.adjust($sage, $lightness: -30%); }
+  &--fog   { background: soften($fog,   60%); border-color: $fog;  color: color.adjust($fog,  $lightness: -30%); }
+  &--sand  { background: soften($sand,  50%); border-color: $sand; color: color.adjust($sand, $lightness: -35%); }
+  &--clay  { background: soften($clay,  60%); border-color: $clay; color: $clay; }
+  &--moss  { background: soften($moss,  55%); border-color: $moss; color: color.adjust($moss, $lightness: -25%); }
+  &--plum  { background: soften($plum,  55%); border-color: $plum; color: color.adjust($plum, $lightness: -20%); }
+  &--slate { background: soften($slate, 60%); border-color: $slate; color: color.adjust($slate, $lightness: -25%); }
+  &--muted { background: $paper-light; border-color: $line-soft; color: $ink-faint; }
+  // N52 · TASK_STATUS_LABEL.cancelled tone='ink-faint' · plot 页操作列表 / 其他
+  //       若只是默认 paper-light 背景会让 cancelled 任务和正常任务混在一起无区分
+  &--ink-faint { background: $paper-light; border-color: $line-soft; color: $ink-faint; }
+}
+
+/* ============================================================
+ *  全局微交互 · awwwards 加分项
+ *  - 墨点扩散按下反馈 (任何带 .ink-press 的元素都获得)
+ *  - hairline 入场 (任何带 .ink-rule 的 hr 元素自动从 0 拉满)
+ *  - 全局 4 角规矩线 (印刷品校对感)
+ * ============================================================ */
+
+.ink-press {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.ink-press::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  background: var(--accent-current, $ink);
+  border-radius: 999px;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: -1;
+}
+.ink-press:active::after {
+  animation: ink-spread 0.42s $ease-folio both;
+}
+
+@keyframes ink-spread {
+  0%   { width: 0; height: 0; opacity: 0.18; }
+  100% { width: 220%; height: 220%; opacity: 0; }
+}
+
+.ink-rule {
+  position: relative;
+  overflow: hidden;
+}
+.ink-rule::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0;
+  width: 0;
+  height: 100%;
+  background: $ink;
+  animation: ink-rule-draw 0.6s $ease-folio 0.05s both;
+}
+
+@keyframes ink-rule-draw {
+  to { width: 100%; }
+}
+
+/* 4 角规矩线 · 校对印刷感 · 仅 H5 显眼, weapp 也能渲 */
+.folio-corners {
+  position: fixed;
+  inset: bl(0.5);
+  pointer-events: none;
+  z-index: 999;
+}
+.folio-corners__c {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--accent-current, $ink);
+  opacity: 0.6;
+}
+.folio-corners__c--tl { top: 0; left: 0; border-right: none; border-bottom: none; }
+.folio-corners__c--tr { top: 0; right: 0; border-left: none; border-bottom: none; }
+.folio-corners__c--bl { bottom: 0; left: 0; border-right: none; border-top: none; }
+.folio-corners__c--br { bottom: 0; right: 0; border-left: none; border-top: none; }
+
+/* 自定义 toast (取代 Taro 默认) · awwwards-friendly */
+.folio-toast {
+  position: fixed;
+  left: 50%;
+  bottom: bl(8);
+  transform: translateX(-50%);
+  z-index: 950;
+  background: $ink;
+  color: $paper;
+  padding: bl(1) bl(1.6);
+  border-left: 4px solid var(--accent-current, $sage);
+  font-family: $font-serif;
+  font-size: 24px;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: bl(0.5);
+  pointer-events: none;
+  animation: folio-toast-in 0.32s $ease-folio both;
+  max-width: 80vw;
+}
+.folio-toast--out { animation: folio-toast-out 0.32s $ease-folio both; }
+.folio-toast__seal {
+  font-family: $font-folio;
+  font-size: 14px;
+  letter-spacing: 0.24em;
+  color: $paper-deep;
+  text-transform: uppercase;
+}
+
+@keyframes folio-toast-in {
+  from { opacity: 0; transform: translate(-50%, 12px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+@keyframes folio-toast-out {
+  from { opacity: 1; transform: translate(-50%, 0); }
+  to   { opacity: 0; transform: translate(-50%, 8px); }
+}
+
+/* ============================================================
+ *  Global Module Transition · H5 route-level fallback
+ * ============================================================ */
+.app-module-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f0eb;
+  color: #1a1714;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, transparent 55%, rgba(26, 23, 20, 0.04) 100%);
+  }
+
+  &__inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: bl(1.2);
+  }
+
+  &__ring {
+    position: relative;
+    width: 56px;
+    height: 56px;
+  }
+
+  &__ring-outer,
+  &__ring-inner {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    border-style: solid;
+  }
+
+  &__ring-outer {
+    border-width: 2px;
+    border-color: #1a1714 transparent #1a1714 transparent;
+    animation: app-module-ring-spin 2.2s linear infinite;
+  }
+
+  &__ring-inner {
+    inset: 8px;
+    border-width: 2px;
+    border-color: transparent #6b6460 transparent #6b6460;
+    animation: app-module-ring-spin-reverse 1.6s linear infinite;
+  }
+
+  &__mark {
+    display: flex;
+    align-items: baseline;
+    gap: bl(0.45);
+    white-space: nowrap;
+  }
+
+  &__mark-chapter {
+    font-family: $font-serif;
+    font-size: 16px;
+    color: #1a1714;
+    letter-spacing: 0.08em;
+  }
+
+  &__mark-sep {
+    @include folio-mono;
+    font-size: 12px;
+    color: #d4cec9;
+  }
+
+  &__mark-title {
+    font-family: $font-serif;
+    font-size: 16px;
+    color: #6b6460;
+    letter-spacing: 0.18em;
+  }
+}
+
+@keyframes app-module-ring-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes app-module-ring-spin-reverse {
+  to { transform: rotate(-360deg); }
+}

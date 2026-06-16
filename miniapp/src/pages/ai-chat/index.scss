@@ -1,0 +1,277 @@
+@use 'sass:color';
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+/* ============================================================
+ *  §6 · AI 对话页 · Folio 气泡 + 底部输入
+ *  - 整体撑满屏 · 头 + 滚动 + 快捷 + 输入 四段
+ *  - 用户气泡靠右 · AI 气泡靠左
+ * ============================================================ */
+
+.ai-page {
+  height: 100vh;
+  background: $paper;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+// ---- 页头 ----
+.ai-head {
+  @include hairline-bottom;
+  padding: bl(2) bl(2.5) bl(1.5);
+  display: flex;
+  flex-direction: column;
+  gap: bl(0.25);
+  flex-shrink: 0;
+
+  &__seal {
+    @include folio-seal;
+    color: $ink;
+    letter-spacing: 0.3em;
+    display: block;
+    margin-bottom: bl(0.25);
+  }
+
+  &__title {
+    font-family: $font-serif;
+    font-size: 46px;
+    font-weight: 500;
+    color: $ink;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    display: block;
+  }
+
+  &__lede {
+    @include folio-em;
+    font-size: 22px;
+    color: $ink-soft;
+    display: block;
+  }
+}
+
+// ---- 滚动区 ----
+.ai-scroll {
+  flex: 1;
+  overflow: hidden;
+  padding: bl(1) bl(2);
+}
+
+.ai-thread {
+  display: flex;
+  flex-direction: column;
+  gap: bl(1.25);
+  padding-bottom: bl(2);
+}
+
+// ---- 气泡 · 基础 ----
+.bubble {
+  max-width: 85%;
+  padding: bl(1) bl(1.25);
+  @include hairline-all;
+  display: flex;
+  flex-direction: column;
+  gap: bl(0.5);
+
+  &__text {
+    font-family: $font-serif;
+    font-size: 26px;
+    color: $ink;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  &__hint {
+    @include folio-em;
+    font-size: 20px;
+    color: $ink-soft;
+    line-height: 1.4;
+  }
+
+  &__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: bl(0.75);
+    @include hairline-soft-bottom;
+    padding-bottom: bl(0.5);
+  }
+
+  &__intent {
+    @include folio-mono;
+    font-size: 18px;
+    color: $ink-faint;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  &__warn {
+    @include folio-mono;
+    font-size: 20px;
+    color: $clay;
+    letter-spacing: 0.05em;
+    padding: bl(0.75) bl(1);
+    background: soften($clay, 75%);
+    @include hairline-all;
+    border-color: $clay;
+  }
+
+  // AI 气泡 · 靠左 · 纸色底
+  &--ai {
+    align-self: flex-start;
+    background: $paper-light;
+    border-color: $line-soft;
+  }
+
+  // 用户气泡 · 靠右 · 墨色底
+  &--user {
+    align-self: flex-end;
+    background: $ink;
+    border-color: $ink;
+
+    .bubble__text {
+      color: $paper;
+    }
+  }
+
+  &--loading {
+    opacity: 0.6;
+  }
+
+  // 确认执行 CTA · 在 AI 气泡内
+  &__cta {
+    @include button-reset;
+    margin-top: bl(0.5);
+    padding: bl(1) bl(1.5);
+    background: $ink;
+    color: $paper;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: bl(1);
+
+    &::after { content: none; border: none; }
+    &:active:not([disabled]) { background: $ink-soft; }
+    &[disabled] { background: $ink-faint; color: $paper-light; }
+  }
+
+  &__cta-text {
+    @include folio-mono;
+    font-size: 20px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: inherit;
+  }
+
+  &__cta-arrow {
+    font-family: $font-serif;
+    font-size: 24px;
+    color: inherit;
+  }
+}
+
+// ---- 系统消息 · 居中小字 ----
+.bubble-sys {
+  @include folio-mono;
+  font-size: 18px;
+  color: $ink-faint;
+  letter-spacing: 0.15em;
+  text-align: center;
+  align-self: center;
+  padding: bl(0.5) bl(1);
+  max-width: 90%;
+
+  &--ok  { color: color.adjust($sage, $lightness: -25%); }
+  &--err { color: $clay; }
+}
+
+// ---- 快捷提问 ----
+.ai-hints {
+  flex-shrink: 0;
+  @include hairline-top;
+  padding: bl(1) bl(2);
+  display: flex;
+  gap: bl(0.75);
+  overflow-x: auto;
+  white-space: nowrap;
+
+  &__item {
+    @include folio-mono;
+    font-size: 18px;
+    color: $ink-soft;
+    letter-spacing: 0.1em;
+    padding: bl(0.5) bl(1);
+    @include hairline-all;
+    border-color: $line-soft;
+    flex-shrink: 0;
+
+    &:active {
+      background: $paper-light;
+      border-color: $ink;
+      color: $ink;
+    }
+  }
+}
+
+// ---- 输入区 ----
+.ai-input {
+  flex-shrink: 0;
+  @include hairline-top;
+  padding: bl(1) bl(2) calc(bl(1) + env(safe-area-inset-bottom));
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: bl(1);
+  align-items: center;
+  background: $paper;
+
+  &__field {
+    box-sizing: border-box;
+    height: bl(5);
+    padding: 0 bl(1.25);
+    background: $paper-light;
+    @include hairline-all;
+    border-color: $line-soft;
+    font-family: $font-mono;
+    font-size: 24px;
+    color: $ink;
+    letter-spacing: 0.04em;
+    transition: border-color 0.2s $ease-folio;
+    // N95 · 防止超长文本溢出 UI
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &:focus {
+      border-color: $sage;
+      outline: none;
+    }
+  }
+
+  &__placeholder {
+    color: $ink-faint;
+    font-style: italic;
+    font-size: 22px;
+  }
+
+  &__send {
+    @include button-reset;
+    padding: 0 bl(1.5);
+    height: bl(5);
+    background: $ink;
+    color: $paper;
+    @include folio-mono;
+    font-size: 22px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+
+    &::after { content: none; border: none; }
+    &:active:not([disabled]) { background: $ink-soft; }
+    &[disabled] { background: $ink-faint; color: $paper-light; }
+  }
+
+  &__send-text {
+    color: inherit;
+  }
+}

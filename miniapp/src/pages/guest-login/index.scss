@@ -1,0 +1,195 @@
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+.guest-login-page {
+  min-height: 100vh;
+  background: $paper;
+  padding: bl(3.2) bl(2.6) bl(2.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.guest-login-page::before {
+  content: '';
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.55), transparent 55%),
+    radial-gradient(circle at 85% 25%, rgba(255, 255, 255, 0.25), transparent 55%),
+    radial-gradient(circle at 40% 85%, rgba(45, 42, 38, 0.06), transparent 58%),
+    repeating-linear-gradient(
+      115deg,
+      rgba(45, 42, 38, 0.018) 0px,
+      rgba(45, 42, 38, 0.018) 2px,
+      rgba(255, 255, 255, 0) 3px,
+      rgba(255, 255, 255, 0) 7px
+    );
+  opacity: 0.85;
+  pointer-events: none;
+  transform: rotate(-2deg);
+}
+
+.guest-login-page::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 40%, rgba(26, 23, 20, 0.06) 100%);
+  pointer-events: none;
+}
+
+.guest-login-page__body {
+  position: relative;
+  z-index: 1;
+}
+
+.guest-login-head {
+  @include hairline-bottom;
+  padding-bottom: bl(1.4);
+  margin-bottom: bl(1.4);
+
+  &__seal {
+    @include folio-seal;
+    color: $ink;
+    letter-spacing: 0.22em;
+    display: block;
+    margin-bottom: bl(0.7);
+  }
+
+  &__title {
+    font-family: $font-serif;
+    font-size: 28px;
+    font-weight: 500;
+    color: $ink;
+    letter-spacing: 0.08em;
+    display: block;
+  }
+
+  &__lede {
+    @include folio-em;
+    display: block;
+    margin-top: bl(0.35);
+    color: $ink-soft;
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  &__state {
+    @include folio-mono;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: $ink-faint;
+    display: block;
+    margin-top: bl(0.55);
+  }
+}
+
+.guest-login-card {
+  background: rgba(241, 239, 234, 0.72);
+  border-radius: 16px;
+  @include hairline-all;
+  padding: bl(1.25) bl(1.2);
+  position: relative;
+  box-shadow:
+    0 10px 26px rgba(26, 23, 20, 0.08),
+    0 2px 0 rgba(255, 255, 255, 0.35) inset;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(circle at 20% 15%, rgba(255, 255, 255, 0.65), transparent 55%);
+    pointer-events: none;
+    opacity: 0.65;
+  }
+
+  &__label {
+    @include folio-mono;
+    font-size: 12px;
+    color: $ink-faint;
+    letter-spacing: 0.16em;
+    display: block;
+    margin-bottom: bl(0.55);
+  }
+
+  &__input {
+    @include folio-mono;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 14px;
+    letter-spacing: 0.04em;
+    color: $ink;
+    background: rgba(232, 232, 229, 0.9);
+    border-radius: 14px;
+    @include hairline-all;
+    padding: bl(0.86) bl(0.95);
+    min-height: 42px;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.55) inset,
+      0 6px 14px rgba(26, 23, 20, 0.05);
+  }
+
+  &__hint {
+    @include folio-mono;
+    display: block;
+    margin-top: bl(0.65);
+    font-size: 12px;
+    color: $clay;
+    letter-spacing: 0.04em;
+  }
+
+  &__tip {
+    @include folio-mono;
+    display: block;
+    margin-top: bl(0.55);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: rgba(26, 23, 20, 0.58);
+  }
+
+  &__btn {
+    @include button-reset;
+    margin-top: bl(1.1);
+    width: 100%;
+    border-radius: 14px;
+    padding: bl(1.15) bl(1.25);
+    background: linear-gradient(180deg, rgba(45, 42, 38, 0.95), rgba(45, 42, 38, 0.86));
+    color: rgba(241, 239, 234, 0.98);
+    @include folio-mono;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: none;
+    box-shadow:
+      0 12px 22px rgba(26, 23, 20, 0.16),
+      0 1px 0 rgba(255, 255, 255, 0.18) inset;
+
+    &::after { content: none; border: none; }
+
+    &:active:not([disabled]) {
+      transform: translateY(1px);
+      background: linear-gradient(180deg, rgba(45, 42, 38, 0.86), rgba(45, 42, 38, 0.78));
+      box-shadow:
+        0 8px 18px rgba(26, 23, 20, 0.14),
+        0 1px 0 rgba(255, 255, 255, 0.12) inset;
+    }
+
+    &[disabled] {
+      background: linear-gradient(180deg, rgba(138, 133, 123, 0.75), rgba(138, 133, 123, 0.62));
+      box-shadow: none;
+    }
+  }
+
+  &__back {
+    margin-top: bl(1);
+    text-align: center;
+  }
+
+  &__back-text {
+    @include folio-mono;
+    font-size: 12px;
+    color: $ink-soft;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+}
+

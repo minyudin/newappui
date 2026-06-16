@@ -1,0 +1,265 @@
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+/* ============================================================
+ *  §5 · 摄像头直播
+ *  - camera-stage: 全屏 webview 舞台
+ *  - camera-fallback: 未配置/缺 URL 时的 Folio 风占位
+ * ============================================================ */
+
+// ---- webview 舞台 · 占满屏幕 (不能和其它 Taro 组件同屏, 遵微信规则) ----
+.camera-stage {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+
+  // Taro 的 <WebView> 编译成微信 <web-view>, 默认就是全屏, 这里不动布局
+
+  &__err {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: bl(2) bl(3);
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    font-size: 24px;
+    text-align: center;
+    max-width: 80vw;
+  }
+}
+
+// ---- 降级占位 · 没备案域名时展示 ----
+.camera-fallback {
+  min-height: 100vh;
+  background: $paper;
+  padding: bl(3) bl(2.5) calc(bl(3) + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: bl(2.5);
+
+  &__head {
+    @include hairline-bottom;
+    padding-bottom: bl(2);
+    display: flex;
+    flex-direction: column;
+    gap: bl(0.5);
+  }
+
+  &__seal {
+    @include folio-seal;
+    color: $ink;
+    letter-spacing: 0.3em;
+    display: block;
+  }
+
+  &__title {
+    font-family: $font-serif;
+    font-size: 44px;
+    font-weight: 500;
+    color: $ink;
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    display: block;
+  }
+
+  &__sub {
+    @include folio-em;
+    font-size: 22px;
+    color: $ink-soft;
+    line-height: 1.5;
+    display: block;
+  }
+
+  &__card {
+    @include hairline-all;
+    padding: bl(2);
+    background: $paper-light;
+    display: flex;
+    flex-direction: column;
+    gap: bl(1);
+  }
+
+  &__label {
+    @include folio-seal;
+    font-size: 18px;
+    color: $ink-faint;
+    letter-spacing: 0.3em;
+    display: block;
+  }
+
+  &__url {
+    @include folio-mono;
+    font-size: 22px;
+    color: $ink;
+    word-break: break-all;
+    padding: bl(1) 0;
+    @include hairline-soft-bottom;
+    display: block;
+  }
+
+  &__hint {
+    @include folio-em;
+    font-size: 22px;
+    color: $ink-faint;
+    line-height: 1.6;
+    display: block;
+  }
+}
+
+
+/* ============================================================
+ *  §5.1 · 摄像头快照模式 (miniapp 默认)
+ *   - camera-snapshot: 单帧大图 + 30s 轮询 + 下拉刷新
+ * ============================================================ */
+
+.camera-snapshot {
+  min-height: 100vh;
+  background: $paper;
+  padding: bl(3) bl(2.5) calc(bl(3) + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: bl(2);
+
+  &__head {
+    @include hairline-bottom;
+    padding-bottom: bl(2);
+    display: flex;
+    flex-direction: column;
+    gap: bl(0.5);
+  }
+
+  &__seal {
+    @include folio-seal;
+    color: $ink;
+    letter-spacing: 0.3em;
+    display: block;
+  }
+
+  &__title {
+    font-family: $font-serif;
+    font-size: 44px;
+    font-weight: 500;
+    color: $ink;
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    display: block;
+  }
+
+  &__sub {
+    @include folio-em;
+    font-size: 22px;
+    color: $ink-soft;
+    line-height: 1.4;
+    display: block;
+  }
+
+  // ---- 主舞台 · 16:9 大图 ----
+  &__stage {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    @include hairline-all;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  &__loading,
+  &__err {
+    color: #d8d3c5;
+    font-family: $font-serif;
+    font-size: 28px;
+    text-align: center;
+    padding: bl(2);
+    display: flex;
+    flex-direction: column;
+    gap: bl(0.5);
+  }
+
+  &__err-title {
+    font-size: 28px;
+    color: #f5d3c0;
+  }
+
+  &__err-msg {
+    @include folio-em;
+    font-size: 22px;
+    color: #c0baa4;
+    line-height: 1.5;
+  }
+
+  // ---- meta 栏 · 更新时间 ----
+  &__meta {
+    display: grid;
+    grid-template-columns: bl(8) 1fr;
+    align-items: baseline;
+    gap: bl(1.5);
+    padding: bl(1) 0;
+    @include hairline-soft-bottom;
+
+    &-key {
+      @include folio-mono;
+      font-size: 18px;
+      color: $ink-faint;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+    }
+
+    &-val {
+      @include folio-mono;
+      font-size: 22px;
+      color: $ink;
+      letter-spacing: 0.06em;
+    }
+  }
+
+  // ---- 立即刷新按钮 ----
+  &__btn {
+    @include button-reset;
+    @include hairline-all;
+    background: $paper;
+    color: $ink;
+    padding: bl(1.25) bl(2);
+    transition: background 0.2s $ease-folio;
+    margin-top: bl(0.5);
+
+    &::after { content: none; border: none; }
+    &:active:not([disabled]) { background: $paper-light; }
+    &[disabled] { color: $ink-faint; }
+
+    text {
+      @include folio-mono;
+      font-size: 22px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+    }
+  }
+
+  // ---- 底部说明 ----
+  &__foot {
+    margin-top: bl(1);
+    padding: bl(1.5) 0;
+    @include hairline-soft-top;
+    display: flex;
+    flex-direction: column;
+    gap: bl(0.5);
+  }
+
+  &__foot-text {
+    @include folio-em;
+    font-size: 20px;
+    color: $ink-faint;
+    line-height: 1.5;
+    display: block;
+  }
+}

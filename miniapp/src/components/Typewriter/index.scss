@@ -1,0 +1,21 @@
+@use '@/styles/tokens' as *;
+
+.tw {
+  display: inline;
+
+  &__text {
+    display: inline;
+  }
+
+  &__caret {
+    display: inline-block;
+    margin-left: 2px;
+    transform: translateY(-2px);
+    animation: tw-caret-blink 0.8s steps(1, end) infinite;
+    color: var(--accent-current, #{$ink});
+  }
+}
+
+@keyframes tw-caret-blink {
+  50% { opacity: 0; }
+}

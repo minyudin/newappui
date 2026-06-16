@@ -1,0 +1,155 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/longarch?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      idle-timeout: 30000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 123456
+      database: 0
+      timeout: 3000ms
+
+# 微信小程序配置
+#  · dev 默认 stub-mode=true · 离线开发不需要联通微信
+#  · 把 WX_MINIAPP_STUB_MODE=false + 填 WX_APP_ID/WX_APP_SECRET 即可在本机走真 code2session
+wechat:
+  miniapp:
+    app-id: ${WX_APP_ID:wxf60ed7658ed2c547}
+    app-secret: ${WX_APP_SECRET:wx_stub_secret}
+    stub-mode: ${WX_MINIAPP_STUB_MODE:true}
+
+# 智谱 GLM AI
+zhipu:
+  api-key: ${ZHIPU_API_KEY:}
+  model: glm-4-flash
+  base-url: https://open.bigmodel.cn/api/paas/v4
+
+# AI 定时分析
+ai:
+  scheduled-analysis:
+    enabled: true
+    cron: "0 0 6,12,18 * * ?"   # 每天 6:00、12:00、18:00 各执行一次
+  safety:
+    soil-moisture-block-high: 70
+    soil-moisture-warn-high: 60
+    soil-moisture-suggest-dry: 45
+    data-stale-threshold-minutes: 120
+    min-fertilize-interval-hours: 48
+    min-same-action-interval-minutes: 30
+
+# MQTT 设备通信
+mqtt:
+  broker-url: tcp://localhost:1883
+  client-id: longarch-server-${random.uuid}
+  auth-mode: password
+  username: longarch
+  password: longarch123
+  command-topic-prefix: longarch/device/command/
+  callback-topic: longarch/device/callback/#
+  callback-topic-prefix: longarch/device/callback/
+  telemetry-topic-prefix: longarch/device/telemetry/
+  heartbeat-topic-prefix: longarch/device/heartbeat/
+  qos: 1
+  command-qos: 1
+  callback-qos: 1
+  telemetry-qos: 1
+  heartbeat-qos: 1
+  command-ttl-seconds: 300
+  max-payload-bytes: 65536
+  strict-device-identity: false
+  require-message-id: false
+  require-timestamp: false
+  allowed-clock-skew-seconds: 300
+  replay-window-seconds: 600
+  replay-cache-max-entries: 10000
+  completion-timeout: 30000
+  keep-alive-interval: 60
+  connection-timeout: 10
+  ssl:
+    enabled: false
+
+# 业务默认值
+business-defaults:
+  default-farm-id: 1
+  default-farm-name: 陇上基地
+  user-no-prefix: "U"
+  order-no-prefix: "AO"
+  adoption-code-prefix: "LSGJ-"
+  plot-no-prefix: "PLOT-"
+  crop-batch-no-prefix: "CB-"
+  default-operation-whitelist:
+    - irrigation_apply
+    - fertilize_apply
+  platform-name: 陇上认养
+  dashboard-title: 韶山市稻梦田园智慧大棚监控平台
+  dashboard-subtitle: 银田镇 · 实时数据总览
+
+# 大屏 Dashboard Token
+dashboard:
+  token: ds-token-shaoshan-2026
+
+# 流媒体服务器（SRS）
+# ============================================================
+#  本地 dev: docker compose -f docker/srs/docker-compose.yml up -d
+#  生产环境: 这套 env 在 application-prod.yml 也是同一组 SRS_* 名字, 切环境只换值
+# ============================================================
+media-server:
+  api-base:       ${SRS_API_BASE:http://localhost:1985}
+  rtmp-base:      ${SRS_RTMP_BASE:rtmp://localhost:1935}
+  http-flv-base:  ${SRS_HTTP_FLV_BASE:http://localhost:8880}
+  hls-base:       ${SRS_HLS_BASE:http://localhost:8880}
+  live-app:       live
+  playback-app:   playback
+
+# XXL-JOB（暂不启用，配置占位）
+xxl:
+  job:
+    enabled: false
+    admin:
+      addresses: http://localhost:8088/xxl-job-admin
+    executor:
+      appname: longarch-executor
+      port: 9999
+      logpath: ./logs/xxl-job
+
+longarch:
+  admin:
+    seed:
+      enabled: true
+      mobile: ${ADMIN_SEED_MOBILE:15675201507}
+      password: ${ADMIN_SEED_PASSWORD:admin123456}
+      nickname: ${ADMIN_SEED_NICKNAME:平台管理员}
+  rate-limit:
+    enabled: true
+    wechat-login:
+      limit: 120
+      window-seconds: 60
+    admin-login:
+      limit: 60
+      window-seconds: 60
+    create-task:
+      limit: 120
+      window-seconds: 60
+    create-adoption-code:
+      limit: 60
+      window-seconds: 60
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true

@@ -1,0 +1,468 @@
+@use 'sass:color';
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+/* ============================================================
+ *  PlotTree · C.1 嵌套列表
+ *  视觉语言: museum folio + hairline + 缩进 + 微数据条
+ * ============================================================ */
+
+.plot-tree {
+  @include hairline-all;
+  background: $paper-light;
+
+  &__empty {
+    padding: bl(6) 0;
+    text-align: center;
+    @include folio-mono;
+    font-size: 11px;
+    color: $ink-faint;
+    letter-spacing: 0.2em;
+  }
+}
+
+/* ---- 大棚分组 ---- */
+.plot-tree__greenhouse {
+  @include hairline-soft-bottom;
+
+  &:last-child { border-bottom: none; }
+
+  &--orphan {
+    background: rgba($sand, 0.06);
+  }
+}
+
+.plot-tree__greenhouse-head {
+  display: grid;
+  grid-template-columns: 36px 16px minmax(0, 1fr) auto auto auto;
+  align-items: baseline;
+  gap: bl(1);
+  padding: bl(1.5) bl(2.5);
+  width: 100%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: background 0.2s $ease-folio;
+
+  &:hover {
+    background: rgba($sage, 0.06);
+  }
+}
+
+/* 1024 以下: greenhouse-head 改成 2 行 (信息 + meta + actions),
+   防止 inline-flex meta 把 name 撑出抽屉. 子点位行也做同步处理 */
+@media (max-width: 1023px) {
+  .plot-tree__greenhouse-head {
+    grid-template-columns: 36px 16px minmax(0, 1fr) auto;
+    grid-template-areas:
+      'seal arrow name actions'
+      '.    .     meta meta';
+    row-gap: 4px;
+  }
+  .plot-tree__greenhouse-seal { grid-area: seal; }
+  .plot-tree__greenhouse-arrow { grid-area: arrow; }
+  .plot-tree__greenhouse-name { grid-area: name; }
+  .plot-tree__greenhouse-no { display: none; }
+  .plot-tree__greenhouse-meta { grid-area: meta; flex-wrap: wrap; }
+  .plot-tree__greenhouse-actions { grid-area: actions; }
+}
+
+.plot-tree__greenhouse-seal {
+  @include folio-mono;
+  font-size: 10px;
+  color: $ink-faint;
+  letter-spacing: 0.18em;
+  font-weight: 500;
+}
+
+.plot-tree__greenhouse-arrow {
+  @include folio-mono;
+  font-size: 12px;
+  color: $ink-soft;
+  transition: transform 0.25s $ease-folio;
+  display: inline-block;
+  width: 16px;
+  text-align: center;
+
+  &[data-open='1'] {
+    transform: rotate(90deg);
+    color: $sage;
+  }
+}
+
+.plot-tree__greenhouse-name {
+  font-family: $font-serif;
+  font-size: 17px;
+  color: $ink;
+  letter-spacing: -0.005em;
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.plot-tree__greenhouse-no {
+  @include folio-mono;
+  font-size: 10px;
+  color: $ink-faint;
+  letter-spacing: 0.1em;
+  margin-left: bl(0.5);
+}
+
+.plot-tree__greenhouse-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: bl(0.5);
+  @include folio-mono;
+  font-size: 11px;
+  color: $ink-soft;
+}
+
+.plot-tree__greenhouse-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: bl(0.5);
+  margin-left: bl(1);
+}
+
+.plot-tree__greenhouse--open .plot-tree__greenhouse-head {
+  background: rgba($sage, 0.04);
+}
+
+.plot-tree__dot {
+  color: $ink-faint;
+  font-size: 10px;
+  margin: 0 2px;
+}
+
+/* ---- 子点位列表 ---- */
+.plot-tree__children {
+  padding: 0 0 bl(0.5);
+}
+
+.plot-tree__empty-children {
+  padding: bl(2) bl(3) bl(2) bl(7);
+  font-size: 12px;
+  color: $ink-faint;
+}
+
+.plot-tree__inline-link {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: $sage;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ---- 单个子点位 ---- */
+.plot-tree__child {
+  @include hairline-soft-top;
+
+  &:first-child {
+    border-top: none;
+  }
+
+  &--open {
+    background: $paper;
+  }
+}
+
+.plot-tree__child-row {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1.5fr) auto auto auto auto 16px;
+  align-items: baseline;
+  gap: bl(1);
+  padding: bl(1) bl(2.5) bl(1) bl(5);
+  width: 100%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: background 0.18s $ease-folio;
+
+  &:hover {
+    background: rgba($sage, 0.05);
+  }
+}
+
+.plot-tree__child-bullet {
+  @include folio-mono;
+  color: $ink-faint;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.plot-tree__child-name {
+  font-family: $font-sans;
+  font-size: 14px;
+  color: $ink;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.plot-tree__child-no {
+  @include folio-mono;
+  font-size: 10px;
+  color: $ink-faint;
+  letter-spacing: 0.08em;
+}
+
+.plot-tree__child-area {
+  @include folio-mono;
+  font-size: 12px;
+  color: $ink-soft;
+}
+
+.plot-tree__child-unit {
+  margin-left: 2px;
+  color: $ink-faint;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.plot-tree__child-arrow {
+  @include folio-mono;
+  font-size: 10px;
+  color: $ink-faint;
+  transition: transform 0.25s $ease-folio;
+  display: inline-block;
+
+  &[data-open='1'] {
+    transform: rotate(180deg);
+    color: $sage;
+  }
+}
+
+/* ---- 抽屉 ---- */
+.plot-tree__drawer {
+  padding: bl(1.5) bl(2.5) bl(2) bl(7);
+  background: $paper;
+  @include hairline-soft-top;
+  display: flex;
+  flex-direction: column;
+  gap: bl(1.5);
+  /* 抽屉打开后 fade-in (微动效, 不打断 click 节奏) */
+  animation: plot-tree-drawer-in 0.2s $ease-folio both;
+}
+
+@keyframes plot-tree-drawer-in {
+  0%   { opacity: 0; transform: translateY(-2px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* §A · 微数据条 */
+.plot-tree__metrics {
+  display: flex;
+  flex-direction: column;
+  gap: bl(0.5);
+}
+
+.plot-tree__metrics-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-bottom: bl(0.25);
+}
+
+.plot-tree__metrics-seal {
+  @include folio-mono;
+  font-size: 10px;
+  color: $ink-faint;
+  letter-spacing: 0.2em;
+}
+
+.plot-tree__metrics-meta {
+  @include folio-mono;
+  font-size: 10px;
+  color: $ink-faint;
+  letter-spacing: 0.1em;
+}
+
+.plot-tree__microbar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  @include hairline-all;
+  background: $paper-light;
+
+  &--loading,
+  &--empty {
+    padding: bl(2);
+    @include folio-mono;
+    font-size: 11px;
+    color: $ink-faint;
+    letter-spacing: 0.15em;
+    text-align: center;
+  }
+}
+
+.plot-tree__metric {
+  padding: bl(1) bl(1.25);
+  @include hairline-soft-left;
+  display: flex;
+  flex-direction: column;
+  gap: bl(0.25);
+
+  &[data-first='1'] {
+    border-left: none;
+  }
+
+  &--ok {
+    /* 默认态, 无装饰 */
+  }
+  &--warn {
+    background: rgba($sand, 0.18);
+    box-shadow: inset 2px 0 0 0 $sand;
+  }
+  &--danger {
+    background: rgba($clay, 0.12);
+    box-shadow: inset 2px 0 0 0 $clay;
+  }
+}
+
+.plot-tree__metric-label {
+  display: flex;
+  align-items: baseline;
+  gap: bl(0.5);
+}
+
+.plot-tree__metric-cn {
+  font-family: $font-sans;
+  font-size: 11px;
+  color: $ink-soft;
+}
+
+.plot-tree__metric-en {
+  @include folio-mono;
+  font-size: 9px;
+  color: $ink-faint;
+  letter-spacing: 0.18em;
+}
+
+.plot-tree__metric-value {
+  display: flex;
+  align-items: baseline;
+  gap: bl(0.25);
+}
+
+.plot-tree__metric-num {
+  font-family: $font-serif;
+  font-size: 22px;
+  font-feature-settings: 'tnum' 1;
+  color: $ink;
+  line-height: 1;
+}
+
+.plot-tree__metric-unit {
+  @include folio-mono;
+  font-size: 10px;
+  color: $ink-faint;
+  letter-spacing: 0.1em;
+}
+
+/* §B · 土壤传感器列表 */
+.plot-tree__soil {
+  display: flex;
+  flex-direction: column;
+  gap: bl(0.75);
+}
+
+.plot-tree__soil-row {
+  @include hairline-all;
+  background: $paper-light;
+  padding: bl(0.75) bl(1.25);
+}
+
+.plot-tree__soil-head {
+  display: flex;
+  align-items: baseline;
+  gap: bl(1);
+}
+
+.plot-tree__soil-name {
+  font-family: $font-sans;
+  font-size: 13px;
+  color: $ink;
+  font-weight: 500;
+}
+
+.plot-tree__soil-no {
+  @include folio-mono;
+  font-size: 10px;
+  color: $ink-faint;
+  letter-spacing: 0.08em;
+}
+
+.plot-tree__soil-metrics {
+  margin-top: bl(0.5);
+  display: flex;
+  flex-wrap: wrap;
+  gap: bl(0.5) bl(1.25);
+}
+
+.plot-tree__soil-metric {
+  display: inline-flex;
+  align-items: baseline;
+  gap: bl(0.5);
+}
+
+.plot-tree__soil-k {
+  @include folio-mono;
+  font-size: 10px;
+  color: $ink-faint;
+  letter-spacing: 0.1em;
+}
+
+.plot-tree__soil-v {
+  font-family: $font-serif;
+  font-size: 14px;
+  color: $ink;
+  font-feature-settings: 'tnum' 1;
+}
+
+.plot-tree__soil-empty {
+  @include folio-mono;
+  font-size: 10px;
+  color: $ink-faint;
+  letter-spacing: 0.15em;
+}
+
+/* §C · 行内操作 */
+.plot-tree__actions {
+  display: flex;
+  flex-direction: column;
+  gap: bl(0.5);
+}
+
+.plot-tree__actions-seal {
+  @include folio-mono;
+  font-size: 10px;
+  color: $ink-faint;
+  letter-spacing: 0.2em;
+}
+
+.plot-tree__actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: bl(1);
+  padding: bl(0.5) bl(1);
+  @include hairline-all;
+  background: $paper-light;
+}
+
+.plot-tree__sep {
+  display: inline-block;
+  width: 1px;
+  align-self: stretch;
+  background: $line-soft;
+  margin: 0 bl(0.5);
+}

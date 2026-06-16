@@ -1,0 +1,24 @@
+# Build outputs
+node_modules/
+dist/
+dist-ssr/
+target/
+*.tsbuildinfo
+
+# Test artifacts
+test-results/
+coverage/
+
+# IDE / OS
+.DS_Store
+.idea/
+*.log
+*.local
+
+# Taro temp
+.temp/
+.rn_temp/
+deploy_versions/
+
+# Miniapp private config
+project.private.config.json

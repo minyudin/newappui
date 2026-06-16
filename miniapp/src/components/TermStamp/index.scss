@@ -1,0 +1,133 @@
+@use 'sass:color';
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+/* ============================================================
+ *  TermStamp · 二十四节气印章
+ *  外观: 胶版印刷 "规矩线 + 双框 + 天头卷号"
+ * ============================================================ */
+
+.term-stamp {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: bl(0.4);
+
+  &--end {
+    align-items: flex-end;
+  }
+
+  &__frame {
+    position: relative;
+    padding: 3px;
+    @include hairline-all;
+    border-color: var(--term-ink, #{$farm-green});
+    background: var(--term-paper, #{$paper-light});
+  }
+
+  &__frame-inner {
+    position: relative;
+    padding: bl(0.9) bl(1.4);
+    border: 1px solid var(--term-line, #{rgba(61, 90, 63, 0.28)});
+  }
+
+  // 四角规矩线 · 视觉"错版"小缺口
+  &__corner {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-color: var(--term-ink, #{$farm-green});
+    pointer-events: none;
+
+    &--tl {
+      top: -2px; left: -2px;
+      border-top: 2px solid;
+      border-left: 2px solid;
+    }
+    &--br {
+      bottom: -2px; right: -2px;
+      border-bottom: 2px solid;
+      border-right: 2px solid;
+    }
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  &__volume {
+    @include folio-mono;
+    font-size: 16px;
+    letter-spacing: 0.22em;
+    color: var(--term-ink-soft, #{$ink-faint});
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  &__name {
+    font-family: $font-serif;
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.18em;
+    color: var(--term-ink, #{$farm-green});
+  }
+
+  &__saying {
+    font-family: $font-serif;
+    font-style: italic;
+    font-size: 20px;
+    line-height: 1.3;
+    color: $ink-soft;
+    letter-spacing: 0.04em;
+  }
+
+  // ---- compact 变体 · 单行, 供列表头使用 ----
+  &--compact &__frame-inner {
+    padding: bl(0.45) bl(0.8);
+  }
+
+  &--compact &__body {
+    flex-direction: row;
+    align-items: baseline;
+    gap: bl(0.4);
+  }
+
+  &--compact &__name {
+    font-size: 24px;
+    letter-spacing: 0.12em;
+  }
+
+  &--compact &__volume {
+    font-size: 12px;
+  }
+
+  // ---- 季节色映射 · 通过 CSS 变量注入印色与底纸 ----
+  &--spring {
+    --term-ink: #{$farm-green};
+    --term-ink-soft: #{color.adjust($farm-green, $lightness: 18%)};
+    --term-line: #{rgba(61, 90, 63, 0.3)};
+    --term-paper: #{color.mix($paper-light, $farm-green, 92%)};
+  }
+  &--summer {
+    --term-ink: #{color.adjust($moss, $lightness: -10%)};
+    --term-ink-soft: #{color.adjust($moss, $lightness: 5%)};
+    --term-line: #{rgba(155, 170, 122, 0.38)};
+    --term-paper: #{color.mix($paper-light, $moss, 92%)};
+  }
+  &--autumn {
+    --term-ink: #{$farm-earth};
+    --term-ink-soft: #{color.adjust($farm-earth, $lightness: 18%)};
+    --term-line: #{rgba(107, 85, 55, 0.3)};
+    --term-paper: #{color.mix($paper-light, $farm-earth, 94%)};
+  }
+  &--winter {
+    --term-ink: #{color.adjust($slate, $lightness: -22%)};
+    --term-ink-soft: #{color.adjust($slate, $lightness: -6%)};
+    --term-line: #{rgba(126, 155, 192, 0.32)};
+    --term-paper: #{color.mix($paper-light, $slate, 94%)};
+  }
+}

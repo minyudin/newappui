@@ -1,0 +1,390 @@
+@use 'sass:color';
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+/* ============================================================
+ *  §4 · 分享码管理 · 邮票册
+ *  --- 每张分享码 = 一张邮票 · 齿状边 + 中央编号 + 斜盖作废章 ---
+ * ============================================================ */
+
+.share-page {
+  min-height: 100vh;
+  background: $paper;
+  color: $ink;
+  padding: bl(2.5) bl(2) calc(bl(4) + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: bl(1.5);
+}
+
+// ---- 生成成功 toast 覆盖层 ----
+.share-success {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(31, 29, 27, 0.2);
+  pointer-events: none;
+  animation: share-success-fade 1.4s $ease-folio;
+
+  &__card {
+    width: min(82vw, 560px);
+    @include hairline-all;
+    border-color: $ink;
+    background: $paper-light;
+    padding: bl(1.5) bl(2);
+    display: flex;
+    flex-direction: column;
+    gap: bl(0.4);
+  }
+
+  &__seal {
+    @include folio-mono;
+    font-size: 14px;
+    letter-spacing: 0.3em;
+    color: $ink-faint;
+  }
+  &__title {
+    font-family: $font-serif;
+    font-size: 34px;
+    color: $ink;
+    letter-spacing: 0.02em;
+  }
+  &__code {
+    font-family: $font-mono;
+    font-size: 28px;
+    letter-spacing: 0.14em;
+    color: $farm-green;
+  }
+}
+
+@keyframes share-success-fade {
+  0%   { opacity: 0; }
+  15%  { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+// ---- 页头 · hairline 下方放总数印 ----
+.share-head {
+  padding-bottom: bl(1.5);
+  @include hairline-bottom;
+  display: flex;
+  flex-direction: column;
+  gap: bl(0.4);
+
+  &__seal {
+    @include folio-mono;
+    font-size: 16px;
+    letter-spacing: 0.32em;
+    color: $ink-faint;
+    text-transform: uppercase;
+  }
+  &__title {
+    font-family: $font-serif;
+    font-size: 48px;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    color: $ink;
+    font-weight: 500;
+  }
+  &__lede {
+    @include folio-em;
+    font-size: 22px;
+    color: $ink-soft;
+  }
+  &__meta {
+    margin-top: bl(0.6);
+    padding-top: bl(0.5);
+    @include hairline-soft-top;
+    display: inline-flex;
+    align-items: baseline;
+    gap: bl(0.3);
+    align-self: flex-start;
+  }
+  &__meta-key {
+    @include folio-mono;
+    font-size: 14px;
+    letter-spacing: 0.2em;
+    color: $ink-faint;
+  }
+  &__meta-val {
+    font-family: $font-serif;
+    font-size: 28px;
+    color: $ink;
+    font-weight: 500;
+    line-height: 1;
+    padding: 0 bl(0.3);
+  }
+  &__meta-dot {
+    color: $ink-faint;
+  }
+}
+
+// ---- 新建区 · 收据式 ----
+.share-create {
+  @include hairline-all;
+  border-color: $ink;
+  background: $paper-light;
+  padding: bl(1.1);
+  display: flex;
+  flex-direction: column;
+  gap: bl(0.6);
+
+  &__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-bottom: bl(0.4);
+    @include hairline-soft-bottom;
+  }
+  &__seal {
+    @include folio-mono;
+    font-size: 14px;
+    letter-spacing: 0.28em;
+    color: $ink-faint;
+  }
+  &__title {
+    font-family: $font-serif;
+    font-size: 26px;
+    color: $ink;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+  &__row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: bl(0.75);
+    align-items: center;
+  }
+  &__label {
+    @include folio-mono;
+    font-size: 16px;
+    color: $ink-faint;
+    letter-spacing: 0.15em;
+  }
+  &__input {
+    @include hairline-all;
+    background: $paper;
+    padding: bl(0.6) bl(0.8);
+    font-family: $font-serif;
+    font-size: 26px;
+    min-height: bl(2.25);
+    letter-spacing: 0.05em;
+  }
+  &__btn {
+    @include button-reset;
+    background: $ink;
+    color: $paper;
+    padding: bl(0.9) bl(1.3);
+    @include folio-mono;
+    font-size: 20px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    &::after { content: none; border: none; }
+    &:active:not([disabled]) { background: $ink-soft; }
+    &[disabled] { background: $ink-faint; }
+  }
+  &__hint {
+    @include folio-em;
+    font-size: 20px;
+    color: $ink-soft;
+  }
+}
+
+.share-err {
+  @include folio-mono;
+  color: $clay;
+  font-size: 18px;
+  padding: bl(0.5) bl(0.75);
+  background: soften($clay, 75%);
+  @include hairline-all;
+  border-color: $clay;
+}
+
+// ---- 列表区头 ----
+.share-list {
+  display: flex;
+  flex-direction: column;
+  gap: bl(1);
+
+  &__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-bottom: bl(0.5);
+    @include hairline-soft-bottom;
+  }
+  &__title {
+    @include folio-mono;
+    font-size: 14px;
+    letter-spacing: 0.3em;
+    color: $ink-faint;
+    text-transform: uppercase;
+  }
+  &__sub {
+    @include folio-em;
+    font-size: 18px;
+    color: $ink-faint;
+  }
+}
+
+.share-empty {
+  @include folio-em;
+  font-size: 22px;
+  color: $ink-faint;
+  text-align: center;
+  padding: bl(2) 0;
+}
+
+// ============================================================
+//   · 邮票 · share-card
+//   齿状边 = radial-gradient 点阵, 不碰圆角原则
+// ============================================================
+.share-card {
+  position: relative;
+  @include hairline-all;
+  border-color: $ink;
+  background: $paper-light;
+  padding: bl(1.25) bl(1.5);
+  display: flex;
+  flex-direction: column;
+  gap: bl(0.5);
+  overflow: hidden;
+
+  // 齿状边 · 上下两条
+  //   用 background + background-size 的"半圆砍"做微缺口
+  //   在 Taro H5 里稳定, 在 weapp 里效果相近
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background-image: radial-gradient($paper 3.4px, transparent 3.6px);
+    background-size: 14px 8px;
+    background-position: 0 center;
+    pointer-events: none;
+  }
+  &::before { top: -4px; }
+  &::after  { bottom: -4px; }
+
+  &__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: bl(1);
+    padding-bottom: bl(0.4);
+    @include hairline-soft-bottom;
+  }
+
+  &__code {
+    font-family: $font-mono;
+    font-size: 30px;
+    color: $ink;
+    letter-spacing: 0.14em;
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  // 状态章 · 印章感
+  &__status {
+    @include folio-mono;
+    font-size: 14px;
+    letter-spacing: 0.25em;
+    padding: bl(0.3) bl(0.6);
+    @include hairline-all;
+
+    &--active {
+      color: $farm-green;
+      border-color: $farm-green;
+      background: soften($sage, 72%);
+    }
+    &--revoked {
+      color: $clay;
+      border-color: $clay;
+      background: soften($clay, 72%);
+    }
+  }
+
+  &__meta-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: bl(0.4) bl(0.75);
+  }
+  &__meta-k {
+    @include folio-mono;
+    font-size: 14px;
+    color: $ink-faint;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  &__meta-v {
+    @include folio-mono;
+    font-size: 16px;
+    color: $ink;
+    letter-spacing: 0.04em;
+  }
+
+  &__actions {
+    margin-top: bl(0.25);
+    padding-top: bl(0.5);
+    @include hairline-soft-top;
+    display: flex;
+    gap: bl(1.25);
+  }
+  &__action {
+    @include folio-mono;
+    font-size: 16px;
+    letter-spacing: 0.18em;
+    color: $ink;
+    text-transform: uppercase;
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+    &:active { color: $ink-soft; }
+    &--danger {
+      color: $clay;
+      &:active { color: color.adjust($clay, $lightness: -10%); }
+    }
+  }
+
+  // 作废斜盖印章
+  &--revoked::after,
+  &--revoked::before {
+    opacity: 0.4;
+  }
+}
+
+/* 附加: 撤销卡的"CANCELLED"斜章 (在 .share-card 外单独一个装饰盒) */
+.share-card.share-card--revoked {
+  position: relative;
+
+  // CANCELLED 章 (伪元素做, 不占 DOM)
+  &::after {
+    content: '';
+  }
+}
+
+// 由于 ::before 已被齿边占用, 这里再加一个小工具元素
+.share-void {
+  position: absolute;
+  right: bl(1.5);
+  top: 50%;
+  transform: translateY(-50%) rotate(-8deg);
+  padding: bl(0.4) bl(0.75);
+  @include hairline-all;
+  border-width: 2px;
+  border-color: $clay;
+  color: $clay;
+  background: $paper;
+  font-family: $font-serif;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  opacity: 0.85;
+  pointer-events: none;
+}
+

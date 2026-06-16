@@ -1,0 +1,62 @@
+/* ============================================================
+ *  SCSS Tokens · Longarch Miniapp · 莫兰迪纸本美学
+ *  与 admin-next/src/styles/tokens.scss 色值完全一致
+ *  (字号/间距按移动端 2x 放大, 适配高分辨率屏)
+ * ============================================================ */
+
+@use 'sass:color';
+
+// ---- 莫兰迪基色 ----
+$paper:         #e8e8e5;   // 暖灰纸底
+$paper-deep:    #dddad3;   // 比纸深一度
+$paper-light:   #f1efea;   // 最浅 · 卡片底
+
+$ink:           #2d2a26;   // 墨灰主文字
+$ink-soft:      #5a564f;   // 次级文字
+$ink-faint:     #8a857b;   // 三级 / 占位
+
+// ---- 自然色 (莫兰迪) ----
+$sage:          #9fb58e;   // 莫兰迪绿 · 主 accent
+$fog:           #a0bcd0;   // 雾蓝
+$sand:          #d9c9a8;   // 沙黄
+$clay:          #c5826a;   // 砖红 · 告警
+$slate:         #7e9bc0;   // 柔蓝 · 数据
+$moss:          #9baa7a;   // 柔绿 · OK
+$plum:          #a68c9c;   // 柔紫 · 次级 accent
+
+// ---- 农业主色 (深田绿 + 土褐, 给重点农业元素用) ----
+// 当需要"田""土"的视觉暗示时用, 避免 Morandi 柔色在"农业感"上发力不够.
+// 保留 ink 为最强对比的文字色, 这两色只用于: 生长进度条刻度、节气印章、重点按钮
+$farm-green:    #3d5a3f;   // 深田绿 · 生长/节气印章/重点行动
+$farm-earth:    #6b5537;   // 土褐 · 次级重点 / 时节印记
+
+// ---- hairline ----
+$line:          #c8c4bb;   // 主分隔线
+$line-soft:     #dcd8cf;   // 次分隔线
+
+// ---- 字体栈 · 与 admin-next 同源 ----
+$font-sans:  -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Noto Sans SC', system-ui, sans-serif;
+$font-serif: 'Noto Serif SC', 'Source Han Serif SC', 'PingFang SC', Georgia, serif;
+$font-mono:  'SF Mono', Menlo, Consolas, 'Courier New', monospace;
+$font-folio: 'SF Mono', Menlo, Consolas, monospace;
+
+// ---- 栅格 · 小程序 px 即 rpx, 整体 2x 于 admin-next ----
+$gutter:        48px;      // 页缘 (= admin-next 24px × 2)
+$baseline:      16px;      // bl(n) 的基本单位 (= admin-next 8px × 2)
+$col-count:     12;
+
+// ---- 缓动 ----
+$ease-folio:    cubic-bezier(0.76, 0, 0.24, 1);
+$ease-snap:     cubic-bezier(0.32, 1.56, 0.24, 1);
+$ease-breath:   cubic-bezier(0.45, 0.05, 0.55, 0.95);
+
+// ---- 层级 ----
+$z-header:      50;
+$z-sheet-mask:  100;
+$z-sheet:       101;
+$z-toast:       900;
+
+// ---- 柔化: 任何色 mix 40% 纸底, 用于 chip 背景 ----
+@function soften($color, $amount: 40%) {
+  @return color.mix($paper-light, $color, $amount);
+}

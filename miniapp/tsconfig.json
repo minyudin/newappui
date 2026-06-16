@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM"],
+    "module": "commonjs",
+    "declaration": false,
+    "jsx": "preserve",
+    "strict": true,
+    "noImplicitAny": false,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
+    "rootDir": ".",
+    "types": ["jest", "node", "webpack-env", "@testing-library/jest-dom"],
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@mocks/*": ["./__mocks__/*"]
+    }
+  },
+  "include": [
+    "./src",
+    "./types",
+    "./config",
+    "./__mocks__",
+    "./e2e",
+    "./jest.setup.ts"
+  ],
+  "compileOnSave": false
+}

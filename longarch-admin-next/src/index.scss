@@ -1,0 +1,216 @@
+@use './styles/tokens' as *;
+@use './styles/mixins' as *;
+@use './styles/typography';
+@use './styles/table-row-fx';
+
+/* ============================================================
+ *  Longarch Folio · 全局 reset + 基础
+ *  源自 museum-folio/src/index.scss · 保持设计一致
+ * ============================================================ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  background: $paper;
+  color: $ink;
+  overflow-x: hidden;
+
+  // 极淡的纸质颗粒 (打印时自动消失)
+  background-image:
+    radial-gradient(rgba($ink-faint, 0.02) 1px, transparent 1px);
+  background-size: 3px 3px;
+}
+
+// 表单勾选控件统一到系统基调，避免浏览器默认蓝色
+input[type='checkbox'],
+input[type='radio'] {
+  accent-color: $sage;
+}
+
+// 滚动条 · 印刷品气质 (细 · 柔)
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: $line;
+  border: 2px solid $paper;
+
+  &:hover { background: $ink-faint; }
+}
+
+// ============================================================
+//  通用 folio-page · 被 PageShell 与所有 12 页共用
+// ============================================================
+.folio-page {
+  min-height: 100vh;
+  padding: bl(4) bl(5) bl(6);
+
+  &__header {
+    @include hairline-soft-bottom;
+    padding-bottom: bl(2);
+    margin-bottom: bl(3);
+
+    &--split {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: bl(3);
+    }
+  }
+
+  &__head-left {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  &__head-right {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: baseline;
+    gap: bl(1);
+    @include folio-mono;
+    font-size: 11px;
+    color: $ink-faint;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  &__seal {
+    @include folio-seal;
+    display: block;
+    margin-bottom: bl(1.5);
+    color: $ink;
+    letter-spacing: 0.3em;
+  }
+
+  &__title {
+    font-family: $font-serif;
+    font-size: 36px;
+    font-weight: 500;
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    margin: 0 0 bl(0.5) 0;
+    color: $ink;
+    display: flex;
+    align-items: baseline;
+    gap: bl(1.5);
+    flex-wrap: wrap;
+  }
+
+  &__title-cn {
+    font-family: $font-serif;
+    font-size: 15px;
+    font-weight: 400;
+    color: $ink-soft;
+    letter-spacing: 0.25em;
+  }
+
+  &__sub {
+    color: $ink-soft;
+    font-family: $font-serif;
+    font-style: italic;
+    font-size: 13px;
+    margin: 0;
+    max-width: 60ch;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: bl(4);
+  }
+
+  &__section {
+    display: flex;
+    flex-direction: column;
+    gap: bl(2);
+  }
+
+  &__section-title {
+    @include folio-seal;
+    font-size: 10px;
+    color: $ink-faint;
+    letter-spacing: 0.3em;
+    display: flex;
+    align-items: baseline;
+    gap: bl(1);
+
+    em {
+      font-family: $font-serif;
+      font-style: italic;
+      text-transform: none;
+      letter-spacing: 0.1em;
+      color: $ink-soft;
+      font-size: 13px;
+    }
+  }
+
+  &__wip {
+    @include folio-mono;
+    color: $ink-faint;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    padding: bl(8) 0;
+    text-align: center;
+    border: 1px dashed $line;
+  }
+}
+
+// ============================================================
+//  简化版列表行 · 可复用
+// ============================================================
+.folio-row {
+  display: grid;
+  gap: bl(2);
+  padding: bl(1.25) 0;
+  align-items: baseline;
+  @include hairline-soft-bottom;
+  font-family: $font-serif;
+  font-size: 14px;
+  color: $ink;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &__meta {
+    font-family: $font-folio;
+    font-size: 10px;
+    color: $ink-faint;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  &__title {
+    font-weight: 500;
+  }
+
+  &__sub {
+    font-family: $font-serif;
+    font-style: italic;
+    font-size: 12px;
+    color: $ink-soft;
+  }
+
+  &__status {
+    font-family: $font-folio;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: $ink-soft;
+    justify-self: end;
+  }
+}

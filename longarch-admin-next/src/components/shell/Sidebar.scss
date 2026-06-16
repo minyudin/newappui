@@ -1,0 +1,218 @@
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+.sidebar {
+  grid-area: sidebar;
+  display: flex;
+  flex-direction: column;
+  @include hairline-right;
+  background: $paper-light;
+  overflow: hidden;
+
+  &__brand {
+    padding: bl(2.5) bl(3);
+    @include hairline-soft-bottom;
+    /* brand 区只承载 Longarch · 陇上, 不放命令按钮, 给中文呼吸 */
+  }
+
+  &__museum-name {
+    display: flex;
+    align-items: baseline;
+    gap: bl(1);
+    line-height: 1;
+  }
+
+  &__museum-name-en {
+    font-family: $font-serif;
+    font-size: 22px;
+    color: $ink;
+    letter-spacing: -0.01em;
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  &__cn {
+    font-family: $font-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: $ink-soft;
+    letter-spacing: 0.2em;
+    line-height: 1;
+    /* 陇上 横排不换行 */
+    white-space: nowrap;
+  }
+
+  /* ⌘K 命令面板入口 · 改放底部 footer
+     一整行宽 · 显眼 + 易点 + 不挤压 brand */
+  &__foot {
+    @include hairline-soft-top;
+    padding: bl(1.5) bl(2);
+  }
+
+  &__cmd {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: bl(1);
+    width: 100%;
+    padding: bl(1) bl(1.25);
+    background: transparent;
+    border: 1px solid $line-soft;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.2s $ease-folio, background 0.2s $ease-folio,
+      color 0.2s $ease-folio;
+
+    &:hover {
+      border-color: $sage;
+      background: rgba($sage, 0.06);
+
+      .sidebar__cmd-key {
+        color: $sage;
+        border-color: $sage;
+      }
+    }
+  }
+
+  &__cmd-key {
+    @include folio-mono;
+    font-size: 10px;
+    color: $ink-soft;
+    letter-spacing: 0.05em;
+    padding: 2px 6px;
+    border: 1px solid $line-soft;
+    line-height: 1;
+    transition: color 0.2s $ease-folio, border-color 0.2s $ease-folio;
+  }
+
+  &__cmd-label {
+    font-family: $font-sans;
+    font-size: 12px;
+    color: $ink;
+    letter-spacing: 0.1em;
+    text-align: left;
+  }
+
+  &__cmd-hint {
+    @include folio-mono;
+    font-size: 9px;
+    color: $ink-faint;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  &__nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 0 bl(2);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ---- A.2 分组 · §A / §B / §C / §D ---- */
+  &__group {
+    @include hairline-soft-top;
+    padding: bl(1) 0;
+
+    &--first {
+      border-top: none;
+      padding-top: bl(1.5);
+    }
+  }
+
+  &__group-head {
+    display: flex;
+    align-items: baseline;
+    gap: bl(0.75);
+    padding: bl(0.5) bl(3) bl(1);
+    user-select: none;
+  }
+
+  &__group-seal {
+    @include folio-mono;
+    font-size: 10px;
+    color: $ink-faint;
+    letter-spacing: 0.18em;
+    font-weight: 500;
+  }
+
+  &__group-cn {
+    font-family: $font-sans;
+    font-size: 11px;
+    color: $ink-soft;
+    letter-spacing: 0.18em;
+  }
+
+  &__group-en {
+    @include folio-mono;
+    font-size: 9px;
+    color: $ink-faint;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-left: auto;
+    padding-right: bl(0.5);
+  }
+
+  &__link {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: bl(1.5);
+    align-items: baseline;
+    padding: bl(1.1) bl(3);
+    text-decoration: none;
+    transition: background 0.2s $ease-folio, color 0.2s $ease-folio;
+    position: relative;
+
+    &:hover {
+      background: rgba($sage, 0.08);
+      opacity: 1;
+    }
+
+    &--active {
+      background: rgba($sage, 0.12);
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: $sage;
+      }
+
+      .sidebar__seal { color: $sage; }
+      .sidebar__label-cn { color: $ink; font-weight: 500; }
+    }
+  }
+
+  &__seal {
+    @include folio-mono;
+    font-size: 11px;
+    color: $ink-faint;
+    letter-spacing: 0.1em;
+    font-weight: 500;
+  }
+
+  &__label {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  &__label-cn {
+    font-family: $font-sans;
+    font-size: 14px;
+    color: $ink-soft;
+    letter-spacing: 0.05em;
+  }
+
+  &__label-en {
+    @include folio-mono;
+    font-size: 10px;
+    color: $ink-faint;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+}

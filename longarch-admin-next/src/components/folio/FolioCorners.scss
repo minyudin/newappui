@@ -1,0 +1,72 @@
+@use '@/styles/tokens' as *;
+
+/**
+ * FolioCorners · 4 角规矩线 · admin-next 版
+ * ============================================================
+ *  位置: position: fixed, 紧贴 viewport 4 角, 距离 16px
+ *  线条: 12×1 + 1×12 两条短直线, 共两条形成 L 形
+ *  色彩: $ink-faint (浅墨灰), opacity 0.6
+ * ============================================================ */
+
+.folio-corners {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1; /* 比页面背景高, 比卡片低 */
+
+  &__c {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      background: $ink-faint;
+      opacity: 0.55;
+    }
+
+    /* 横线 */
+    &::before {
+      height: 1px;
+      width: 14px;
+      left: 0;
+    }
+
+    /* 竖线 */
+    &::after {
+      width: 1px;
+      height: 14px;
+      top: 0;
+    }
+
+    &--tl {
+      top: 16px;
+      left: 16px;
+      &::before { top: 0; }
+      &::after { left: 0; }
+    }
+
+    &--tr {
+      top: 16px;
+      right: 16px;
+      &::before { top: 0; right: 0; left: auto; }
+      &::after { right: 0; left: auto; top: 0; }
+    }
+
+    &--bl {
+      bottom: 16px;
+      left: 16px;
+      &::before { bottom: 0; top: auto; left: 0; }
+      &::after { left: 0; bottom: 0; top: auto; }
+    }
+
+    &--br {
+      bottom: 16px;
+      right: 16px;
+      &::before { bottom: 0; top: auto; right: 0; left: auto; }
+      &::after { right: 0; left: auto; bottom: 0; top: auto; }
+    }
+  }
+}

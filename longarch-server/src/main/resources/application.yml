@@ -1,0 +1,92 @@
+server:
+  port: 8081
+  servlet:
+    context-path: /
+
+spring:
+  profiles:
+    active: dev
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    # Existing dev/prod databases were created before Flyway was introduced.
+    # Baseline them at the last pre-Flyway version; empty databases still run V1..V9.
+    baseline-version: 8
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+    default-property-inclusion: non_null
+
+# MyBatis-Plus
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+# Sa-Token
+# ----------------------------------------------------------------------
+#  Cookie-First 认证模式 (2026-04)
+#   · token-name=satoken  同时作为 cookie 名 & header 名
+#   · is-read-cookie=true 浏览器会自动携带 HttpOnly cookie
+#   · is-read-header=true 兼容移动端 / 测试脚本 (可选发 `satoken: xxx` 头)
+#   · cookie.http-only    禁止 JS document.cookie 读取, 阻断 XSS 窃取
+#   · cookie.same-site    Lax: 同站请求照常; 跨站仅 GET 导航携带, 阻断 CSRF
+#   · cookie.secure       dev=false (HTTP), prod 覆写为 true (仅 HTTPS 发送)
+# ----------------------------------------------------------------------
+sa-token:
+  token-name: satoken
+  token-prefix: ""
+  timeout: 7200
+  active-timeout: -1
+  is-concurrent: true
+  is-share: true
+  token-style: uuid
+  is-log: false
+  is-read-cookie: true
+  is-read-header: true
+  cookie:
+    http-only: true
+    same-site: Lax
+
+# Knife4j
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+
+longarch:
+  rate-limit:
+    wechat-login:
+      limit: 60
+      window-seconds: 60
+    admin-login:
+      limit: 30
+      window-seconds: 60
+    create-task:
+      limit: 60
+      window-seconds: 60
+    create-adoption-code:
+      limit: 30
+      window-seconds: 60
+
+ai:
+  safety:
+    soil-moisture-block-high: 70
+    soil-moisture-warn-high: 60
+    soil-moisture-suggest-dry: 45
+    data-stale-threshold-minutes: 120
+    min-fertilize-interval-hours: 48
+    min-same-action-interval-minutes: 30

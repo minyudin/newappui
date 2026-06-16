@@ -1,0 +1,163 @@
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+/* ============================================================
+ *  Custom TabBar · Folio
+ *  注意: WeChat 自定义 tabBar 组件会被固定在页面底部
+ * ============================================================ */
+
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(bl(6.5) + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+  background: $paper;
+  @include hairline-top;
+  display: flex;
+  z-index: 500;
+
+  &__item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: bl(0.18);
+    @include hairline-soft-right;
+    // 去掉 transition: 点击时 selected 状态立即切换, 不需要 JS 线程排等 200ms
+
+    &:last-child {
+      border-right: none;
+    }
+
+    // 按下瞬时反馈, 不加 transition, 让视觉在一帧内改变
+    &:active {
+      background: $paper-light;
+    }
+
+    &--active {
+      background: rgba(241, 239, 234, 0.92);
+
+      .tab-bar__seal {
+        color: $ink;
+      }
+
+      .tab-bar__label {
+        color: $ink;
+        font-weight: 500;
+      }
+    }
+  }
+
+  &__seal {
+    @include folio-mono;
+    font-size: 14px;
+    color: $ink-faint;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  &__label {
+    font-family: $font-serif;
+    font-size: 24px;
+    color: $ink-soft;
+    letter-spacing: 0.15em;
+    line-height: 1;
+  }
+}
+
+/* ============================================================
+ *  Tab Module Transition · 复用 museum-folio 大页转场语汇
+ * ============================================================ */
+.tab-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f0eb;
+  color: #1a1714;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, transparent 55%, rgba(26, 23, 20, 0.04) 100%);
+  }
+
+  &__inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: bl(1.2);
+  }
+
+  &__ring {
+    position: relative;
+    width: 56px;
+    height: 56px;
+  }
+
+  &__ring-outer,
+  &__ring-inner {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    border-style: solid;
+  }
+
+  &__ring-outer {
+    border-width: 2px;
+    border-color: #1a1714 transparent #1a1714 transparent;
+    animation: tab-ring-spin 2.2s linear infinite;
+  }
+
+  &__ring-inner {
+    inset: 8px;
+    border-width: 2px;
+    border-color: transparent #6b6460 transparent #6b6460;
+    animation: tab-ring-spin-reverse 1.6s linear infinite;
+  }
+
+  &__mark {
+    display: flex;
+    align-items: baseline;
+    gap: bl(0.45);
+    white-space: nowrap;
+  }
+
+  &__mark-chapter {
+    font-family: $font-serif;
+    font-size: 16px;
+    color: #1a1714;
+    letter-spacing: 0.08em;
+  }
+
+  &__mark-sep {
+    @include folio-mono;
+    font-size: 12px;
+    color: #d4cec9;
+  }
+
+  &__mark-title {
+    font-family: $font-serif;
+    font-size: 16px;
+    color: #6b6460;
+    letter-spacing: 0.18em;
+  }
+}
+
+@keyframes tab-ring-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes tab-ring-spin-reverse {
+  to { transform: rotate(-360deg); }
+}

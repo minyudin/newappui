@@ -1,0 +1,520 @@
+@use 'sass:color';
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+/* ============================================================
+ *  §4 · 任务详情 · WORK ORDER (派工单印刷页)
+ *  · 无圆角 · 无阴影 · 钤印 + hairline + leader dots
+ * ============================================================ */
+
+.wo-page {
+  min-height: 100vh;
+  background: $paper;
+  padding: bl(3) bl(2.5) calc(bl(4) + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: bl(1.75);
+}
+
+// ============================================================
+//   · 页头 · 双 hairline 包夹"WORK ORDER / 派工单"
+// ============================================================
+.wo-head {
+  display: flex;
+  flex-direction: column;
+  gap: bl(0.5);
+
+  &__rule {
+    height: 1px;
+    background: $ink;
+
+    &--double {
+      position: relative;
+      height: 3px;
+      background: transparent;
+      border-top: 1px solid $ink;
+      border-bottom: 1px solid $ink;
+    }
+  }
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: bl(1);
+  }
+
+  &__seal {
+    @include folio-mono;
+    font-size: 20px;
+    letter-spacing: 0.28em;
+    color: $ink;
+    text-transform: uppercase;
+  }
+
+  &__subtitle {
+    font-family: $font-serif;
+    font-size: 28px;
+    letter-spacing: 0.35em;
+    color: $ink;
+    font-weight: 500;
+  }
+}
+
+// ============================================================
+//   · 工单编号 · 大号等宽, 模仿粮票/车票的中央编码区
+// ============================================================
+.wo-ticket {
+  margin-top: bl(0.5);
+  padding: bl(1.25) bl(1.5);
+  @include hairline-all;
+  border-color: $ink;
+  background: $paper-light;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: bl(0.6);
+  overflow: hidden;
+
+  &__prefix {
+    font-family: $font-mono;
+    font-size: 56px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: $ink;
+    line-height: 1;
+  }
+
+  &__body {
+    font-family: $font-mono;
+    font-size: 32px;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    color: $ink-soft;
+    line-height: 1;
+    word-break: break-all;
+  }
+}
+
+.wo-ticket-caption {
+  @include folio-mono;
+  font-size: 16px;
+  letter-spacing: 0.35em;
+  color: $ink-faint;
+  text-align: center;
+  margin-top: -#{bl(1)};
+  padding-bottom: bl(0.5);
+}
+
+// ============================================================
+//   · 动作 + 状态 pill + risk + reasons
+// ============================================================
+.wo-action {
+  display: flex;
+  flex-direction: column;
+  gap: bl(0.4);
+  padding: bl(1.25) 0;
+  @include hairline-soft-top;
+  @include hairline-soft-bottom;
+
+  &__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: bl(1);
+  }
+
+  &__title {
+    font-family: $font-serif;
+    font-size: 42px;
+    font-weight: 500;
+    color: $ink;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+  }
+
+  &__status {
+    @include folio-mono;
+    font-size: 18px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    padding: bl(0.4) bl(1);
+    @include hairline-all;
+    color: $ink;
+    background: $paper-light;
+    border-color: $line;
+
+    &--waiting { background: soften($sand, 55%); border-color: $sand; color: color.adjust($sand, $lightness: -38%); }
+    &--running { background: soften($sage, 55%); border-color: $sage; color: color.adjust($sage, $lightness: -30%); }
+    &--success { background: soften($sage, 40%); border-color: $sage; color: color.adjust($sage, $lightness: -35%); }
+    &--fail    { background: soften($clay, 55%); border-color: $clay; color: $clay; }
+    &--cancel  { background: $paper-light; border-color: $line-soft; color: $ink-faint; }
+  }
+
+  &__sub {
+    display: flex;
+    align-items: baseline;
+    gap: bl(0.4);
+    flex-wrap: wrap;
+  }
+
+  &__type {
+    @include folio-mono;
+    font-size: 18px;
+    color: $ink-soft;
+    letter-spacing: 0.12em;
+  }
+
+  &__dot {
+    color: $ink-faint;
+  }
+
+  &__risk {
+    @include folio-mono;
+    font-size: 16px;
+    letter-spacing: 0.24em;
+    padding: 2px bl(0.5);
+    @include hairline-all;
+    border-color: $line-soft;
+    background: $paper-light;
+    color: $ink;
+
+    &--low    { border-color: $sage;  color: color.adjust($sage, $lightness: -30%); background: soften($sage, 70%); }
+    &--medium { border-color: $sand;  color: color.adjust($sand, $lightness: -42%); background: soften($sand, 55%); }
+    &--high   { border-color: $clay;  color: $clay; background: soften($clay, 65%); }
+    &--review { border-color: $plum;  color: color.adjust($plum, $lightness: -22%); background: soften($plum, 70%); }
+  }
+
+  &__reasons {
+    @include folio-em;
+    font-size: 20px;
+    color: $ink-soft;
+    line-height: 1.4;
+  }
+}
+
+// ============================================================
+//   · 步骤表 · 6 段圆点 (含 review)
+//     mark 字体用 ◼ ◑ ◯, 无渐变无圆角, 只靠 hairline 隔断
+// ============================================================
+.wo-steps {
+  display: grid;
+  gap: 0;
+  @include hairline-top;
+  @include hairline-bottom;
+
+  &--4 { grid-template-columns: repeat(4, 1fr); }
+  &--5 { grid-template-columns: repeat(5, 1fr); }
+}
+
+.wo-step {
+  padding: bl(1.1) bl(0.25);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  @include hairline-soft-right;
+  text-align: center;
+  transition: background 0.2s $ease-folio;
+
+  &:last-child { border-right: none; }
+
+  &__mark {
+    font-family: $font-serif;
+    font-size: 26px;
+    line-height: 1;
+    color: $ink-faint;
+    letter-spacing: 0;
+  }
+
+  &__label {
+    font-family: $font-serif;
+    font-size: 22px;
+    color: $ink-soft;
+    line-height: 1.1;
+  }
+
+  &__sub {
+    @include folio-mono;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    color: $ink-faint;
+  }
+
+  &--done &__mark { color: $ink; }
+  &--done &__label { color: $ink-soft; }
+  &--done &__sub { color: $ink-soft; }
+
+  &--current {
+    background: $paper-light;
+  }
+  &--current &__mark { color: var(--accent-current, #{$farm-green}); }
+  &--current &__label {
+    color: $ink;
+    font-weight: 600;
+  }
+  &--current &__sub { color: var(--accent-current, #{$farm-green}); }
+}
+
+// ============================================================
+//   · 排队提示 · 编号式
+// ============================================================
+.wo-queue {
+  @include hairline-all;
+  border-color: $ink;
+  background: $paper;
+  padding: bl(1) bl(1.25);
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: baseline;
+  gap: bl(0.75);
+
+  &__key {
+    @include folio-mono;
+    font-size: 18px;
+    letter-spacing: 0.28em;
+    color: $ink-faint;
+  }
+
+  &__val {
+    font-family: $font-serif;
+    font-size: 38px;
+    font-weight: 600;
+    color: $ink;
+    line-height: 1;
+  }
+
+  &__sub {
+    @include folio-mono;
+    font-size: 16px;
+    letter-spacing: 0.14em;
+    color: $ink-soft;
+  }
+}
+
+// ============================================================
+//   · 失败原因 · clay 侧带
+// ============================================================
+.wo-fail {
+  padding: bl(1.25) bl(1.5);
+  background: soften($clay, 80%);
+  @include hairline-all;
+  border-color: $clay;
+  border-left-width: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: bl(0.4);
+
+  &__seal {
+    @include folio-mono;
+    font-size: 18px;
+    letter-spacing: 0.3em;
+    color: $clay;
+  }
+
+  &__msg {
+    font-family: $font-serif;
+    font-size: 24px;
+    color: $ink;
+    line-height: 1.5;
+  }
+}
+
+// ============================================================
+//   · 元信息表 · leader dots (……) 连接 key 和 value
+//     经典印刷品目录感, 墨气十足
+// ============================================================
+.wo-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  @include hairline-top;
+}
+
+.wo-row {
+  display: grid;
+  grid-template-columns: bl(6) 1fr auto;
+  align-items: baseline;
+  gap: bl(0.75);
+  padding: bl(0.875) 0;
+  @include hairline-soft-bottom;
+
+  &:last-child { border-bottom: none; }
+
+  &__key {
+    @include folio-mono;
+    font-size: 18px;
+    letter-spacing: 0.24em;
+    color: $ink-faint;
+    text-transform: uppercase;
+  }
+
+  &__leader {
+    height: 1px;
+    background-image: radial-gradient($ink-faint 35%, transparent 40%);
+    background-size: 6px 1px;
+    background-repeat: repeat-x;
+    align-self: center;
+    opacity: 0.55;
+  }
+
+  &__val {
+    font-family: $font-serif;
+    font-size: 24px;
+    font-weight: 500;
+    color: $ink;
+    line-height: 1.25;
+    word-break: break-all;
+    text-align: right;
+
+    &--mono {
+      font-family: $font-mono;
+      font-size: 22px;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+    }
+  }
+}
+
+// ============================================================
+//   · 盖章区 · 成功 / 失败 / 作废
+// ============================================================
+.wo-stamp {
+  margin-top: bl(0.5);
+  align-self: flex-end;
+  padding: bl(0.8) bl(1.1);
+  @include hairline-all;
+  border-width: 2px;
+  display: inline-flex;
+  align-items: baseline;
+  gap: bl(0.6);
+  transform: rotate(-3deg);
+  transform-origin: right center;
+  opacity: 0.88;
+
+  &__seal {
+    font-family: $font-serif;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    line-height: 1;
+  }
+
+  &__meta {
+    @include folio-mono;
+    font-size: 15px;
+    letter-spacing: 0.18em;
+    color: $ink-soft;
+  }
+
+  &--passed {
+    border-color: var(--accent-current, #{$farm-green});
+    background: var(--accent-current-soft, #{soften($sage, 78%)});
+    .wo-stamp__seal { color: var(--accent-current, #{$farm-green}); }
+  }
+  &--fail {
+    border-color: $clay;
+    background: soften($clay, 75%);
+    .wo-stamp__seal { color: $clay; }
+  }
+  &--void {
+    border-color: $ink-faint;
+    background: $paper-light;
+    transform: rotate(-6deg);
+    .wo-stamp__seal { color: $ink-faint; }
+  }
+}
+
+// ============================================================
+//   · 底部按钮
+// ============================================================
+.wo-action-btn {
+  @include button-reset;
+  padding: bl(1.5) bl(2.5);
+  @include folio-mono;
+  font-size: 22px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  text-align: center;
+  transition: background 0.2s $ease-folio;
+
+  &::after { content: none; border: none; }
+
+  &--cancel {
+    background: $paper;
+    color: $clay;
+    @include hairline-all;
+    border-color: $clay;
+    &:active:not([disabled]) { background: soften($clay, 80%); }
+    &[disabled] { color: $ink-faint; border-color: $line-soft; }
+  }
+
+  &--back {
+    margin-top: bl(0.5);
+    background: $ink;
+    color: $paper;
+    &:active { background: $ink-soft; }
+  }
+}
+
+// ============================================================
+//   · 错误 / 占位态
+// ============================================================
+.wo-placeholder {
+  padding: bl(8) bl(2);
+  text-align: center;
+  @include folio-mono;
+  color: $ink-faint;
+  font-size: 22px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+}
+
+.wo-err-box {
+  margin-top: bl(4);
+  padding: bl(3) bl(2.5);
+  @include hairline-all;
+  background: $paper-light;
+  display: flex;
+  flex-direction: column;
+  gap: bl(1.25);
+
+  &__seal {
+    @include folio-seal;
+    font-size: 18px;
+    color: $clay;
+    letter-spacing: 0.35em;
+  }
+
+  &__msg {
+    font-family: $font-serif;
+    font-size: 24px;
+    color: $ink;
+    line-height: 1.45;
+  }
+
+  &__retry,
+  &__back {
+    @include button-reset;
+    padding: bl(1.25) bl(2);
+    @include folio-mono;
+    font-size: 20px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    &::after { content: none; border: none; }
+  }
+
+  &__retry {
+    background: $ink;
+    color: $paper;
+    &:active:not([disabled]) { background: $ink-soft; }
+    &[disabled] { background: $ink-faint; }
+  }
+
+  &__back {
+    background: $paper;
+    color: $ink;
+    @include hairline-all;
+    &:active { background: $paper-light; }
+  }
+}

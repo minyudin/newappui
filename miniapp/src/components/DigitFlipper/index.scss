@@ -1,0 +1,88 @@
+@use 'sass:color';
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+/* ============================================================
+ *  DigitFlipper · 翻牌数字
+ * ============================================================ */
+
+.flip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: bl(0.4);
+
+  &__row {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0;
+  }
+
+  &__cell {
+    display: inline-block;
+    overflow: hidden;
+    position: relative;
+    line-height: 1;
+  }
+
+  &__char {
+    display: inline-block;
+    font-family: $font-serif;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: $ink;
+    line-height: 1;
+    transform-origin: center bottom;
+  }
+
+  /* 翻动: 从下方滑入并稍微缩 - 0.36s · ease-folio */
+  &__char--flipping {
+    animation: flip-in 0.36s $ease-folio both;
+  }
+
+  &__unit {
+    @include folio-mono;
+    color: $ink-soft;
+    font-size: 0.45em;
+    letter-spacing: 0.08em;
+  }
+
+  &--mono &__char,
+  &--mono &__unit {
+    font-family: $font-mono;
+    font-weight: 400;
+  }
+
+  /* size variants · 用 cell font-size 控制整体 */
+  &--default {
+    font-size: 42px;
+  }
+  &--hero {
+    font-size: 56px;
+  }
+  &--compact {
+    font-size: 22px;
+  }
+  &--default &__char { font-size: inherit; }
+  &--hero &__char    { font-size: inherit; }
+  &--compact &__char { font-size: inherit; }
+
+  /* 告警态 · 砖红 + 一次呼吸 */
+  &--alert &__char {
+    color: $clay;
+    animation: flip-pulse 1.6s $ease-breath infinite, flip-in 0.36s $ease-folio both;
+  }
+  &--alert &__char:not(&__char--flipping) {
+    animation: flip-pulse 1.6s $ease-breath infinite;
+  }
+}
+
+@keyframes flip-in {
+  0%   { transform: translateY(60%); opacity: 0; }
+  60%  { transform: translateY(-6%); opacity: 1; }
+  100% { transform: translateY(0);   opacity: 1; }
+}
+
+@keyframes flip-pulse {
+  0%, 100% { color: $clay; opacity: 0.92; }
+  50%      { color: color.adjust($clay, $lightness: -8%); opacity: 1; }
+}

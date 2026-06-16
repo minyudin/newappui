@@ -1,0 +1,42 @@
+@use '@/styles/tokens' as *;
+
+.page-quote {
+  display: flex;
+  align-items: stretch;
+  gap: bl(0.8);
+  padding: bl(0.5) 0;
+
+  &__bar {
+    width: 4px;
+    background: var(--accent-current, #{$farm-green});
+    align-self: stretch;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: bl(0.15);
+    padding: bl(0.2) 0;
+  }
+
+  &__text {
+    font-family: $font-serif;
+    font-style: italic;
+    font-size: 22px;
+    color: $ink-soft;
+    line-height: 1.45;
+    letter-spacing: 0.02em;
+  }
+
+  &__source {
+    font-family: $font-folio;
+    font-size: 14px;
+    color: $ink-faint;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  &--sand &__bar { background: $sand; }
+  &--clay &__bar { background: $clay; }
+}

@@ -1,0 +1,494 @@
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+/* ============================================================
+ *  §00 · HOME · Compact Folio (小程序紧凑版)
+ *  保留: 衬线印章 + hairline + 等宽 mono
+ *  删除: 100vh hero · 视差 · 双 ticker · §FIN · scroll hint
+ * ============================================================ */
+
+.home-page {
+  min-height: 100vh;
+  background: $paper;
+  padding: 0 0 calc(bl(8) + env(safe-area-inset-bottom));
+  overflow-x: hidden;
+}
+
+// ============================================================
+//  HERO · 紧凑印章条 (~180rpx)
+// ============================================================
+.hero {
+  padding: bl(1.5) bl(2) bl(1.25);
+  @include hairline-bottom;
+  display: flex;
+  flex-direction: column;
+  gap: bl(1);
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  &__seal {
+    @include folio-seal;
+    font-size: 18px;
+    color: $ink;
+    letter-spacing: 0.32em;
+  }
+
+  &__stamp {
+    @include folio-mono;
+    font-size: 18px;
+    color: $ink-faint;
+    letter-spacing: 0.12em;
+  }
+
+  &__main {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: bl(1.5);
+    align-items: end;
+  }
+
+  &__main-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4rpx;
+    min-width: 0;
+  }
+
+  &__term {
+    font-family: $font-serif;
+    font-size: 44px;
+    font-weight: 500;
+    color: $ink;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+  }
+
+  &__pentad {
+    @include folio-em;
+    font-size: 22px;
+    color: $ink-soft;
+    line-height: 1.3;
+  }
+
+  &__main-right {
+    display: flex;
+    flex-direction: column;
+    gap: 2rpx;
+    align-items: flex-end;
+    text-align: right;
+    min-width: 0;
+  }
+
+  &__greet {
+    font-family: $font-serif;
+    font-size: 26px;
+    color: $ink;
+    line-height: 1.2;
+  }
+
+  &__role {
+    @include folio-mono;
+    font-size: 16px;
+    color: $ink-faint;
+    letter-spacing: 0.16em;
+  }
+}
+
+// ============================================================
+//  Ticker (1 条, 不再是双道)
+// ============================================================
+.ticker {
+  border-top: 1px solid $ink;
+  border-bottom: 1px solid $line-soft;
+  padding: bl(0.625) 0;
+  background: $paper;
+}
+
+// ============================================================
+//  通用 Section (紧凑版 padding bl(1.5) bl(2))
+// ============================================================
+.section {
+  padding: bl(1.5) bl(2);
+
+  &__head {
+    display: flex;
+    align-items: baseline;
+    gap: bl(0.75);
+    margin-bottom: bl(1);
+    @include hairline-soft-bottom;
+    padding-bottom: bl(0.5);
+  }
+
+  &__seal {
+    @include folio-seal;
+    font-size: 18px;
+    color: $ink;
+    letter-spacing: 0.28em;
+  }
+
+  &__title {
+    font-family: $font-serif;
+    font-size: 32px;
+    font-weight: 500;
+    color: $ink;
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+
+  &__title-en {
+    @include folio-em;
+    font-size: 18px;
+    color: $ink-faint;
+    letter-spacing: 0.16em;
+    margin-left: auto;
+  }
+
+  &--coda {
+    padding: bl(2) bl(2);
+  }
+}
+
+// ============================================================
+//  REC · 红呼吸点 (§02 此刻 头部)
+// ============================================================
+.rec {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  margin-left: bl(0.75);
+
+  &__dot {
+    width: 10rpx;
+    height: 10rpx;
+    border-radius: 50%;
+    background: $clay;
+    animation: rec-pulse 1.4s ease-in-out infinite;
+  }
+
+  &__text {
+    @include folio-mono;
+    font-size: 16px;
+    color: $clay;
+    letter-spacing: 0.3em;
+  }
+}
+
+@keyframes rec-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.4); }
+}
+
+// ============================================================
+//  §01 关注 · 3 数字卡
+// ============================================================
+.focus-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: bl(1);
+}
+
+.focus-cell {
+  padding: bl(0.75) 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: bl(0.25);
+  cursor: pointer;
+  transition: opacity 0.2s $ease-folio;
+
+  &:active { opacity: 0.6; }
+
+  &__num {
+    font-family: $font-serif;
+    line-height: 1;
+  }
+
+  &__label {
+    font-family: $font-serif;
+    font-size: 22px;
+    color: $ink;
+    line-height: 1.2;
+
+    &--alert { color: $clay; }
+  }
+
+  &__rule {
+    width: 100%;
+    height: 2px;
+    background: $ink;
+    margin-top: bl(0.5);
+
+    &--alert { background: $clay; }
+  }
+}
+
+// ============================================================
+//  §02 此刻 · 4 mini cells
+// ============================================================
+.now-plot {
+  @include folio-mono;
+  font-size: 18px;
+  color: $ink-soft;
+  letter-spacing: 0.18em;
+  margin-bottom: bl(0.875);
+  display: block;
+}
+
+.now-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: bl(0.75) bl(1.5);
+  margin-bottom: bl(1);
+}
+
+.now-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  padding: bl(0.5) 0;
+  border-bottom: 1px solid $line-soft;
+
+  &__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__label {
+    @include folio-mono;
+    font-size: 18px;
+    color: $ink-faint;
+    letter-spacing: 0.18em;
+  }
+
+  &__trend {
+    font-family: $font-serif;
+    font-size: 22px;
+
+    &--up { color: $sage; }
+    &--down { color: $sand; }
+    &--flat { color: $ink-faint; }
+  }
+
+  &__num-row {
+    display: flex;
+    align-items: baseline;
+    gap: 4rpx;
+  }
+
+  &__num {
+    font-family: $font-serif;
+    font-size: 36px;
+    font-weight: 500;
+    color: $ink;
+    letter-spacing: -0.015em;
+    line-height: 1;
+  }
+
+  &__unit {
+    @include folio-mono;
+    font-size: 18px;
+    color: $ink-faint;
+    letter-spacing: 0.06em;
+  }
+}
+
+.now-cta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: bl(0.75) 0;
+  border-top: 2px solid $ink;
+  border-bottom: 2px solid $ink;
+  cursor: pointer;
+  transition: background 0.2s $ease-folio;
+
+  &:active { background: $paper-light; }
+
+  &__text {
+    font-family: $font-serif;
+    font-size: 24px;
+    color: $ink;
+    font-weight: 500;
+  }
+
+  &__arrow {
+    font-family: $font-serif;
+    font-size: 26px;
+    color: $ink;
+  }
+}
+
+// ============================================================
+//  §03 推荐 · Editorial 序号
+// ============================================================
+.rec-row {
+  display: grid;
+  grid-template-columns: bl(3) 1fr;
+  gap: bl(1);
+  padding: bl(0.875) 0;
+  border-top: 1px solid $line-soft;
+
+  &:last-child { border-bottom: 1px solid $line-soft; }
+
+  &__no {
+    font-family: $font-serif;
+    font-size: 40px;
+    font-weight: 400;
+    color: $ink-faint;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 4rpx;
+    min-width: 0;
+  }
+
+  &__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: bl(0.5);
+  }
+
+  &__title {
+    font-family: $font-serif;
+    font-size: 26px;
+    color: $ink;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  &__tag {
+    @include folio-mono;
+    font-size: 14px;
+    color: $ink-faint;
+    letter-spacing: 0.28em;
+  }
+
+  &__desc {
+    @include folio-em;
+    font-size: 20px;
+    color: $ink-soft;
+    line-height: 1.5;
+  }
+}
+
+// ============================================================
+//  §04 入口 · 角色感知 4 卡
+// ============================================================
+.entries {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.entry {
+  display: grid;
+  grid-template-columns: bl(2.5) 1fr bl(2);
+  gap: bl(1);
+  padding: bl(1) 0;
+  align-items: center;
+  border-top: 1px solid $line-soft;
+  cursor: pointer;
+  transition: background 0.2s $ease-folio;
+
+  &:last-child { border-bottom: 1px solid $line-soft; }
+  &:active { background: $paper-light; }
+
+  &--primary {
+    background: $ink;
+    padding: bl(1.25) bl(1);
+    border-color: $ink;
+
+    .entry__seal,
+    .entry__title,
+    .entry__sub,
+    .entry__arrow {
+      color: $paper;
+    }
+    .entry__seal { color: $paper-light; }
+    .entry__sub { opacity: 0.78; }
+  }
+
+  &__seal {
+    @include folio-seal;
+    font-size: 16px;
+    color: $ink-faint;
+    letter-spacing: 0.32em;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 2rpx;
+    min-width: 0;
+  }
+
+  &__title {
+    font-family: $font-serif;
+    font-size: 26px;
+    color: $ink;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  &__sub {
+    @include folio-em;
+    font-size: 18px;
+    color: $ink-soft;
+    line-height: 1.4;
+  }
+
+  &__arrow {
+    font-family: $font-serif;
+    font-size: 24px;
+    color: $ink-faint;
+    text-align: right;
+  }
+
+  &--primary .entry__title { font-size: 28px; }
+}
+
+// ============================================================
+//  §05 番外 · 一句引文
+// ============================================================
+.coda {
+  text-align: center;
+  padding: bl(1) 0 bl(0.75);
+  @include hairline-soft-bottom;
+
+  &__quote {
+    font-family: $font-serif;
+    font-size: 28px;
+    color: $ink;
+    line-height: 1.5;
+    font-style: italic;
+    display: block;
+  }
+
+  &__source {
+    @include folio-em;
+    font-size: 18px;
+    color: $ink-faint;
+    margin-top: bl(0.5);
+    display: block;
+  }
+
+  &__set {
+    @include folio-mono;
+    font-size: 16px;
+    color: $ink-faint;
+    letter-spacing: 0.2em;
+    text-align: center;
+    margin-top: bl(1);
+    display: block;
+  }
+}

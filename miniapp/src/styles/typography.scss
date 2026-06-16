@@ -1,0 +1,28 @@
+@use './tokens' as *;
+@use './mixins' as *;
+
+/* ============================================================
+ *  Typography · Longarch Miniapp · 印刷品基因
+ *  小程序无 h1~h4 实体, 统一用 folio-* class 控字形
+ * ============================================================ */
+
+// 全局印章文字类
+.folio-seal    { @include folio-seal; }
+.folio-mono    { @include folio-mono; }
+.folio-title   { @include folio-title; }
+.folio-body    { @include folio-body; }
+.folio-em      { @include folio-em; }
+
+.folio-small {
+  font-size: 22px;
+  color: $ink-faint;
+  letter-spacing: 0.02em;
+}
+
+// 衬线正文块
+.folio-prose {
+  font-family: $font-serif;
+  font-size: 32px;
+  line-height: 1.65;
+  color: $ink;
+}

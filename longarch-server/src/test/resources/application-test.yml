@@ -1,0 +1,60 @@
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:longarch_test;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;DATABASE_TO_UPPER=FALSE;NON_KEYWORDS=USER
+    username: sa
+    password:
+  sql:
+    init:
+      mode: always
+      encoding: UTF-8
+      schema-locations: classpath:schema-h2.sql
+      data-locations: classpath:data-test.sql
+      continue-on-error: true
+  flyway:
+    enabled: false
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 123456
+      database: 1
+      timeout: 3000ms
+
+# Sa-Token 配置
+sa-token:
+  token-name: satoken
+  token-prefix:
+  timeout: 7200
+  is-concurrent: true
+  is-share: false
+  token-style: uuid
+  is-log: false
+
+wechat:
+  miniapp:
+    app-id: wx_test_appid
+    app-secret: wx_test_secret
+    stub-mode: true
+
+zhipu:
+  api-key: test_key
+  model: glm-4-flash
+  base-url: https://open.bigmodel.cn/api/paas/v4
+
+ai:
+  scheduled-analysis:
+    enabled: false
+
+xxl:
+  job:
+    enabled: false
+
+longarch:
+  admin:
+    seed:
+      enabled: false
+  rate-limit:
+    enabled: false
+

@@ -1,0 +1,302 @@
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+.topbar {
+  grid-area: topbar;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 bl(3);
+  @include hairline-soft-bottom;
+  background: $paper-light;
+  gap: bl(2);
+
+  &__left {
+    display: flex;
+    align-items: baseline;
+    gap: bl(1);
+    min-width: 0;
+    flex: 1 1 auto;
+    /* 拥挤时把溢出截断而不是顶向右栏 */
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  &__seal {
+    @include folio-mono;
+    font-size: 11px;
+    color: $ink-faint;
+    letter-spacing: 0.12em;
+    flex-shrink: 0;
+  }
+
+  &__sep {
+    color: $ink-faint;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+
+  &__title-cn {
+    font-family: $font-sans;
+    font-size: 14px;
+    color: $ink;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+  }
+
+  &__title-en {
+    font-family: $font-serif;
+    font-style: italic;
+    font-size: 13px;
+    color: $ink-soft;
+    margin-left: bl(0.5);
+    flex-shrink: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* 900 以下连英文标题都让位, 给 ALL CLEAR / 用户 chip 优先权 */
+  @media (max-width: 899px) {
+    &__title-en { display: none; }
+  }
+
+  /* ---- 节气印章 〈 立夏 · 第 1 候 · 蝼蝈鸣 〉 ---- */
+  &__pentad {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+    margin-left: bl(2);
+    padding: bl(0.4) bl(1);
+    @include hairline-soft-left;
+    @include hairline-soft-right;
+    font-family: $font-serif;
+    font-size: 12px;
+    color: var(--accent-current, #{$ink-soft});
+    user-select: none;
+    cursor: default;
+    flex-shrink: 0;
+    /* 用 CSS 变量 --accent-current (节气主题色) 让印章随季节染色 */
+  }
+
+  /* 在 1280px 以下隐藏候名 (蝼蝈鸣 那段最长), 节气 + 第 N 候 仍保留 */
+  @media (max-width: 1279px) {
+    &__pentad-name { display: none; }
+    &__pentad-dot:last-of-type { display: none; }
+  }
+
+  /* 1024 以下整个节气印章退出 topbar (Sidebar 仍显示) · 让出 right 区 */
+  @media (max-width: 1023px) {
+    &__pentad { display: none; }
+  }
+
+  &__pentad-bracket {
+    color: $ink-faint;
+    font-size: 11px;
+  }
+
+  &__pentad-term {
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+
+  &__pentad-dot {
+    color: $ink-faint;
+    font-size: 11px;
+    margin: 0 1px;
+  }
+
+  &__pentad-idx {
+    @include folio-mono;
+    font-size: 10px;
+    color: $ink-soft;
+    letter-spacing: 0.05em;
+  }
+
+  &__pentad-name {
+    font-style: italic;
+    color: $ink-soft;
+    font-size: 12px;
+  }
+
+  /* 季节级 fallback (当 --accent-current 未注入时使用) */
+  &__pentad--spring { color: #3d5a3f; }
+  &__pentad--summer { color: #7d8a5a; }
+  &__pentad--autumn { color: #6b5537; }
+  &__pentad--winter { color: #3a546e; }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: bl(2);
+    flex-shrink: 0;
+  }
+
+  /* 1280 以下: 平台名让位; 1024 以下: ⌘K 文字让位, 仅留 chip */
+  @media (max-width: 1279px) {
+    &__platform { display: none; }
+  }
+  @media (max-width: 1023px) {
+    &__cmd-label { display: none; }
+    /* 用户 chip 只留 nickname, role 让位 */
+    &__user-role { display: none; }
+    /* gap 变小, 节约横向空间 */
+    &__right { gap: bl(1); }
+  }
+
+  /* ---- 异常 badge ---- */
+  &__alerts {
+    display: inline-flex;
+    align-items: center;
+    gap: bl(0.75);
+    padding: bl(0.5) bl(1.25);
+    background: transparent;
+    border: 1px solid $line-soft;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s $ease-folio, border-color 0.2s $ease-folio;
+    line-height: 1;
+
+    &:hover { background: $paper-deep; }
+  }
+
+  &__alerts-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: $moss;
+    flex-shrink: 0;
+  }
+
+  &__alerts-count {
+    font-family: $font-serif;
+    font-size: 16px;
+    color: $clay;
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  &__alerts-label {
+    @include folio-mono;
+    font-size: 10px;
+    color: $ink-soft;
+    letter-spacing: 0.18em;
+  }
+
+  /* 有异常 · 砖红呼吸 */
+  &__alerts--has {
+    border-color: rgba($clay, 0.4);
+
+    .topbar__alerts-dot {
+      background: $clay;
+      animation: alerts-breath 1.6s $ease-breath infinite;
+    }
+    .topbar__alerts-label { color: $clay; }
+  }
+
+  /* 无异常 · 墨绿静止 */
+  &__alerts--clear {
+    .topbar__alerts-dot { background: $moss; }
+    .topbar__alerts-label { color: $moss; }
+  }
+
+  /* ---- ⌘K 命令面板提示 ---- */
+  &__cmd {
+    display: inline-flex;
+    align-items: center;
+    gap: bl(0.5);
+    padding: bl(0.5) bl(1);
+    background: transparent;
+    border: 1px solid $line-soft;
+    cursor: pointer;
+    transition: border-color 0.2s $ease-folio, background 0.2s $ease-folio;
+
+    &:hover {
+      border-color: $line;
+      background: $paper-deep;
+    }
+  }
+
+  &__cmd-key {
+    @include folio-mono;
+    font-size: 10px;
+    color: $ink-soft;
+    letter-spacing: 0.05em;
+  }
+
+  &__cmd-label {
+    font-family: $font-sans;
+    font-size: 11px;
+    color: $ink-faint;
+    letter-spacing: 0.1em;
+  }
+
+  &__platform {
+    @include folio-mono;
+    font-size: 10px;
+    color: $ink-faint;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  &__user {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    padding: 0 bl(1) 0 bl(2);
+    @include hairline-soft-left;
+
+    &-role {
+      @include folio-mono;
+      font-size: 9px;
+      color: $ink-faint;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    &-name {
+      font-family: $font-sans;
+      font-size: 13px;
+      color: $ink;
+      font-weight: 500;
+    }
+  }
+
+  &__logout {
+    font-family: $font-sans;
+    font-size: 12px;
+    color: $ink-soft;
+    background: transparent;
+    border: none;
+    padding: bl(0.75) bl(1.25);
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: color 0.2s $ease-folio;
+    flex-shrink: 0;
+    white-space: nowrap;
+
+    em {
+      font-family: $font-serif;
+      font-style: italic;
+      font-size: 10px;
+      color: $ink-faint;
+      margin-left: bl(0.5);
+    }
+
+    &:hover {
+      color: $clay;
+      em { color: $clay; }
+    }
+  }
+
+  /* 900 以下登出按钮也省略英文 */
+  @media (max-width: 899px) {
+    &__logout em { display: none; }
+  }
+}
+
+@keyframes alerts-breath {
+  0%, 100% { opacity: 0.55; transform: scale(0.95); }
+  50%      { opacity: 1;    transform: scale(1.15); }
+}

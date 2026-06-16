@@ -1,0 +1,44 @@
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+/**
+ * Marquee · 横向跑马字幕 · admin-next
+ * ============================================================ */
+
+.marquee {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 4px 0;
+
+  &--ruled {
+    @include hairline-soft-top;
+    @include hairline-soft-bottom;
+  }
+
+  &__track {
+    display: inline-flex;
+    will-change: transform;
+    animation: marquee-slide linear infinite;
+    animation-duration: 42s;
+  }
+
+  &__group {
+    @include folio-mono;
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    color: $ink-soft;
+    text-transform: uppercase;
+    padding-right: bl(2);
+    flex-shrink: 0;
+  }
+
+  &--faint &__group {
+    color: $ink-faint;
+  }
+}
+
+@keyframes marquee-slide {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}

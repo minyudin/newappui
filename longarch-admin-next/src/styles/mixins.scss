@@ -1,0 +1,74 @@
+@use 'sass:math';
+@use './tokens' as *;
+
+/* ============================================================
+ *  SCSS Mixins · Longarch Folio
+ *  hairline · folio-seal · print-safe · grid
+ *  源自 museum-folio/src/styles/mixins.scss
+ * ============================================================ */
+
+// 顶线 · 底线 · hairline 边框
+@mixin hairline-top    { border-top:    1px solid $line; }
+@mixin hairline-bottom { border-bottom: 1px solid $line; }
+@mixin hairline-left   { border-left:   1px solid $line; }
+@mixin hairline-right  { border-right:  1px solid $line; }
+@mixin hairline-all    { border:        1px solid $line; }
+
+@mixin hairline-soft-top    { border-top:    1px solid $line-soft; }
+@mixin hairline-soft-bottom { border-bottom: 1px solid $line-soft; }
+@mixin hairline-soft-left   { border-left:   1px solid $line-soft; }
+@mixin hairline-soft-right  { border-right:  1px solid $line-soft; }
+
+// Folio 编号条纹 (左上角印章式)
+@mixin folio-seal {
+  font-family: $font-folio;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: $ink-soft;
+  text-transform: uppercase;
+}
+
+// 学术标题 (章页标题)
+@mixin folio-title {
+  font-family: $font-serif;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: $ink;
+  line-height: 1.15;
+}
+
+// 说明文字 (正文)
+@mixin folio-body {
+  font-family: $font-sans;
+  font-weight: 400;
+  color: $ink;
+  line-height: 1.6;
+}
+
+// 编号 / 数字 / 代码
+@mixin folio-mono {
+  font-family: $font-mono;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
+// 12 列栅格
+@mixin grid-12($gap: $gutter) {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: $gap;
+}
+
+// baseline 对齐高度 (8 的倍数)
+@function bl($n) {
+  @return $baseline * $n;
+}
+
+// 打印友好 (隐藏非必要)
+@mixin print-hide {
+  @media print { display: none !important; }
+}
+@mixin print-only {
+  display: none;
+  @media print { display: block !important; }
+}

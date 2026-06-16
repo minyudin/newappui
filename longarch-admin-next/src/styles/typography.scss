@@ -1,0 +1,84 @@
+@use './tokens' as *;
+@use './mixins' as *;
+
+/* ============================================================
+ *  Typography · Longarch Folio
+ *  印刷品基因 · 学术 · 衬线 + 等宽
+ *  源自 museum-folio/src/styles/typography.scss
+ * ============================================================ */
+
+html {
+  font-family: $font-sans;
+  font-size: 14px;
+  line-height: 1.6;
+  color: $ink;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "tnum" 1, "kern" 1, "liga" 0;
+}
+
+// 学术标题
+h1, h2, h3, h4 {
+  @include folio-title;
+  margin: 0;
+}
+
+h1 { font-size: 56px; line-height: 1.05; letter-spacing: -0.02em; }
+h2 { font-size: 36px; line-height: 1.15; }
+h3 { font-size: 24px; line-height: 1.25; }
+h4 { font-size: 18px; line-height: 1.35; }
+
+// 正文
+p {
+  margin: 0 0 bl(2) 0;
+  @include folio-body;
+}
+
+// 链接
+a {
+  color: $ink;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  transition: opacity 0.2s $ease-folio;
+
+  &:hover { opacity: 0.6; }
+}
+
+// 代码 / 编号
+code, kbd, .folio-mono {
+  @include folio-mono;
+  font-size: 0.92em;
+}
+
+// Folio 印章
+.folio-seal {
+  @include folio-seal;
+}
+
+// 正文衬线用的
+.folio-prose {
+  font-family: $font-serif;
+  font-size: 16px;
+  line-height: 1.65;
+  color: $ink;
+}
+
+// 斜体强调 (学术注疏感)
+em, .folio-em {
+  font-family: $font-serif;
+  font-style: italic;
+  color: $ink-soft;
+}
+
+// 小字次级 (印刷品的脚注)
+small, .folio-small {
+  font-size: 11px;
+  color: $ink-faint;
+  letter-spacing: 0.02em;
+}
+
+// 选择样式
+::selection {
+  background: $sage;
+  color: $paper-light;
+}

@@ -1,0 +1,161 @@
+@use 'sass:color';
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+/**
+ * TaskStatusStrip · 任务状态 KPI 条
+ * ============================================================ */
+
+.task-strip {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  @include hairline-all;
+  background: $paper-light;
+  overflow: hidden;
+}
+
+/* 1280 以下: 字距收紧 + 小一档, 防 CANCELLED 溢出 */
+@media (max-width: 1279px) {
+  .task-strip__cell-en {
+    font-size: 8px !important;
+    letter-spacing: 0.18em !important;
+  }
+  .task-strip .flip { font-size: 26px; }
+  .task-strip__cell-cn { font-size: 10px !important; }
+}
+
+/* 1024 以下: 7 列变 4 列两行, 让每格 ≥ 95px */
+@media (max-width: 1023px) {
+  .task-strip { grid-template-columns: repeat(4, 1fr); }
+  .task-strip__cell:nth-child(n+5) {
+    @include hairline-soft-top;
+  }
+  .task-strip__cell:nth-child(4n+1) {
+    border-left: none;
+  }
+  .task-strip__cell-en {
+    font-size: 9px !important;
+    letter-spacing: 0.2em !important;
+  }
+  .task-strip .flip { font-size: 28px; }
+}
+
+/* 640 以下: 2 列 (按重要度排, ALL + 异常 + ...) */
+@media (max-width: 639px) {
+  .task-strip { grid-template-columns: repeat(2, 1fr); }
+  .task-strip__cell:nth-child(n+3) {
+    @include hairline-soft-top;
+  }
+  .task-strip__cell:nth-child(2n+1) {
+    border-left: none;
+  }
+}
+
+.task-strip__cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: bl(1.5) bl(1.25);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: background 0.2s $ease-folio;
+  /* 让 grid 子格能收缩: DigitFlipper 内部 inline-flex 不会撑爆 */
+  min-width: 0;
+  overflow: hidden;
+
+  &:not(:first-child) {
+    @include hairline-soft-left;
+  }
+
+  &:hover {
+    background: rgba($sage, 0.06);
+  }
+
+  &--zero {
+    .task-strip__cell-num { color: $ink-faint; }
+    /* 零计数时整体灰一档, 不抢主目光 */
+  }
+
+  /* 选中态: 顶部 2px 锚条 + 加深底色 */
+  &--active {
+    background: rgba($sage, 0.1);
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: $sage;
+    }
+  }
+
+  /* hue 变体 · 选中时锚条颜色对应状态 */
+  &--all.task-strip__cell--active::before    { background: $ink; }
+  &--sand.task-strip__cell--active::before   { background: $sand; }
+  &--fog.task-strip__cell--active::before    { background: $fog; }
+  &--moss.task-strip__cell--active::before   { background: $moss; }
+  &--sage.task-strip__cell--active::before   { background: $sage; }
+  &--clay.task-strip__cell--active::before   { background: $clay; }
+  &--neutral.task-strip__cell--active::before { background: $ink-soft; }
+
+  &--all.task-strip__cell--active     { background: rgba(45, 42, 38, 0.06); }
+  &--sand.task-strip__cell--active    { background: rgba(217, 201, 168, 0.18); }
+  &--fog.task-strip__cell--active     { background: rgba(160, 188, 208, 0.18); }
+  &--moss.task-strip__cell--active    { background: rgba(155, 170, 122, 0.18); }
+  &--sage.task-strip__cell--active    { background: rgba(159, 181, 142, 0.18); }
+  &--clay.task-strip__cell--active    { background: rgba(197, 130, 106, 0.16); }
+  &--neutral.task-strip__cell--active { background: rgba(138, 133, 123, 0.14); }
+}
+
+.task-strip__cell-en {
+  @include folio-mono;
+  font-size: 9px;
+  letter-spacing: 0.32em;
+  color: $ink-faint;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.task-strip__cell-num {
+  /* DigitFlipper 内部已 size default = 32px serif */
+  color: $ink;
+  /* hue 变体着色 */
+  .task-strip__cell--sand & { color: color.adjust($sand, $lightness: -25%); }
+  .task-strip__cell--fog & { color: color.adjust($fog, $lightness: -20%); }
+  .task-strip__cell--moss & { color: $moss; }
+  .task-strip__cell--sage & { color: color.adjust($sage, $lightness: -10%); }
+  .task-strip__cell--clay & { color: $clay; }
+}
+
+.task-strip__cell-cn {
+  font-family: $font-sans;
+  font-size: 11px;
+  color: $ink-soft;
+  letter-spacing: 0.05em;
+}
+
+/* 状态前的呼吸点 (running / pending / failed) */
+.task-strip__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  display: inline-block;
+  animation: task-strip-breath 1.6s $ease-breath infinite;
+}
+
+.task-strip__cell--moss .task-strip__dot { background: $moss; color: $moss; }
+.task-strip__cell--clay .task-strip__dot { background: $clay; color: $clay; }
+.task-strip__cell--sand .task-strip__dot { background: $sand; color: $sand; }
+
+@keyframes task-strip-breath {
+  0%, 100% { opacity: 0.55; transform: scale(0.85); }
+  50%      { opacity: 1;   transform: scale(1.2); }
+}

@@ -1,0 +1,10 @@
+node_modules/
+dist/
+deploy_versions/
+.temp/
+.rn_temp/
+.DS_Store
+*.local
+*.log
+.idea/
+project.private.config.json

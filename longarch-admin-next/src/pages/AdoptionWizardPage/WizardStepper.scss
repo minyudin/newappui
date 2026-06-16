@@ -1,0 +1,187 @@
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+/**
+ * WizardStepper · 4 步进度条
+ * ============================================================ */
+
+.wiz-step {
+  @include hairline-all;
+  background: $paper-light;
+  padding: bl(1.5) bl(2);
+  display: flex;
+  flex-direction: column;
+  gap: bl(1);
+}
+
+.wiz-step__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.wiz-step__seal {
+  @include folio-mono;
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  color: $ink-faint;
+}
+
+.wiz-step__pct {
+  font-family: $font-serif;
+  font-weight: 500;
+  font-size: 18px;
+  color: $sage;
+  letter-spacing: 0.02em;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* 进度条 */
+.wiz-step__bar {
+  height: 2px;
+  background: $line-soft;
+  position: relative;
+  overflow: hidden;
+}
+
+.wiz-step__bar-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: $sage;
+  transition: width 0.5s $ease-folio;
+}
+
+/* 步骤列表 */
+.wiz-step__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 12px 1fr 12px 1fr 12px 1fr;
+  align-items: center;
+  gap: 0;
+}
+
+@media (max-width: 800px) {
+  .wiz-step__list {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .wiz-step__line { display: none; }
+}
+
+.wiz-step__item {
+  display: contents;
+}
+
+.wiz-step__item-btn {
+  display: flex;
+  align-items: center;
+  gap: bl(1);
+  padding: bl(0.5) bl(1);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  width: 100%;
+  transition: background 0.2s $ease-folio;
+
+  &:hover {
+    background: rgba($sage, 0.06);
+  }
+}
+
+/* mark · 圆 (空心 / 实心 / sage 呼吸点 / 绿勾) */
+.wiz-step__item-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: $font-serif;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid $line;
+  background: $paper;
+  color: $ink-faint;
+  transition: background 0.25s $ease-folio, color 0.25s $ease-folio,
+    border-color 0.25s $ease-folio;
+}
+
+.wiz-step__item-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.wiz-step__item-en {
+  @include folio-mono;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: $ink-soft;
+  text-transform: uppercase;
+}
+
+.wiz-step__item-cn {
+  font-family: $font-sans;
+  font-size: 13px;
+  color: $ink-faint;
+  letter-spacing: 0.05em;
+}
+
+/* === state: pending === */
+/* 默认就是 pending */
+
+/* === state: active === */
+.wiz-step__item--active {
+  .wiz-step__item-mark {
+    background: $paper-light;
+    border-color: $sage;
+    color: $sage;
+  }
+  .wiz-step__item-en { color: $sage; }
+  .wiz-step__item-cn { color: $ink; font-weight: 500; }
+}
+
+.wiz-step__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: $sage;
+  display: inline-block;
+  animation: wiz-step-breath 1.6s $ease-breath infinite;
+}
+
+@keyframes wiz-step-breath {
+  0%, 100% { opacity: 0.55; transform: scale(0.85); }
+  50%      { opacity: 1; transform: scale(1.2); }
+}
+
+/* === state: done === */
+.wiz-step__item--done {
+  .wiz-step__item-mark {
+    background: $sage;
+    border-color: $sage;
+    color: $paper-light;
+  }
+  .wiz-step__item-cn { color: $ink; }
+}
+
+/* 连接线 */
+.wiz-step__line {
+  height: 1px;
+  background: $line-soft;
+  align-self: center;
+  /* 在 grid 单元里居中拉满 */
+  width: 100%;
+}
+
+/* done 之间的连接线染 sage */
+.wiz-step__item--done + .wiz-step__line {
+  background: $sage;
+}

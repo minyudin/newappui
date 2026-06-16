@@ -1,0 +1,48 @@
+@use './styles/tokens' as *;
+@use './styles/mixins' as *;
+
+.swatch-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: bl(2);
+}
+
+.swatch {
+  display: flex;
+  gap: bl(1.5);
+  align-items: center;
+  padding: bl(1.5);
+  @include hairline-all;
+
+  &__chip {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    @include hairline-all;
+  }
+
+  &__meta {
+    display: flex;
+    flex-direction: column;
+    gap: bl(0.5);
+  }
+
+  &__name {
+    @include folio-mono;
+    font-size: 11px;
+    color: $ink-soft;
+    letter-spacing: 0.1em;
+  }
+
+  &__hex {
+    @include folio-mono;
+    font-size: 10px;
+    color: $ink-faint;
+  }
+}
+
+.type-row {
+  display: flex;
+  flex-direction: column;
+  gap: bl(1.5);
+}

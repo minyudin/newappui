@@ -1,0 +1,368 @@
+.opwb {
+  min-height: 100vh;
+  padding: 18px 16px 28px;
+  background: #f5f0eb;
+  color: #1a1714;
+  position: relative;
+  overflow: hidden;
+}
+
+// 纸本纹理 + 暗角（克制版本）
+.opwb::before {
+  content: '';
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(circle at 18% 8%, rgba(255, 255, 255, 0.45), transparent 55%),
+    radial-gradient(circle at 88% 20%, rgba(255, 255, 255, 0.22), transparent 55%),
+    radial-gradient(circle at 45% 92%, rgba(26, 23, 20, 0.06), transparent 60%),
+    repeating-linear-gradient(
+      110deg,
+      rgba(26, 23, 20, 0.012) 0px,
+      rgba(26, 23, 20, 0.012) 2px,
+      rgba(255, 255, 255, 0.0) 3px,
+      rgba(255, 255, 255, 0.0) 9px
+    );
+  opacity: 0.7;
+  pointer-events: none;
+  transform: rotate(-2deg);
+}
+
+.opwb::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 48%, rgba(26, 23, 20, 0.055) 100%);
+  pointer-events: none;
+}
+
+.opwb-head,
+.opwb-tabs,
+.opwb-body,
+.opwb-refresh {
+  position: relative;
+}
+
+.opwb-head {
+  padding: 14px 14px 10px;
+  border: 1px solid rgba(26, 23, 20, 0.12);
+  border-radius: 14px;
+  background: rgba(241, 239, 234, 0.72);
+  box-shadow:
+    0 10px 22px rgba(26, 23, 20, 0.07),
+    0 1px 0 rgba(255, 255, 255, 0.3) inset;
+
+  &__seal {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    color: rgba(26, 23, 20, 0.6);
+  }
+  &__title {
+    display: block;
+    font-size: 20px;
+    letter-spacing: 0.08em;
+    margin-top: 6px;
+  }
+  &__lede {
+    display: block;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    color: rgba(26, 23, 20, 0.52);
+    margin-top: 4px;
+  }
+
+  &__state {
+    display: block;
+    margin-top: 8px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: rgba(26, 23, 20, 0.56);
+  }
+}
+
+.opwb-tabs {
+  margin-top: 12px;
+  display: flex;
+  gap: 0;
+  border-top: 1px solid rgba(26, 23, 20, 0.1);
+  border-bottom: 1px solid rgba(26, 23, 20, 0.1);
+  background: rgba(255, 255, 255, 0.32);
+}
+
+.opwb-tab {
+  flex: 1;
+  padding: 11px 10px;
+  border-right: 1px solid rgba(26, 23, 20, 0.1);
+  background: transparent;
+  color: rgba(26, 23, 20, 0.65);
+  text-align: center;
+  transition: background-color 160ms ease;
+
+  &:last-child {
+    border-right: none;
+  }
+
+  &--active {
+    background: rgba(197, 130, 106, 0.12);
+    color: rgba(26, 23, 20, 0.92);
+    box-shadow: inset 0 -2px 0 rgba(197, 130, 106, 0.62);
+  }
+
+  &:active {
+    background: rgba(255, 255, 255, 0.48);
+  }
+
+  &__text {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+  }
+}
+
+.opwb-body {
+  margin-top: 12px;
+}
+
+.opwb-card {
+  border: 1px solid rgba(26, 23, 20, 0.12);
+  border-radius: 14px;
+  background: rgba(241, 239, 234, 0.72);
+  overflow: hidden;
+  box-shadow:
+    0 12px 24px rgba(26, 23, 20, 0.07),
+    0 1px 0 rgba(255, 255, 255, 0.3) inset;
+}
+
+.opwb-subtabs {
+  display: flex;
+  gap: 0;
+  padding: 10px 14px 12px;
+  border-bottom: 1px solid rgba(26, 23, 20, 0.08);
+}
+
+.opwb-subtab {
+  flex: 1;
+  padding: 8px 10px;
+  border-right: 1px solid rgba(26, 23, 20, 0.1);
+  background: rgba(255, 255, 255, 0.36);
+  color: rgba(26, 23, 20, 0.65);
+  text-align: center;
+  transition: background-color 160ms ease;
+
+  &:last-child {
+    border-right: none;
+  }
+
+  &--active {
+    background: rgba(26, 23, 20, 0.08);
+    color: rgba(26, 23, 20, 0.92);
+    box-shadow: inset 0 -2px 0 rgba(26, 23, 20, 0.28);
+  }
+
+  &:active {
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  &__text {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+  }
+}
+
+.opwb-empty {
+  padding: 22px 14px;
+  text-align: center;
+
+  &__text {
+    font-size: 12px;
+    color: rgba(26, 23, 20, 0.55);
+    letter-spacing: 0.08em;
+  }
+}
+
+.opwb-item {
+  padding: 14px 14px;
+  border-bottom: 1px solid rgba(26, 23, 20, 0.08);
+  position: relative;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  // 列表段落的“印刷感”左边界：风险越高越明显（高/中/低）
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: rgba(26, 23, 20, 0.0);
+  }
+
+  &:active {
+    background: rgba(255, 255, 255, 0.62);
+  }
+
+  &--active {
+    background: rgba(197, 130, 106, 0.1);
+    box-shadow: inset 3px 0 0 rgba(197, 130, 106, 0.6);
+  }
+
+  &__meta {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  &__no {
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    color: rgba(26, 23, 20, 0.92);
+  }
+
+  &__dim {
+    font-size: 11px;
+    color: rgba(26, 23, 20, 0.55);
+    letter-spacing: 0.08em;
+  }
+
+  &__state {
+    font-size: 11px;
+    color: rgba(26, 23, 20, 0.72);
+    letter-spacing: 0.08em;
+  }
+
+  &__badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
+  &__reason {
+    display: block;
+    margin-top: 8px;
+    font-size: 11px;
+    color: rgba(26, 23, 20, 0.62);
+    letter-spacing: 0.04em;
+    word-break: break-all;
+  }
+
+  &__ops {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    align-items: center;
+  }
+}
+
+.opwb-plot {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(26, 23, 20, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  &__left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  &__name {
+    font-size: 14px;
+    color: rgba(26, 23, 20, 0.92);
+  }
+  &__dim {
+    font-size: 11px;
+    color: rgba(26, 23, 20, 0.55);
+    letter-spacing: 0.08em;
+  }
+}
+
+.opwb-badge {
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  border: 1px solid rgba(26, 23, 20, 0.12);
+  color: rgba(26, 23, 20, 0.8);
+  background: rgba(255, 255, 255, 0.35);
+
+  &--clay {
+    background: rgba(161, 79, 56, 0.12);
+    border-color: rgba(161, 79, 56, 0.25);
+  }
+  &--sand {
+    background: rgba(197, 130, 106, 0.10);
+    border-color: rgba(197, 130, 106, 0.22);
+  }
+  &--moss {
+    background: rgba(60, 118, 88, 0.10);
+    border-color: rgba(60, 118, 88, 0.22);
+  }
+  &--fog {
+    background: rgba(26, 23, 20, 0.06);
+    border-color: rgba(26, 23, 20, 0.12);
+  }
+  &--ink {
+    background: rgba(26, 23, 20, 0.02);
+    border-color: rgba(26, 23, 20, 0.10);
+  }
+}
+
+.opwb-btn {
+  font-size: 12px !important;
+  line-height: 1 !important;
+  padding: 8px 10px !important;
+  border-radius: 14px !important;
+}
+
+.opwb-btn--ghost {
+  background: rgba(255, 255, 255, 0.72) !important;
+  border: 1px solid rgba(26, 23, 20, 0.12) !important;
+  color: rgba(26, 23, 20, 0.86) !important;
+  box-shadow:
+    0 10px 18px rgba(26, 23, 20, 0.07),
+    0 1px 0 rgba(255, 255, 255, 0.35) inset;
+
+  &:active:not([disabled]) {
+    transform: translateY(1px);
+    background: rgba(255, 255, 255, 0.62) !important;
+    box-shadow:
+      0 7px 14px rgba(26, 23, 20, 0.06),
+      0 1px 0 rgba(255, 255, 255, 0.25) inset;
+  }
+}
+
+.opwb-btn--primary {
+  background: rgba(26, 23, 20, 0.86) !important;
+  border: 1px solid rgba(26, 23, 20, 0.2) !important;
+  color: #f5f0eb !important;
+}
+
+.opwb-btn--danger {
+  background: rgba(161, 79, 56, 0.1) !important;
+  border: 1px solid rgba(161, 79, 56, 0.36) !important;
+  color: rgba(122, 53, 34, 0.98) !important;
+}
+
+.opwb-refresh {
+  margin-top: 14px;
+  border-radius: 14px !important;
+  background: rgba(26, 23, 20, 0.88) !important;
+  border: 1px solid rgba(26, 23, 20, 0.2) !important;
+}
+
+.opwb-refresh__text {
+  color: #f5f0eb;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+}
+

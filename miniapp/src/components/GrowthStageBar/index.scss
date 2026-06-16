@@ -1,0 +1,128 @@
+@use 'sass:color';
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+/* ============================================================
+ *  GrowthStageBar · 生长阶段进度条
+ *  书本阅读进度条风 · hairline 连线 + 同心圆当前点
+ * ============================================================ */
+
+.growth-bar {
+  display: flex;
+  flex-direction: column;
+  gap: bl(0.5);
+  padding: bl(1.25) 0 bl(0.5);
+
+  // ---- 5 节点水平轨道 ----
+  &__track {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    padding: 0 bl(0.5);
+  }
+
+  // hairline 连接线 · 从第 1 个 dot 中心到第 5 个 dot 中心
+  // 位置: top = dot 中心垂直高度 (dot 外径 28px 一半 = 14px)
+  &__line {
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    top: 13px;
+    height: 1px;
+    background: $line-soft;
+    z-index: 0;
+  }
+
+  &__node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: bl(0.45);
+    position: relative;
+    z-index: 1;
+  }
+
+  // 未到达阶段 · 空心小圆
+  &__dot {
+    width: 28px;
+    height: 28px;
+    box-sizing: border-box;
+    border: 1.5px solid $line;
+    background: $paper;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s $ease-folio;
+
+    // 已过阶段 · 墨色实心 (像书页已翻过的折角)
+    &--done {
+      background: $ink-soft;
+      border-color: $ink-soft;
+    }
+
+    // 当前阶段 · 同心圆 (外环田绿 + 内心田绿点)
+    // 比其他点大一号, 是视觉锚点
+    &--active {
+      width: 34px;
+      height: 34px;
+      border-width: 2px;
+      border-color: $farm-green;
+      background: $paper-light;
+    }
+  }
+
+  &__dot-inner {
+    width: 14px;
+    height: 14px;
+    background: $farm-green;
+    border-radius: 50%;
+  }
+
+  // ---- 阶段名标签 ----
+  &__label {
+    font-family: $font-sans;
+    font-size: 15px;
+    font-weight: 400;
+    color: $ink-faint;
+    letter-spacing: 0.04em;
+    line-height: 1;
+
+    &--done {
+      color: $ink-soft;
+    }
+
+    &--active {
+      color: $farm-green;
+      font-weight: 600;
+      font-size: 16px;
+    }
+  }
+
+  // ---- 下方注脚: 当前 · 抽穗期 ----
+  &__caption {
+    display: flex;
+    align-items: baseline;
+    gap: bl(0.5);
+    margin-top: bl(0.75);
+    padding-top: bl(0.75);
+    @include hairline-soft-top;
+  }
+
+  &__caption-key {
+    font-family: $font-sans;
+    font-size: 16px;
+    font-weight: 400;
+    color: $ink-soft;
+    letter-spacing: 0.04em;
+  }
+
+  &__caption-val {
+    font-family: $font-serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: $farm-green;
+    letter-spacing: 0.02em;
+  }
+}

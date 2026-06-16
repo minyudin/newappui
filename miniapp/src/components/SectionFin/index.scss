@@ -1,0 +1,44 @@
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+.section-fin {
+  margin-top: bl(1);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: bl(0.3);
+
+  &__rule {
+    width: bl(4);
+    height: 1px;
+    background: $line-soft;
+  }
+
+  &__text {
+    @include folio-mono;
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    color: $ink-faint;
+    line-height: 1;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: baseline;
+  }
+
+  &__meta {
+    color: $ink-soft;
+    letter-spacing: 0.12em;
+    text-transform: none;
+  }
+
+  &__time {
+    color: $ink-faint;
+    letter-spacing: 0.08em;
+    text-transform: none;
+  }
+
+  &__dot {
+    color: $ink-faint;
+    margin: 0 2px;
+  }
+}

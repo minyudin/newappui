@@ -1,0 +1,173 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:longarch}?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:longarch}
+    password: ${DB_PASSWORD:}
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 30
+      idle-timeout: 30000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: ${REDIS_DB:0}
+      timeout: 3000ms
+
+# 微信小程序
+wechat:
+  miniapp:
+    app-id: ${WX_APP_ID:}
+    app-secret: ${WX_APP_SECRET:}
+    stub-mode: false
+
+# 智谱 GLM AI
+zhipu:
+  api-key: ${ZHIPU_API_KEY:}
+  model: ${ZHIPU_MODEL:glm-4-flash}
+  base-url: https://open.bigmodel.cn/api/paas/v4
+
+# AI 定时分析
+ai:
+  scheduled-analysis:
+    enabled: true
+    cron: "0 0 6,12,18 * * ?"
+
+# MQTT 设备通信
+mqtt:
+  broker-url: ${MQTT_BROKER_URL:}
+  client-id: ${MQTT_CLIENT_ID:longarch-server-prod}
+  auth-mode: ${MQTT_AUTH_MODE:mtls}
+  username: ${MQTT_USERNAME:}
+  password: ${MQTT_PASSWORD:}
+  command-topic-prefix: ${MQTT_CMD_PREFIX:longarch/device/command/}
+  callback-topic: ${MQTT_CB_TOPIC:longarch/device/callback/#}
+  callback-topic-prefix: ${MQTT_CB_PREFIX:longarch/device/callback/}
+  telemetry-topic-prefix: ${MQTT_TELE_PREFIX:longarch/device/telemetry/}
+  heartbeat-topic-prefix: ${MQTT_HB_PREFIX:longarch/device/heartbeat/}
+  qos: 1
+  command-qos: ${MQTT_COMMAND_QOS:1}
+  callback-qos: ${MQTT_CALLBACK_QOS:1}
+  telemetry-qos: ${MQTT_TELEMETRY_QOS:1}
+  heartbeat-qos: ${MQTT_HEARTBEAT_QOS:1}
+  command-ttl-seconds: ${MQTT_COMMAND_TTL_SECONDS:300}
+  max-payload-bytes: ${MQTT_MAX_PAYLOAD_BYTES:65536}
+  strict-device-identity: ${MQTT_STRICT_DEVICE_IDENTITY:true}
+  require-message-id: ${MQTT_REQUIRE_MESSAGE_ID:true}
+  require-timestamp: ${MQTT_REQUIRE_TIMESTAMP:true}
+  allowed-clock-skew-seconds: ${MQTT_ALLOWED_CLOCK_SKEW_SECONDS:300}
+  replay-window-seconds: ${MQTT_REPLAY_WINDOW_SECONDS:600}
+  replay-cache-max-entries: ${MQTT_REPLAY_CACHE_MAX_ENTRIES:10000}
+  completion-timeout: 30000
+  keep-alive-interval: 60
+  connection-timeout: 10
+  ssl:
+    enabled: ${MQTT_SSL_ENABLED:true}
+    trust-store: ${MQTT_SSL_TRUST_STORE:}
+    trust-store-password: ${MQTT_SSL_TRUST_STORE_PASSWORD:}
+    trust-store-type: ${MQTT_SSL_TRUST_STORE_TYPE:PKCS12}
+    key-store: ${MQTT_SSL_KEY_STORE:}
+    key-store-password: ${MQTT_SSL_KEY_STORE_PASSWORD:}
+    key-store-type: ${MQTT_SSL_KEY_STORE_TYPE:PKCS12}
+    protocol: ${MQTT_SSL_PROTOCOL:TLS}
+
+# 业务默认值
+business-defaults:
+  default-farm-id: ${BIZ_DEFAULT_FARM_ID:1}
+  default-farm-name: ${BIZ_DEFAULT_FARM_NAME:陇上基地}
+  user-no-prefix: ${BIZ_USER_PREFIX:U}
+  order-no-prefix: ${BIZ_ORDER_PREFIX:AO}
+  adoption-code-prefix: ${BIZ_CODE_PREFIX:LSGJ-}
+  plot-no-prefix: ${BIZ_PLOT_PREFIX:PLOT-}
+  crop-batch-no-prefix: ${BIZ_BATCH_PREFIX:CB-}
+  default-operation-whitelist:
+    - irrigation_apply
+    - fertilize_apply
+  platform-name: ${BIZ_PLATFORM_NAME:陇上认养}
+  dashboard-title: ${BIZ_DASHBOARD_TITLE:韶山市稻梦田园智慧大棚监控平台}
+  dashboard-subtitle: ${BIZ_DASHBOARD_SUBTITLE:银田镇 · 实时数据总览}
+
+# 大屏 Dashboard Token
+dashboard:
+  token: ${DASHBOARD_TOKEN:}
+
+# 流媒体服务器（SRS）
+media-server:
+  api-base: ${SRS_API_BASE:http://localhost:1985}
+  rtmp-base: ${SRS_RTMP_BASE:rtmp://localhost:1935}
+  http-flv-base: ${SRS_HTTP_FLV_BASE:http://localhost:8880}
+  hls-base: ${SRS_HLS_BASE:http://localhost:8880}
+  live-app: live
+  playback-app: playback
+
+# XXL-JOB
+xxl:
+  job:
+    enabled: false
+    admin:
+      addresses: ${XXL_ADMIN_ADDR:http://localhost:8088/xxl-job-admin}
+    executor:
+      appname: longarch-executor
+      port: 9999
+      logpath: /opt/longarch/logs/xxl-job
+
+# 生产环境 Sa-Token Cookie: 仅 HTTPS 发送
+sa-token:
+  cookie:
+    secure: true
+
+# 生产环境关闭 SQL 日志
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.nop.NopImpl
+
+# 生产环境关闭 Swagger
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+knife4j:
+  enable: false
+
+# 日志
+logging:
+  level:
+    root: INFO
+    com.longarch: INFO
+  file:
+    name: /opt/longarch/logs/longarch-server.log
+
+longarch:
+  admin:
+    seed:
+      enabled: false
+  rate-limit:
+    enabled: true
+    wechat-login:
+      limit: 60
+      window-seconds: 60
+    admin-login:
+      limit: 20
+      window-seconds: 60
+    create-task:
+      limit: 30
+      window-seconds: 60
+    create-adoption-code:
+      limit: 20
+      window-seconds: 60
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true

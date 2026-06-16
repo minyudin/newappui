@@ -1,0 +1,95 @@
+@use 'sass:math';
+@use './tokens' as *;
+
+/* ============================================================
+ *  SCSS Mixins · Longarch Miniapp · Folio 印刷品语汇
+ *  对齐 admin-next/src/styles/mixins.scss
+ * ============================================================ */
+
+// ---- Hairline 分隔线 · 印刷品的灵魂 ----
+@mixin hairline-top    { border-top:    1px solid $line; }
+@mixin hairline-bottom { border-bottom: 1px solid $line; }
+@mixin hairline-left   { border-left:   1px solid $line; }
+@mixin hairline-right  { border-right:  1px solid $line; }
+@mixin hairline-all    { border:        1px solid $line; }
+
+@mixin hairline-soft-top    { border-top:    1px solid $line-soft; }
+@mixin hairline-soft-bottom { border-bottom: 1px solid $line-soft; }
+@mixin hairline-soft-left   { border-left:   1px solid $line-soft; }
+@mixin hairline-soft-right  { border-right:  1px solid $line-soft; }
+
+// ---- Folio 编号印章 (小字 · 大写 · 加字距) ----
+@mixin folio-seal {
+  font-family: $font-folio;
+  font-size: 22px;
+  letter-spacing: 0.15em;
+  color: $ink-soft;
+  text-transform: uppercase;
+}
+
+// ---- 学术标题 (章页标题 · 衬线) ----
+@mixin folio-title {
+  font-family: $font-serif;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: $ink;
+  line-height: 1.15;
+}
+
+// ---- 正文 ----
+@mixin folio-body {
+  font-family: $font-sans;
+  font-weight: 400;
+  color: $ink;
+  line-height: 1.6;
+}
+
+// ---- 编号 / 数字 / 代码 (等宽 + 数字对齐) ----
+@mixin folio-mono {
+  font-family: $font-mono;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
+// ---- 斜体注释 (衬线 · 学术感) ----
+@mixin folio-em {
+  font-family: $font-serif;
+  font-style: italic;
+  color: $ink-soft;
+  letter-spacing: 0.02em;
+}
+
+// ---- baseline 乘数 · 所有间距对齐 16 的倍数 ----
+@function bl($n) {
+  @return $baseline * $n;
+}
+
+/* ============================================================
+ *  button-reset · 必读
+ *  ------------------------------------------------------------
+ *  WeChat miniapp WXSS 不识别 `all: unset`, 所以过去写的
+ *  `all: unset` 其实什么都没做. WeChat <button> 默认有:
+ *    - font-size: 18px
+ *    - line-height: 2.55555556
+ *    - border-radius: 5px
+ *    - padding: 0 14px
+ *    - border 相关 (::after 已在 app.scss 全局 content:none)
+ *  本 mixin 把这些逐条归零, 给按钮一个干净白纸起点.
+ * ============================================================ */
+@mixin button-reset {
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: 1;            // 覆盖 WeChat 默认的 2.55
+  letter-spacing: inherit;
+  text-align: center;
+  text-transform: none;
+  box-sizing: border-box;
+  overflow: visible;
+}
