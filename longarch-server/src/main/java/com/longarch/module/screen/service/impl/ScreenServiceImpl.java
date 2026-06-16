@@ -106,10 +106,21 @@ public class ScreenServiceImpl implements ScreenService {
         Map<String, Object> environment = new LinkedHashMap<>();
         List<ScreenOverviewVO.PlotPointInfo> plotPoints = new ArrayList<>();
 
+        // 批量取本大棚下所有子点位的传感器，按 plotId 分组，避免逐点位查询
+        List<Long> childPlotIds = childPlots.stream().map(Plot::getId).collect(Collectors.toList());
+        Map<Long, List<SensorDevice>> sensorsByPlot = childPlotIds.isEmpty()
+                ? Collections.emptyMap()
+                : sensorDeviceMapper.selectList(
+                        new LambdaQueryWrapper<SensorDevice>()
+                                .in(SensorDevice::getPlotId, childPlotIds))
+                .stream()
+                .collect(Collectors.groupingBy(SensorDevice::getPlotId));
+
+        // 批量取所有传感器各指标最新读数，单次查询替代逐 sensor 的 N+1
+        Map<Long, List<SensorData>> latestBySensor = loadLatestBySensor(sensorsByPlot.values());
+
         for (Plot childPlot : childPlots) {
-            List<SensorDevice> sensors = sensorDeviceMapper.selectList(
-                    new LambdaQueryWrapper<SensorDevice>()
-                            .eq(SensorDevice::getPlotId, childPlot.getId()));
+            List<SensorDevice> sensors = sensorsByPlot.getOrDefault(childPlot.getId(), Collections.emptyList());
 
             boolean hasEnvSensor = sensors.stream().anyMatch(this::isEnvironmentSensor);
 
@@ -118,7 +129,7 @@ public class ScreenServiceImpl implements ScreenService {
                 vo.setCamera(buildCameraInfo(childPlot.getId()));
                 for (SensorDevice sensor : sensors) {
                     if (isEnvironmentSensor(sensor)) {
-                        for (SensorData data : getLatestSensorData(sensor.getId())) {
+                        for (SensorData data : latestBySensor.getOrDefault(sensor.getId(), Collections.emptyList())) {
                             environment.put(data.getSensorType(), data.getValue());
                         }
                     }
@@ -133,7 +144,7 @@ public class ScreenServiceImpl implements ScreenService {
                 LocalDateTime latestSample = null;
 
                 for (SensorDevice sensor : sensors) {
-                    for (SensorData data : getLatestSensorData(sensor.getId())) {
+                    for (SensorData data : latestBySensor.getOrDefault(sensor.getId(), Collections.emptyList())) {
                         sensorMap.put(data.getSensorType(), data.getValue());
                         if (data.getSampleAt() != null) {
                             if (latestSample == null || data.getSampleAt().isAfter(latestSample)) {
@@ -177,22 +188,22 @@ public class ScreenServiceImpl implements ScreenService {
     }
 
     /**
-     * 查传感器最新的各个指标（同一个传感器可能上报多种指标如 钾、氮、pH）
-     * 取每种指标最新的一条
+     * 批量查一组传感器最新的各个指标（同一个传感器可能上报多种指标如 钾、氮、pH），
+     * 单次 SQL 取每个 (sensor_id, sensor_type) 最新一条，按 sensorId 分组返回。
+     * 取代原先“逐 sensor LIMIT 50 + 内存去重”的 N+1。
      */
-    private List<SensorData> getLatestSensorData(Long sensorId) {
-        // 取该传感器最近 50 条数据，然后按 sensorType 去重取最新
-        List<SensorData> recentData = sensorDataMapper.selectList(
-                new LambdaQueryWrapper<SensorData>()
-                        .eq(SensorData::getSensorId, sensorId)
-                        .orderByDesc(SensorData::getSampleAt)
-                        .last("LIMIT 50"));
-
-        Map<String, SensorData> latestByType = new LinkedHashMap<>();
-        for (SensorData data : recentData) {
-            latestByType.putIfAbsent(data.getSensorType(), data);
+    private Map<Long, List<SensorData>> loadLatestBySensor(Collection<List<SensorDevice>> sensorGroups) {
+        List<Long> sensorIds = sensorGroups.stream()
+                .flatMap(List::stream)
+                .map(SensorDevice::getId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+        if (sensorIds.isEmpty()) {
+            return Collections.emptyMap();
         }
-        return new ArrayList<>(latestByType.values());
+        return sensorDataMapper.selectLatestPerType(sensorIds).stream()
+                .collect(Collectors.groupingBy(SensorData::getSensorId));
     }
 
     @Override

@@ -122,13 +122,21 @@ public class TaskDispatchServiceImpl implements TaskDispatchService {
                             .eq(SensorDevice::getPlotId, plotId));
             if (sensors.isEmpty()) return null;
 
+            // 批量取每个传感器各指标最新读数，单次查询替代逐 sensor 的 N+1
+            List<Long> sensorIds = sensors.stream()
+                    .map(SensorDevice::getId)
+                    .collect(java.util.stream.Collectors.toList());
+            Map<Long, SensorData> latestBySensor = new HashMap<>();
+            for (SensorData row : sensorDataMapper.selectLatestPerType(sensorIds)) {
+                latestBySensor.merge(row.getSensorId(), row, (a, b) ->
+                        b.getSampleAt() != null
+                                && (a.getSampleAt() == null || b.getSampleAt().isAfter(a.getSampleAt()))
+                                ? b : a);
+            }
+
             Map<String, Object> snapshot = new HashMap<>();
             for (SensorDevice sensor : sensors) {
-                SensorData latest = sensorDataMapper.selectOne(
-                        new LambdaQueryWrapper<SensorData>()
-                                .eq(SensorData::getSensorId, sensor.getId())
-                                .orderByDesc(SensorData::getSampleAt)
-                                .last("LIMIT 1"));
+                SensorData latest = latestBySensor.get(sensor.getId());
                 if (latest != null) {
                     Map<String, Object> reading = new HashMap<>();
                     reading.put("sensorType", sensor.getSensorType());
