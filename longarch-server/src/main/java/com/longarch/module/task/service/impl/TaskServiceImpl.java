@@ -372,6 +372,11 @@ public class TaskServiceImpl implements TaskService {
 
         Page<OperationTask> page = taskMapper.selectPage(new Page<>(pageNo, pageSize), wrapper);
 
+        // 批量预取本页涉及的地块，避免逐条 selectById 的 N+1
+        Map<Long, String> plotNameById = loadPlotNames(page.getRecords().stream()
+                .map(OperationTask::getPlotId)
+                .collect(Collectors.toList()));
+
         List<TaskListVO> voList = page.getRecords().stream().map(t -> {
             TaskListVO vo = new TaskListVO();
             vo.setTaskId(t.getId());
@@ -386,8 +391,7 @@ public class TaskServiceImpl implements TaskService {
             ActionType at = ActionType.fromValue(t.getActionType());
             vo.setActionName(at != null ? at.getLabel() : t.getActionType());
 
-            Plot plot = plotMapper.selectById(t.getPlotId());
-            vo.setPlotName(plot != null ? plot.getPlotName() : null);
+            vo.setPlotName(t.getPlotId() != null ? plotNameById.get(t.getPlotId()) : null);
             return vo;
         }).collect(Collectors.toList());
 
@@ -511,6 +515,22 @@ public class TaskServiceImpl implements TaskService {
         vo.setTaskId(taskId);
         vo.setTaskStatus(TaskStatus.CANCELLED.getValue());
         return vo;
+    }
+
+    /** 批量按 id 取地块名，去重 + 单次 IN 查询，避免 N+1 */
+    private Map<Long, String> loadPlotNames(Collection<Long> plotIds) {
+        Set<Long> ids = plotIds.stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        if (ids.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        return plotMapper.selectList(
+                        new LambdaQueryWrapper<Plot>()
+                                .select(Plot::getId, Plot::getPlotName)
+                                .in(Plot::getId, ids))
+                .stream()
+                .collect(Collectors.toMap(Plot::getId, Plot::getPlotName, (a, b) -> a));
     }
 
     private CreateTaskVO buildCreateTaskVO(OperationTask task) {
