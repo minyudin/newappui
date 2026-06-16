@@ -22,3 +22,7 @@ deploy_versions/
 
 # Miniapp private config
 project.private.config.json
+
+# local env & build artifacts
+.env
+miniapp/.swc/

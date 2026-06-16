@@ -62,8 +62,13 @@ public class ProductionStartupGuard implements InitializingBean {
             if (normalized.contains("localhost") || normalized.contains("127.0.0.1")) {
                 errors.add("mqtt.broker-url must not point to localhost in prod");
             }
-            if (normalized.startsWith("tcp://")) {
-                errors.add("mqtt.broker-url must use ssl:// in prod");
+            if (normalized.startsWith("tcp://") && !mqttProperties.isAllowInsecure()) {
+                errors.add("mqtt.broker-url must use ssl:// in prod "
+                        + "(or set mqtt.allow-insecure=true to allow plaintext tcp:// on a trusted internal network)");
+            }
+            if (normalized.startsWith("tcp://") && mqttProperties.isAllowInsecure()) {
+                log.warn("mqtt.allow-insecure=true: running MQTT over plaintext tcp:// in prod. "
+                        + "Ensure the broker is NOT reachable from the public internet.");
             }
         }
 

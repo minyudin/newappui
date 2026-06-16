@@ -43,6 +43,14 @@ public class MqttProperties {
     private long allowedClockSkewSeconds = 300;
     private long replayWindowSeconds = 600;
     private int replayCacheMaxEntries = 10000;
+    /**
+     * 明文无证书部署开关 · mqtt.allow-insecure
+     *  · false (默认) · 生产强制 ssl:// · 安全兜底, 防误把明文 broker 暴露公网
+     *  · true         · 允许生产使用明文 tcp:// · 不需要任何 TLS/证书
+     *                   仅当 broker 跑在内网/同机 (公网访问不到) 时使用
+     *  环境变量: MQTT_ALLOW_INSECURE=true
+     */
+    private boolean allowInsecure = false;
     private Ssl ssl = new Ssl();
 
     @Data

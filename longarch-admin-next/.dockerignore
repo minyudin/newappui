@@ -1,0 +1,8 @@
+node_modules
+dist
+dist-ssr
+*.tsbuildinfo
+.vite
+test-results
+coverage
+.DS_Store

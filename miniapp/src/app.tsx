@@ -76,9 +76,12 @@ function App({ children }: PropsWithChildren) {
     }
   }, [])
 
+  // FolioCorners / 模块切换遮罩都是 position:fixed 的纯装饰层, 视觉上与 DOM 顺序无关.
+  // 必须放在 {children} 之前: Taro H5 路由有规则
+  //   .taro_router > .taro_page.taro_page_show.taro_page_stationed:not(:last-child){display:none}
+  // 若装饰节点排在页面之后, 会把非 tab 页 (login/plot/task 等) 挤成非 last-child 而被整页隐藏 -> 白屏.
   return (
     <>
-      {children}
       <FolioCorners />
       {showModuleTransition ? (
         <View className='app-module-transition' aria-hidden>
@@ -95,6 +98,7 @@ function App({ children }: PropsWithChildren) {
           </View>
         </View>
       ) : null}
+      {children}
     </>
   )
 }
