@@ -14,9 +14,14 @@ import java.util.List;
 public class SaTokenConfig implements WebMvcConfigurer {
 
     private final WechatMiniProperties wechatMiniProperties;
+    private final EdgeAuthInterceptor edgeAuthInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        // S-01: Edge 接口走 Sa-Token 白名单，改由可选共享密钥（edge.api.token）兜底，默认关闭
+        registry.addInterceptor(edgeAuthInterceptor)
+                .addPathPatterns("/api/v1/edge/**");
+
         List<String> excludes = new ArrayList<>(List.of(
                 "/api/v1/auth/wechat-login",
                 "/api/v1/auth/guest-login",
