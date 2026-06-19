@@ -2,6 +2,7 @@ package com.longarch.module.admin.service.impl;
 
 import cn.hutool.core.util.IdUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.longarch.common.config.RateLimitProperties;
 import com.longarch.common.enums.ErrorCode;
@@ -1447,6 +1448,102 @@ public class AdminServiceImpl implements AdminService {
                 screenDeviceMapper.selectList(new LambdaQueryWrapper<ScreenDevice>())));
 
         vo.setDeviceStats(stats);
+        return vo;
+    }
+
+    /** 离线传感器条件：status='offline' 或 (lastSampleAt 非空且早于 30min 前)。每次返回新 wrapper 便于复用。 */
+    private LambdaQueryWrapper<SensorDevice> offlineSensorWrapper(LocalDateTime threshold) {
+        return new LambdaQueryWrapper<SensorDevice>()
+                .and(w -> w.eq(SensorDevice::getStatus, "offline")
+                        .or(o -> o.isNotNull(SensorDevice::getLastSampleAt)
+                                .lt(SensorDevice::getLastSampleAt, threshold)));
+    }
+
+    @Override
+    public DashboardSummaryVO getDashboardSummary() {
+        DashboardSummaryVO vo = new DashboardSummaryVO();
+
+        // ---- KPI 六卡（全量精确计数）----
+        DashboardSummaryVO.Kpi kpi = new DashboardSummaryVO.Kpi();
+        kpi.setUsers(userMapper.selectCount(new LambdaQueryWrapper<>()));
+        kpi.setOrders(orderMapper.selectCount(new LambdaQueryWrapper<>()));
+        kpi.setCodes(codeMapper.selectCount(new LambdaQueryWrapper<>()));
+        kpi.setPlots(plotMapper.selectCount(new LambdaQueryWrapper<>()));
+        kpi.setDevices(actuatorMapper.selectCount(new LambdaQueryWrapper<>()));
+        kpi.setTasks(taskMapper.selectCount(new LambdaQueryWrapper<>()));
+        vo.setKpi(kpi);
+        vo.setActuatorTotal(kpi.getDevices());
+        vo.setSensorTotal(sensorDeviceMapper.selectCount(new LambdaQueryWrapper<>()));
+
+        // ---- 任务状态分布（GROUP BY，一次查；饼图用）----
+        Map<String, Long> statusCounts = new LinkedHashMap<>();
+        long pending = 0L;
+        for (Map<String, Object> row : taskMapper.selectMaps(new QueryWrapper<OperationTask>()
+                .select("task_status", "count(*) AS cnt")
+                .groupBy("task_status"))) {
+            String status = row.get("task_status") == null ? "unknown" : String.valueOf(row.get("task_status"));
+            long cnt = ((Number) row.get("cnt")).longValue();
+            statusCounts.put(status, cnt);
+            if ("queued".equals(status) || "running".equals(status)) {
+                pending += cnt;
+            }
+        }
+        vo.setTaskStatusCounts(statusCounts);
+        vo.setPendingTaskCount(pending);
+
+        // ---- 离线传感器：count + 前 6（最久未上报优先）----
+        LocalDateTime offlineThreshold = LocalDateTime.now().minusMinutes(30);
+        vo.setOfflineSensorCount(sensorDeviceMapper.selectCount(offlineSensorWrapper(offlineThreshold)));
+        List<SensorDevice> offSensors = sensorDeviceMapper.selectList(
+                offlineSensorWrapper(offlineThreshold)
+                        .orderByAsc(SensorDevice::getLastSampleAt)
+                        .last("LIMIT 6"));
+        vo.setOfflineSensors(offSensors.stream().map(s -> {
+            DashboardSummaryVO.OfflineSensor os = new DashboardSummaryVO.OfflineSensor();
+            os.setSensorId(s.getId());
+            os.setSensorName(s.getSensorName());
+            os.setDeviceNo(s.getDeviceNo());
+            os.setLastSampleAt(s.getLastSampleAt() != null ? s.getLastSampleAt().format(FMT) : null);
+            return os;
+        }).toList());
+
+        // ---- 锁定设备：count + 前 6（批查 actuator/plot 名，避免 N+1）----
+        vo.setLockedDeviceCount(deviceLockMapper.selectCount(
+                new LambdaQueryWrapper<DeviceLock>().eq(DeviceLock::getLockStatus, "locked")));
+        List<DeviceLock> locks = deviceLockMapper.selectList(
+                new LambdaQueryWrapper<DeviceLock>()
+                        .eq(DeviceLock::getLockStatus, "locked")
+                        .orderByDesc(DeviceLock::getLockedAt)
+                        .last("LIMIT 6"));
+        Set<Long> lockDeviceIds = locks.stream().map(DeviceLock::getDeviceId)
+                .filter(Objects::nonNull).collect(Collectors.toSet());
+        Map<Long, ActuatorDevice> lockDeviceMap = lockDeviceIds.isEmpty() ? Map.of()
+                : actuatorMapper.selectBatchIds(lockDeviceIds).stream()
+                        .collect(Collectors.toMap(ActuatorDevice::getId, d -> d, (a, b) -> a));
+        Set<Long> lockPlotIds = lockDeviceMap.values().stream().map(ActuatorDevice::getPlotId)
+                .filter(Objects::nonNull).collect(Collectors.toSet());
+        Map<Long, String> lockPlotNameMap = lockPlotIds.isEmpty() ? Map.of()
+                : plotMapper.selectBatchIds(lockPlotIds).stream()
+                        .collect(Collectors.toMap(Plot::getId, Plot::getPlotName, (a, b) -> a));
+        vo.setLockedDevices(locks.stream().map(lock -> {
+            DashboardSummaryVO.LockedDevice ld = new DashboardSummaryVO.LockedDevice();
+            ld.setDeviceId(lock.getDeviceId());
+            ld.setCurrentTaskId(lock.getCurrentTaskId());
+            ActuatorDevice dev = lock.getDeviceId() != null ? lockDeviceMap.get(lock.getDeviceId()) : null;
+            if (dev != null) {
+                ld.setDeviceName(dev.getDeviceName());
+                ld.setDeviceNo(dev.getDeviceNo());
+                ld.setPlotName(dev.getPlotId() != null ? lockPlotNameMap.get(dev.getPlotId()) : null);
+            }
+            return ld;
+        }).toList());
+
+        // ---- 失败任务 / 最近任务：复用已 N+1-safe 的任务列表查询 ----
+        PageResult<TaskListVO> failed = listTasks(1, 6, null, "failed");
+        vo.setFailedTaskCount(failed.getTotal());
+        vo.setFailedTasks(failed.getList());
+        vo.setRecentTasks(listTasks(1, 5, null, null).getList());
+
         return vo;
     }
 

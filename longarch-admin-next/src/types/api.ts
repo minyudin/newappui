@@ -258,3 +258,39 @@ export interface DeviceOverview {
 export interface PlotSensorOverview {
   [key: string]: unknown
 }
+
+/** 仪表盘聚合 (GET /admin/dashboard-summary) · 后端 COUNT/GROUP BY 算好 */
+export interface DashboardOfflineSensor {
+  sensorId: number
+  sensorName?: string
+  deviceNo?: string
+  lastSampleAt?: string
+}
+export interface DashboardLockedDevice {
+  deviceId: number
+  deviceName?: string
+  deviceNo?: string
+  plotName?: string
+  currentTaskId?: number
+}
+export interface DashboardSummary {
+  kpi: {
+    users: number
+    orders: number
+    codes: number
+    plots: number
+    devices: number
+    tasks: number
+  }
+  taskStatusCounts: Record<string, number>
+  pendingTaskCount: number
+  sensorTotal: number
+  actuatorTotal: number
+  offlineSensorCount: number
+  lockedDeviceCount: number
+  failedTaskCount: number
+  offlineSensors: DashboardOfflineSensor[]
+  lockedDevices: DashboardLockedDevice[]
+  failedTasks: OperationTask[]
+  recentTasks: OperationTask[]
+}
