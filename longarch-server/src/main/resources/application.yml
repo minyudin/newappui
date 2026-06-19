@@ -81,6 +81,18 @@ longarch:
     create-adoption-code:
       limit: 30
       window-seconds: 60
+    guest-login:
+      limit: 30
+      window-seconds: 60
+    adoption-code-verify:
+      limit: 30
+      window-seconds: 60
+    check-nickname:
+      limit: 60
+      window-seconds: 60
+    ai-invoke:
+      limit: 20
+      window-seconds: 60
 
 ai:
   safety:

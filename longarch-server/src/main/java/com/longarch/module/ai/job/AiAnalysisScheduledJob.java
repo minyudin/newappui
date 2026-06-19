@@ -18,8 +18,9 @@ import java.util.List;
  * AI 定时数据分析任务
  * 周期性扫描所有活跃地块，逐个触发 AI 分析，生成建议存入数据库。
  * 配置项：
- *   ai.scheduled-analysis.enabled  — 总开关
- *   ai.scheduled-analysis.cron     — cron 表达式
+ *   ai.scheduled-analysis.enabled            — 总开关（默认关）
+ *   ai.scheduled-analysis.cron               — cron 表达式
+ *   ai.scheduled-analysis.max-plots-per-run  — 单次最多分析地块数（防小服务器一轮跑爆）
  */
 @Slf4j
 @Component
@@ -34,6 +35,10 @@ public class AiAnalysisScheduledJob {
 
     @Value("${ai.scheduled-analysis.enabled:false}")
     private boolean enabled;
+
+    /** 单轮最多分析的地块数，0/负数表示不限制。默认 50，避免地块多时一轮长时间占用 CPU/外网 IO。 */
+    @Value("${ai.scheduled-analysis.max-plots-per-run:50}")
+    private int maxPlotsPerRun;
 
     @Scheduled(cron = "${ai.scheduled-analysis.cron:0 0 6,12,18 * * ?}")
     public void executeAnalysis() {
@@ -55,7 +60,13 @@ public class AiAnalysisScheduledJob {
             return;
         }
 
-        log.info("发现 {} 个活跃地块，开始逐个分析", activePlots.size());
+        int total = activePlots.size();
+        if (maxPlotsPerRun > 0 && total > maxPlotsPerRun) {
+            log.warn("活跃地块 {} 个超过单轮上限 {}，本轮只分析前 {} 个，其余下轮处理",
+                    total, maxPlotsPerRun, maxPlotsPerRun);
+            activePlots = activePlots.subList(0, maxPlotsPerRun);
+        }
+        log.info("发现 {} 个活跃地块，本轮分析 {} 个", total, activePlots.size());
 
         int successCount = 0;
         int failCount = 0;
@@ -91,13 +102,16 @@ public class AiAnalysisScheduledJob {
         int totalDeleted = 0;
         for (Plot plot : plots) {
             try {
-                List<AiAnalysisRecord> records = analysisRecordMapper.selectList(
+                // 只查「超出最新 N 条」之外的待删 id（select id + LIMIT offset），
+                // 不再把整表记录全行拉进内存——记录多时省内存、省网络传输。
+                List<AiAnalysisRecord> stale = analysisRecordMapper.selectList(
                         new LambdaQueryWrapper<AiAnalysisRecord>()
+                                .select(AiAnalysisRecord::getId)
                                 .eq(AiAnalysisRecord::getPlotId, plot.getId())
-                                .orderByDesc(AiAnalysisRecord::getCreatedAt));
-                if (records.size() > MAX_RECORDS_PER_PLOT) {
-                    List<Long> idsToDelete = records.subList(MAX_RECORDS_PER_PLOT, records.size())
-                            .stream().map(AiAnalysisRecord::getId).toList();
+                                .orderByDesc(AiAnalysisRecord::getCreatedAt)
+                                .last("LIMIT " + MAX_RECORDS_PER_PLOT + ", " + Integer.MAX_VALUE));
+                if (!stale.isEmpty()) {
+                    List<Long> idsToDelete = stale.stream().map(AiAnalysisRecord::getId).toList();
                     analysisRecordMapper.deleteBatchIds(idsToDelete);
                     totalDeleted += idsToDelete.size();
                 }
