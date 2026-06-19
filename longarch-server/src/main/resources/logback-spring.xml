@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  OPS-01：显式日志滚动配置，防止单文件无限增长打满磁盘。
+
+  - 控制台 appender 始终开启（dev 终端 / docker stdout 日志采集）。
+  - 文件滚动 appender 在 prod 默认开启；其它环境可通过附加 `filelog` profile 开启。
+  - 滚动策略：单文件超过 max-file-size 即滚动并 gzip 压缩；保留 max-history 天；
+    历史总量超过 total-size-cap 自动清理最旧——磁盘占用有硬上限。
+  - 各阈值可由 application-*.yml 的 logging.logback.rollingpolicy.* 覆盖。
+-->
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+    <springProperty scope="context" name="LOG_FILE" source="logging.file.name"
+                    defaultValue="/opt/longarch/logs/longarch-server.log"/>
+    <springProperty scope="context" name="ROLL_MAX_FILE_SIZE" source="logging.logback.rollingpolicy.max-file-size"
+                    defaultValue="50MB"/>
+    <springProperty scope="context" name="ROLL_MAX_HISTORY" source="logging.logback.rollingpolicy.max-history"
+                    defaultValue="30"/>
+    <springProperty scope="context" name="ROLL_TOTAL_SIZE_CAP" source="logging.logback.rollingpolicy.total-size-cap"
+                    defaultValue="1GB"/>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+    <springProfile name="prod | filelog">
+        <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${LOG_FILE}</file>
+            <encoder>
+                <pattern>${FILE_LOG_PATTERN}</pattern>
+                <charset>${FILE_LOG_CHARSET}</charset>
+            </encoder>
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>${LOG_FILE}.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+                <maxFileSize>${ROLL_MAX_FILE_SIZE}</maxFileSize>
+                <maxHistory>${ROLL_MAX_HISTORY}</maxHistory>
+                <totalSizeCap>${ROLL_TOTAL_SIZE_CAP}</totalSizeCap>
+                <cleanHistoryOnStart>true</cleanHistoryOnStart>
+            </rollingPolicy>
+        </appender>
+        <root level="INFO">
+            <appender-ref ref="FILE"/>
+        </root>
+    </springProfile>
+</configuration>
