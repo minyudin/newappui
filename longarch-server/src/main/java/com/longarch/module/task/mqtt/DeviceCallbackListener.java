@@ -27,7 +27,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -59,9 +59,14 @@ public class DeviceCallbackListener {
     private final MqttMessageBuffer mqttMessageBuffer;
     private final DeviceObservabilityMetrics deviceObservabilityMetrics;
     private final MqttMessageGuard mqttMessageGuard;
+    private final TransactionTemplate transactionTemplate;
 
+    // P-04: 不再对整个回调方法加 @Transactional。
+    // 原先方法级事务会把 JSON 解析、guard 校验(可能访问 Redis)、N+1 传感器查询、
+    // 以及 dispatchNext 全部圈在一条 DB 连接里，遥测高峰时迅速耗尽 Hikari 连接池(prod 仅 30)。
+    // 现改为：只读/外部调用在事务外执行，仅把必须原子的写入放进短事务(见 handleTelemetry)，
+    // 连接随用随还，单条消息占用连接的时间从“整段处理”降到“一次小写入”。
     @ServiceActivator(inputChannel = "mqttInboundChannel")
-    @Transactional
     public void handleCallback(Message<?> message) {
         String topic = (String) message.getHeaders().get("mqtt_receivedTopic");
         String payload = message.getPayload().toString();
@@ -349,39 +354,43 @@ public class DeviceCallbackListener {
             }
 
             // 3. 解析采样时间（支持多种格式）
-            LocalDateTime sampleAt = parseSampleTime(data);
+            final LocalDateTime sampleAt = parseSampleTime(data);
 
-            // 4. 遍历所有字段，每个数值字段作为一条 sensor_data 存入
-            java.math.BigDecimal lastValue = null;
-            int count = 0;
-            for (Map.Entry<String, Object> entry : data.entrySet()) {
-                String key = entry.getKey();
-                if (META_KEYS.contains(key)) continue;
+            // 4~5. 一条遥测消息的所有指标插入 + 传感器状态更新放进一个短事务：
+            //      既保证单条消息原子落库，又只借用一次连接、迅速提交归还，避免长事务占满连接池。
+            //      注意：JSON 解析、guard 校验等已在事务外完成，事务内无外部调用。
+            final SensorDevice targetSensor = sensor;
+            int[] count = {0};
+            java.math.BigDecimal[] lastValue = {null};
+            transactionTemplate.executeWithoutResult(status -> {
+                for (Map.Entry<String, Object> entry : data.entrySet()) {
+                    String key = entry.getKey();
+                    if (META_KEYS.contains(key)) continue;
 
-                java.math.BigDecimal numericValue = extractNumericValue(entry.getValue());
-                if (numericValue == null) continue;
+                    java.math.BigDecimal numericValue = extractNumericValue(entry.getValue());
+                    if (numericValue == null) continue;
 
-                SensorData record = new SensorData();
-                record.setSensorId(sensor.getId());
-                record.setPlotId(sensor.getPlotId());
-                record.setSensorType(key);
-                record.setValue(numericValue);
-                record.setSampleAt(sampleAt);
-                sensorDataMapper.insert(record);
+                    SensorData record = new SensorData();
+                    record.setSensorId(targetSensor.getId());
+                    record.setPlotId(targetSensor.getPlotId());
+                    record.setSensorType(key);
+                    record.setValue(numericValue);
+                    record.setSampleAt(sampleAt);
+                    sensorDataMapper.insert(record);
 
-                lastValue = numericValue;
-                count++;
-            }
+                    lastValue[0] = numericValue;
+                    count[0]++;
+                }
 
-            // 5. 更新传感器设备在线状态
-            if (lastValue != null) {
-                sensor.setLastValue(lastValue);
-            }
-            sensor.setLastSampleAt(sampleAt);
-            sensor.setStatus("online");
-            sensorDeviceMapper.updateById(sensor);
+                if (lastValue[0] != null) {
+                    targetSensor.setLastValue(lastValue[0]);
+                }
+                targetSensor.setLastSampleAt(sampleAt);
+                targetSensor.setStatus("online");
+                sensorDeviceMapper.updateById(targetSensor);
+            });
 
-            log.info("Telemetry stored: deviceNo={}, metrics={}, sampleAt={}", deviceNo, count, sampleAt);
+            log.info("Telemetry stored: deviceNo={}, metrics={}, sampleAt={}", deviceNo, count[0], sampleAt);
         } catch (Exception e) {
             log.error("Failed to process telemetry: topic={}, error={}", topic, e.getMessage());
         }

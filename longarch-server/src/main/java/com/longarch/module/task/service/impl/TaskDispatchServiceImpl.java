@@ -19,9 +19,11 @@ import com.longarch.module.task.mapper.DeviceExecutionLogMapper;
 import com.longarch.module.task.mapper.OperationTaskMapper;
 import com.longarch.module.task.mqtt.DeviceCommand;
 import com.longarch.module.task.mqtt.MqttGateway;
+import com.longarch.module.task.service.SchedulerService;
 import com.longarch.module.task.service.TaskDispatchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -43,6 +45,7 @@ public class TaskDispatchServiceImpl implements TaskDispatchService {
     private final MqttGateway mqttGateway;
     private final MqttProperties mqttProperties;
     private final ObjectMapper objectMapper;
+    private final ApplicationContext applicationContext;
 
     @Async
     @Override
@@ -164,10 +167,26 @@ public class TaskDispatchServiceImpl implements TaskDispatchService {
                         .set(OperationTask::getCancelable, 0));
         if (updated > 0) {
             log.warn("Task marked failed: taskId={}, reason={}", task.getId(), reason);
+            // P-01: dispatch 失败(如 MQTT 发送异常)后必须推进调度，
+            //       否则设备锁要等 5~30 分钟定时器才释放。dispatchNext 会处理队列下一个
+            //       任务或在队列空时释放锁，使设备在 <1s 内恢复可用。
+            if (task.getDeviceId() != null) {
+                try {
+                    getSchedulerService().dispatchNext(task.getDeviceId());
+                } catch (Exception e) {
+                    log.error("dispatchNext after markFailed failed: taskId={}, deviceId={}, error={}",
+                            task.getId(), task.getDeviceId(), e.getMessage());
+                }
+            }
         } else {
             OperationTask latest = taskMapper.selectById(task.getId());
             log.info("markFailed ignored due to state mismatch: taskId={}, currentStatus={}",
                     task.getId(), latest != null ? latest.getTaskStatus() : "null");
         }
+    }
+
+    // 延迟取 SchedulerService，打破 Scheduler ↔ Dispatch 的构造期循环依赖
+    private SchedulerService getSchedulerService() {
+        return applicationContext.getBean(SchedulerService.class);
     }
 }

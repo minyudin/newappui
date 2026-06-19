@@ -58,14 +58,10 @@ public class SchedulerServiceImpl implements SchedulerService {
             }
 
             if ("free".equals(lock.getLockStatus())) {
-                // 设备空闲，直接执行
-                lock.setLockStatus("locked");
-                lock.setCurrentTaskId(task.getId());
-                lock.setLockOwner("task-" + task.getId());
-                lock.setLockedAt(LocalDateTime.now());
-                lock.setLockExpireAt(LocalDateTime.now().plusMinutes(30));
-                deviceLockMapper.updateById(lock);
-
+                // 设备空闲，直接执行。
+                // P-01: 先 CAS 抢占任务，成功后再锁设备；避免 CAS 失败却已把锁置为 locked，
+                //       导致设备被一个并未进入 RUNNING 的任务卡住 5~30 分钟（等定时器兜底）。
+                //       本段处于 Redisson 设备调度锁内，串行化，无并发抢占风险。
                 int updated = taskMapper.update(null,
                         new LambdaUpdateWrapper<OperationTask>()
                                 .eq(OperationTask::getId, task.getId())
@@ -78,6 +74,13 @@ public class SchedulerServiceImpl implements SchedulerService {
                     log.info("Skip dispatch immediately due to task state mismatch: taskId={}", task.getId());
                     return;
                 }
+
+                lock.setLockStatus("locked");
+                lock.setCurrentTaskId(task.getId());
+                lock.setLockOwner("task-" + task.getId());
+                lock.setLockedAt(LocalDateTime.now());
+                lock.setLockExpireAt(LocalDateTime.now().plusMinutes(30));
+                deviceLockMapper.updateById(lock);
 
                 log.info("Task dispatched immediately: taskId={}", task.getId());
                 taskDispatchService.dispatch(task);
@@ -155,17 +158,9 @@ public class SchedulerServiceImpl implements SchedulerService {
                 return;
             }
 
-            // 更新设备锁
-            DeviceLock lock = deviceLockMapper.selectOne(
-                    new LambdaQueryWrapper<DeviceLock>().eq(DeviceLock::getDeviceId, deviceId));
-            lock.setCurrentTaskId(task.getId());
-            lock.setLockOwner("task-" + task.getId());
-            lock.setLockedAt(LocalDateTime.now());
-            lock.setLockExpireAt(LocalDateTime.now().plusMinutes(30));
-            lock.setLockStatus("locked");
-            deviceLockMapper.updateById(lock);
-
-            // 更新任务状态
+            // P-01: 先 CAS 抢占任务，成功后再把锁指向新任务；
+            //       CAS 失败说明该任务已被处理/取消，删除陈旧队列项并尝试下一个，
+            //       不再保留指向“未 RUNNING 任务”的锁，避免设备卡住。
             int updated = taskMapper.update(null,
                     new LambdaUpdateWrapper<OperationTask>()
                             .eq(OperationTask::getId, task.getId())
@@ -175,9 +170,21 @@ public class SchedulerServiceImpl implements SchedulerService {
                             .set(OperationTask::getStartedAt, LocalDateTime.now())
                             .set(OperationTask::getCancelable, 0));
             if (updated == 0) {
-                log.info("Skip dispatchNext due to task state mismatch: taskId={}", task.getId());
+                log.info("Skip dispatchNext due to task state mismatch, dropping stale queue entry: taskId={}", task.getId());
+                queueMapper.deleteById(nextEntry.getId());
+                dispatchNext(deviceId); // 继续处理下一个，避免设备空锁卡住
                 return;
             }
+
+            // 更新设备锁指向新任务
+            DeviceLock lock = deviceLockMapper.selectOne(
+                    new LambdaQueryWrapper<DeviceLock>().eq(DeviceLock::getDeviceId, deviceId));
+            lock.setCurrentTaskId(task.getId());
+            lock.setLockOwner("task-" + task.getId());
+            lock.setLockedAt(LocalDateTime.now());
+            lock.setLockExpireAt(LocalDateTime.now().plusMinutes(30));
+            lock.setLockStatus("locked");
+            deviceLockMapper.updateById(lock);
 
             // 从队列移除
             queueMapper.deleteById(nextEntry.getId());
