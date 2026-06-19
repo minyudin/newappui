@@ -13,6 +13,11 @@ export const qk = {
   // 公开
   platformConfig: () => ['platform-config'] as const,
 
+  // 仪表盘聚合 (后端一次算好 KPI / 告警 / 任务分布)
+  dashboard: {
+    summary: () => ['dashboard', 'summary'] as const,
+  },
+
   // 当前登录用户 (自己) · 与 admin 用户列表 (qk.users) 隔离
   me: () => ['me'] as const,
 

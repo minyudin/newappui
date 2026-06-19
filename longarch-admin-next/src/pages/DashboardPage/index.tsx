@@ -1,20 +1,10 @@
-import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import ReactECharts from 'echarts-for-react'
 import { useQuery } from '@tanstack/react-query'
 import PageShell from '@/components/shell/PageShell'
 import { Card, CardContent, CardHeader, CardSeal, CardTitle } from '@/components/ui'
 import DigitFlipper from '@/components/digit/DigitFlipper'
-import {
-  listCodes,
-  listDevices,
-  listOrders,
-  listPlots,
-  listSensorDevices,
-  listTasks,
-  listUsers,
-} from '@/api'
-import type { SensorDevice } from '@/types/api'
+import { getDashboardSummary } from '@/api'
 import { qk } from '@/lib/queryKeys'
 import { REFETCH, STALE } from '@/lib/queryClient'
 import './DashboardPage.scss'
@@ -68,13 +58,9 @@ const INITIAL_KPI: KpiStat[] = [
 ]
 
 interface PieDatum { value: number; name: string; itemStyle: { color: string } }
-function countByField<T extends Record<string, unknown>>(list: T[], field: string): PieDatum[] {
-  const map = new Map<string, number>()
-  for (const item of list) {
-    const raw = (item[field] ?? 'unknown') as string
-    map.set(raw, (map.get(raw) ?? 0) + 1)
-  }
-  return Array.from(map.entries()).map(([key, value]) => ({
+/** 任务状态分布: 直接消费后端聚合好的 { status: count }, 不再在前端遍历整页任务计数 */
+function pieFromCounts(counts: Record<string, number>): PieDatum[] {
+  return Object.entries(counts).map(([key, value]) => ({
     value,
     name: STATUS_LABEL[key] ?? key,
     itemStyle: { color: STATUS_COLOR[key] ?? '#8a857b' },
@@ -109,108 +95,51 @@ function makePieOption(data: PieDatum[]) {
   }
 }
 
-/** 最近采样距今多久判定离线, 超过即异常 */
-const OFFLINE_THRESHOLD_MIN = 30
-
-function isSensorOffline(s: SensorDevice): boolean {
-  if (s.status === 'offline') return true
-  const last = s.lastSampleAt as string | undefined
-  if (!last) return false
-  const then = Date.parse(last.replace(' ', 'T'))
-  if (Number.isNaN(then)) return false
-  return Date.now() - then > OFFLINE_THRESHOLD_MIN * 60 * 1000
-}
-
 export default function DashboardPage() {
-  // ---- 配置型查询 · 只要 total 即可 (默认 staleTime = 2min) ----
-  const uParams = { pageNo: 1, pageSize: 1 }
-  const qUsers  = useQuery({ queryKey: qk.users.list(uParams),  queryFn: () => listUsers(uParams) })
-  const qCodes  = useQuery({ queryKey: qk.codes.list(uParams),  queryFn: () => listCodes(uParams) })
-  const qPlotsT = useQuery({ queryKey: qk.plots.list(uParams),  queryFn: () => listPlots(uParams) })
-
-  // ---- 状态型查询 · 需要 list 做聚合 (staleTime 15s + 30s refetch) ----
-  const oParams = { pageNo: 1, pageSize: 100 }
-  const tParams = { pageNo: 1, pageSize: 100 }
-  const dParams = { pageNo: 1, pageSize: 100 }
-  const qOrders = useQuery({
-    queryKey: qk.orders.list(oParams),
-    queryFn: () => listOrders(oParams),
+  // ---- 单一聚合查询 · 后端一次算好 KPI / 告警 / 任务分布 / 最近任务 ----
+  // 替代原来 7 个 list 查询(orders/tasks/devices 各 100 行 + sensors 200 行),
+  // 小服务器上每 30s 只传一份精简聚合, 不再反复拉整页再在浏览器里 filter/count。
+  const q = useQuery({
+    queryKey: qk.dashboard.summary(),
+    queryFn: getDashboardSummary,
     staleTime: STALE.STATUS,
     refetchInterval: REFETCH.STATUS,
   })
-  const qTasks = useQuery({
-    queryKey: qk.tasks.list(tParams),
-    queryFn: () => listTasks(tParams),
-    staleTime: STALE.STATUS,
-    refetchInterval: REFETCH.STATUS,
-  })
-  const qDevices = useQuery({
-    queryKey: qk.devices.list(dParams),
-    queryFn: () => listDevices(dParams),
-    staleTime: STALE.STATUS,
-    refetchInterval: REFETCH.STATUS,
-  })
-
-  // ---- 实时型查询 · 传感器 (staleTime 0 + 15s refetch) ----
-  const sParams = { pageNo: 1, pageSize: 200 }
-  const qSensors = useQuery({
-    queryKey: qk.sensors.list(sParams),
-    queryFn: () => listSensorDevices(sParams),
-    staleTime: STALE.LIVE,
-    refetchInterval: REFETCH.LIVE,
-  })
-
-  // ---orders  = qOrders.data?.list  ?? []
-  const tasks   = qTasks.data?.list   ?? []
-  const devices = qDevices.data?.list ?? []
-  const sensors = qSensors.data?.list ?? []
-
-  const loading =
-    qUsers.isPending || qOrders.isPending || qCodes.isPending ||
-    qPlotsT.isPending || qDevices.isPending || qTasks.isPending ||
-    qSensors.isPending
+  const data = q.data
+  const loading = q.isPending
 
   const kpi: KpiStat[] = [
-    { ...INITIAL_KPI[0], value: qUsers.data?.total  ?? '—' },
-    { ...INITIAL_KPI[1], value: qOrders.data?.total ?? '—' },
-    { ...INITIAL_KPI[2], value: qCodes.data?.total  ?? '—' },
-    { ...INITIAL_KPI[3], value: qPlotsT.data?.total ?? '—' },
-    { ...INITIAL_KPI[4], value: qDevices.data?.total ?? '—' },
-    { ...INITIAL_KPI[5], value: qTasks.data?.total  ?? '—' },
+    { ...INITIAL_KPI[0], value: data?.kpi.users   ?? '—' },
+    { ...INITIAL_KPI[1], value: data?.kpi.orders  ?? '—' },
+    { ...INITIAL_KPI[2], value: data?.kpi.codes   ?? '—' },
+    { ...INITIAL_KPI[3], value: data?.kpi.plots   ?? '—' },
+    { ...INITIAL_KPI[4], value: data?.kpi.devices ?? '—' },
+    { ...INITIAL_KPI[5], value: data?.kpi.tasks   ?? '—' },
   ]
 
-  // ---- 异常聚合 ----
-  const offlineSensors = useMemo(
-    () => sensors.filter(isSensorOffline).slice(0, 6),
-    [sensors],
-  )
-  const lockedDevices = useMemo(
-    () => devices.filter((d) => d.lockStatus === 'locked').slice(0, 6),
-    [devices],
-  )
-  const failedTasks = useMemo(
-    () => tasks.filter((t) => t.taskStatus === 'failed').slice(0, 6),
-    [tasks],
-  )
-  const pendingTasks = useMemo(
-    () => tasks.filter((t) => t.taskStatus === 'queued' || t.taskStatus === 'running'),
-    [tasks],
-  )
-  const totalAlerts = offlineSensors.length + lockedDevices.length + failedTasks.length
+  // ---- 异常清单 (后端已截断 top 6, 计数用真实总数) ----
+  const offlineSensors = data?.offlineSensors ?? []
+  const lockedDevices = data?.lockedDevices ?? []
+  const failedTasks = data?.failedTasks ?? []
+  const offlineSensorCount = data?.offlineSensorCount ?? 0
+  const lockedDeviceCount = data?.lockedDeviceCount ?? 0
+  const failedTaskCount = data?.failedTaskCount ?? 0
+  const totalAlerts = offlineSensorCount + lockedDeviceCount + failedTaskCount
 
-  // ---- 饼图: 任务状态分布 ----
-  const taskPieData = useMemo(() => countByField(tasks, 'taskStatus'), [tasks])
-  const taskPieOption = useMemo(() => makePieOption(taskPieData), [taskPieData])
-
-  // ---- 最近 5 个任务 ----
-  const recentTasks = useMemo(() => tasks.slice(0, 5), [tasks])
+  // ---- 饼图 / 最近任务 / lede 计数 ----
+  const taskPieData = pieFromCounts(data?.taskStatusCounts ?? {})
+  const taskPieOption = makePieOption(taskPieData)
+  const recentTasks = data?.recentTasks ?? []
+  const sensorTotal = data?.sensorTotal ?? 0
+  const actuatorTotal = data?.actuatorTotal ?? 0
+  const pendingTaskCount = data?.pendingTaskCount ?? 0
 
   return (
     <PageShell
       seal="§1 · Today"
       title="Dashboard"
       titleCn="仪表盘"
-      lede={loading ? undefined : `${sensors.length} 传感器 · ${devices.length} 执行设备 · ${pendingTasks.length} 任务进行中`}
+      lede={loading ? undefined : `${sensorTotal} 传感器 · ${actuatorTotal} 执行设备 · ${pendingTaskCount} 任务进行中`}
       right={
         <>
           <span>{loading ? 'LOADING' : 'LIVE'}</span>
@@ -274,7 +203,7 @@ export default function DashboardPage() {
           <AlertCard
             label="传感器离线"
             labelEn="Sensors offline"
-            count={offlineSensors.length}
+            count={offlineSensorCount}
             href="/device-overview"
             emptyText={loading ? '加载中...' : '全部在线'}
           >
@@ -291,7 +220,7 @@ export default function DashboardPage() {
           <AlertCard
             label="设备锁定"
             labelEn="Locked actuators"
-            count={lockedDevices.length}
+            count={lockedDeviceCount}
             href="/devices"
             emptyText={loading ? '加载中...' : '无锁定设备'}
           >
@@ -308,7 +237,7 @@ export default function DashboardPage() {
           <AlertCard
             label="任务失败"
             labelEn="Failed tasks"
-            count={failedTasks.length}
+            count={failedTaskCount}
             href="/tasks"
             emptyText={loading ? '加载中...' : '无失败任务'}
           >

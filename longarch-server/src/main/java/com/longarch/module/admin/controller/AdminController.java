@@ -245,6 +245,12 @@ public class AdminController {
         return R.ok(adminService.getDeviceOverview());
     }
 
+    @Operation(summary = "仪表盘聚合数据（后端聚合，替代前端拉整页 list 计数）")
+    @GetMapping("/dashboard-summary")
+    public R<DashboardSummaryVO> getDashboardSummary() {
+        return R.ok(adminService.getDashboardSummary());
+    }
+
     @Operation(summary = "MQTT hardware access info")
     @GetMapping("/hardware-access")
     public R<HardwareAccessInfoVO> getHardwareAccessInfo() {

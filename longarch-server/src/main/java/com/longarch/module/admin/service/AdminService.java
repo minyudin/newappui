@@ -82,6 +82,9 @@ public interface AdminService {
 
     DeviceOverviewVO getDeviceOverview();
 
+    /** 管理后台仪表盘聚合数据（后端 COUNT/GROUP BY 一次算好，替代前端拉整页聚合）。 */
+    DashboardSummaryVO getDashboardSummary();
+
     HardwareAccessInfoVO getHardwareAccessInfo();
 
     PageResult<SensorDeviceListVO> listSensorDevices(int pageNo, int pageSize, Long plotId, String category);

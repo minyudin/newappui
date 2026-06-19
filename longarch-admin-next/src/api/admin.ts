@@ -15,6 +15,7 @@ import type {
   SensorDataPoint,
   DeviceOverview,
   PlotSensorOverview,
+  DashboardSummary,
 } from '@/types/api'
 
 /**
@@ -196,6 +197,11 @@ export function regenerateScreenToken(screenId: number | string): Promise<Screen
 
 export function getDeviceOverview(): Promise<DeviceOverview> {
   return http.get('/admin/device-overview')
+}
+
+/** 仪表盘聚合: 后端一次算好 KPI / 告警计数与清单 / 任务状态分布 / 最近任务 */
+export function getDashboardSummary(): Promise<DashboardSummary> {
+  return http.get('/admin/dashboard-summary')
 }
 
 export function listSensorDevices(params?: PageQuery): Promise<PaginatedList<SensorDevice>> {
