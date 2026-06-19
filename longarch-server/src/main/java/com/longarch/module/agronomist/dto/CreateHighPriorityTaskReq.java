@@ -21,4 +21,7 @@ public class CreateHighPriorityTaskReq {
     private String reason;
 
     private Integer priority;
+
+    /** 可选幂等键：客户端重试时携带同一值，避免重复创建高优先级任务。 */
+    private String idempotencyKey;
 }

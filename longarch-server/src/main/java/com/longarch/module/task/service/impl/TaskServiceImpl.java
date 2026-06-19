@@ -235,7 +235,23 @@ public class TaskServiceImpl implements TaskService {
             reviewState = REVIEW_OPERATOR_REQUIRED;
         }
 
-        // Step 4: 操作次数校验
+        // Step 4: 幂等校验——必须先于配额/冲突校验，保证额度用尽时携带同一 idempotencyKey 的重试仍能拿回已创建的任务。
+        OperationTask existingTask = taskMapper.selectOne(
+                new LambdaQueryWrapper<OperationTask>()
+                        .eq(OperationTask::getIdempotencyKey, req.getIdempotencyKey()));
+        if (existingTask != null) {
+            // 命中时校验归属，防止他人复用同一 idempotencyKey 读到不属于自己的任务。
+            if (existingTask.getRequestUserId() != null
+                    && !existingTask.getRequestUserId().equals(userId)) {
+                log.warn("Idempotency key reuse across users: key={}, owner={}, requester={}",
+                        req.getIdempotencyKey(), existingTask.getRequestUserId(), userId);
+                throw new BizException(ErrorCode.FORBIDDEN, "幂等键无效");
+            }
+            log.info("Idempotent hit: taskId={}", existingTask.getId());
+            return buildCreateTaskVO(existingTask);
+        }
+
+        // Step 5: 操作次数校验
         long todayCount = taskMapper.selectCount(
                 new LambdaQueryWrapper<OperationTask>()
                         .eq(OperationTask::getRequestUserId, userId)
@@ -246,15 +262,6 @@ public class TaskServiceImpl implements TaskService {
                         .ge(OperationTask::getCreatedAt, LocalDate.now().atStartOfDay()));
         if (todayCount >= code.getMaxDailyOperations()) {
             throw new BizException(ErrorCode.TOO_MANY_REQUESTS, "今日操作次数已达上限");
-        }
-
-        // Step 5: 幂等校验
-        OperationTask existingTask = taskMapper.selectOne(
-                new LambdaQueryWrapper<OperationTask>()
-                        .eq(OperationTask::getIdempotencyKey, req.getIdempotencyKey()));
-        if (existingTask != null) {
-            log.info("Idempotent hit: taskId={}", existingTask.getId());
-            return buildCreateTaskVO(existingTask);
         }
 
         // Step 6: 冲突检测
@@ -339,6 +346,12 @@ public class TaskServiceImpl implements TaskService {
                                 .eq(OperationTask::getIdempotencyKey, req.getIdempotencyKey())
                                 .last("LIMIT 1"));
                 if (duplicated != null) {
+                    if (duplicated.getRequestUserId() != null
+                            && !duplicated.getRequestUserId().equals(userId)) {
+                        log.warn("Idempotency key reuse across users (DB unique): key={}, owner={}, requester={}",
+                                req.getIdempotencyKey(), duplicated.getRequestUserId(), userId);
+                        throw new BizException(ErrorCode.FORBIDDEN, "幂等键无效");
+                    }
                     log.info("Idempotent duplicate handled by DB unique index: taskId={}, key={}",
                             duplicated.getId(), req.getIdempotencyKey());
                     return buildCreateTaskVO(duplicated);
@@ -558,8 +571,9 @@ public class TaskServiceImpl implements TaskService {
                         .eq(AdoptionCode::getBindUserId, userId)
                         .eq(AdoptionCode::getPlotId, plotId)
                         .eq(AdoptionCode::getStatus, "active")
-                        // 全链路口径统一：同地块按“用户最新 active 订单”对应认养码判定
-                        .apply("order_id = (SELECT MAX(ao.id) FROM adoption_order ao WHERE ao.user_id = {0} AND ao.plot_id = {1} AND ao.order_status = 'active')", userId, plotId)
+                        // 全链路口径统一：按 bind_user_id 取最新 order_id 的 active 码（兼容 guest/share）
+                        .apply("order_id = (SELECT MAX(ac2.order_id) FROM adoption_code ac2 WHERE ac2.bind_user_id = {0} AND ac2.plot_id = {1} AND ac2.status = 'active')", userId, plotId)
+                        .orderByDesc(AdoptionCode::getId)
                         .last("LIMIT 1"));
     }
 

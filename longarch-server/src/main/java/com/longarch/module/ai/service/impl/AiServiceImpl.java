@@ -384,7 +384,11 @@ public class AiServiceImpl implements AiService {
         taskReq.setActionType(req.getActionType());
         taskReq.setActionParams(req.getActionParams());
         taskReq.setSchedulingMode("queue");
-        taskReq.setIdempotencyKey("ai-" + req.getSessionId() + "-" + req.getPlotId() + "-" + req.getActionType());
+        // 幂等键需纳入 deviceId 与参数指纹，否则同一会话内对同一地块/动作的不同设备或不同参数请求会被错误合并。
+        int paramsHash = req.getActionParams() == null ? 0 : req.getActionParams().hashCode();
+        taskReq.setIdempotencyKey("ai-" + req.getSessionId() + "-" + req.getPlotId()
+                + "-" + req.getDeviceId() + "-" + req.getActionType()
+                + "-" + Integer.toHexString(paramsHash));
 
         return taskService.createTask(taskReq);
     }

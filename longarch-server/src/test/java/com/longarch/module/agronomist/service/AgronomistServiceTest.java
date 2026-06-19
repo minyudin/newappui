@@ -90,6 +90,25 @@ class AgronomistServiceTest extends BaseTest {
         assertTrue(vo.getMessage().contains("高优先级"));
     }
 
+    @Test
+    @Order(21)
+    void createHighPriorityTask_sameIdempotencyKey_returnsSameTask() {
+        CreateHighPriorityTaskReq req = new CreateHighPriorityTaskReq();
+        req.setPlotId(1L);
+        req.setDeviceId(1L);
+        req.setActionType("irrigation_start");
+        req.setPriority(1);
+        req.setReason("幂等重试");
+        req.setIdempotencyKey("agro-test-key-001");
+
+        CreateTaskVO first = agronomistService.createHighPriorityTask(req);
+        CreateTaskVO second = agronomistService.createHighPriorityTask(req);
+
+        assertNotNull(first.getTaskId());
+        assertEquals(first.getTaskId(), second.getTaskId(),
+                "携带同一 idempotencyKey 的重试应返回同一任务");
+    }
+
     // ===== reviewAiAnalysis =====
 
     @Test
