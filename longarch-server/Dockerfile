@@ -15,6 +15,10 @@ WORKDIR /app
 
 COPY --from=build /app/target/*.jar app.jar
 
+# S-06: 生产镜像默认 prod profile，裸 docker run 不会误用 dev 配置；
+# docker-compose 通过 environment 显式覆盖（本地仍为 dev）。
+ENV SPRING_PROFILES_ACTIVE=prod
+
 EXPOSE 8081
 
 ENTRYPOINT ["java", "-jar", "app.jar"]

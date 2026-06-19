@@ -126,6 +126,13 @@ public class EdgeNodeServiceImpl implements EdgeNodeService {
         if (task == null) {
             throw new BizException(ErrorCode.RESOURCE_NOT_FOUND, "任务不存在");
         }
+        // S-01: 回调必须校验 deviceId 与任务绑定的设备一致，避免用任意 deviceId 篡改他人任务状态
+        if (req.getDeviceId() != null && task.getDeviceId() != null
+                && !req.getDeviceId().equals(task.getDeviceId())) {
+            log.warn("Execution callback deviceId mismatch: taskId={}, taskDevice={}, reqDevice={}",
+                    req.getTaskId(), task.getDeviceId(), req.getDeviceId());
+            throw new BizException(ErrorCode.FORBIDDEN, "设备与任务不匹配");
+        }
 
         // 状态机校验：已终态的任务不再接受回调
         TaskStatus currentStatus = TaskStatus.valueOf(task.getTaskStatus().toUpperCase());

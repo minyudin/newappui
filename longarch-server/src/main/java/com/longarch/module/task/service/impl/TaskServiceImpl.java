@@ -177,6 +177,12 @@ public class TaskServiceImpl implements TaskService {
         if (plot == null) {
             throw new BizException(ErrorCode.INVALID_PARAM, "地块不存在");
         }
+        // S-03: 设备必须隶属于请求地块，避免持 A 地块权限的用户借 B 地块设备 id 越权下发
+        if (!req.getPlotId().equals(device.getPlotId())) {
+            deviceObservabilityMetrics.recordGateDecision("deny", req.getActionType(),
+                    device.getDeviceStatus(), device.getNetworkStatus());
+            throw new BizException(ErrorCode.INVALID_PARAM, "设备不属于该地块");
+        }
 
         // 高风险判定（最小集）：离线/时间窗外/冲突 → 进入 operator 队列，不自动调度
         List<String> riskReasons = new ArrayList<>();
@@ -411,12 +417,29 @@ public class TaskServiceImpl implements TaskService {
         return PageResult.from(page, voList);
     }
 
+    // S-02: 任务读路径归属校验，与 cancelTask 一致；放行任务发起人、被指派的处理人，以及后台/运维/农艺角色。
+    private void assertCanReadTask(OperationTask task) {
+        Long userId = StpUtil.getLoginIdAsLong();
+        if (userId.equals(task.getRequestUserId()) || userId.equals(task.getAssigneeUserId())) {
+            return;
+        }
+        Object roleType = StpUtil.getSession().get("roleType");
+        if (roleType != null) {
+            String rt = roleType.toString();
+            if ("admin".equals(rt) || "operator".equals(rt) || "agronomist".equals(rt)) {
+                return;
+            }
+        }
+        throw new BizException(ErrorCode.FORBIDDEN, "无权查看该任务");
+    }
+
     @Override
     public TaskDetailVO getTaskDetail(Long taskId) {
         OperationTask task = taskMapper.selectById(taskId);
         if (task == null) {
             throw new BizException(ErrorCode.RESOURCE_NOT_FOUND, "任务不存在");
         }
+        assertCanReadTask(task);
 
         TaskDetailVO vo = new TaskDetailVO();
         vo.setTaskId(task.getId());
@@ -468,6 +491,8 @@ public class TaskServiceImpl implements TaskService {
         if (task == null) {
             throw new BizException(ErrorCode.RESOURCE_NOT_FOUND, "任务不存在");
         }
+
+        assertCanReadTask(task);
 
         QueueStatusVO vo = new QueueStatusVO();
         vo.setTaskId(task.getId());
