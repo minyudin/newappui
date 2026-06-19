@@ -94,6 +94,12 @@ services:
       MQTT_BROKER_URL: ${MQTT_BROKER_URL:-tcp://mosquitto:1883}
       MQTT_USERNAME: ${MQTT_USERNAME:-longarch}
       MQTT_PASSWORD: ${MQTT_PASSWORD:-longarch123}
+      # 鉴权模式 password|tls|mtls。prod 用密码+内网明文 broker 时, 必须同时
+      # MQTT_AUTH_MODE=password + MQTT_SSL_ENABLED=false + MQTT_ALLOW_INSECURE=true,
+      # 否则客户端会按 prod 默认套一层 TLS 去连明文端口, 静默连不上 broker。
+      # 走 mtls 时设 MQTT_AUTH_MODE=mtls + MQTT_SSL_ENABLED=true 并挂载证书。
+      MQTT_AUTH_MODE: ${MQTT_AUTH_MODE:-password}
+      MQTT_SSL_ENABLED: ${MQTT_SSL_ENABLED:-false}
       MQTT_ALLOW_INSECURE: ${MQTT_ALLOW_INSECURE:-false}
       # 微信小程序凭据 (prod profile 必填; dev 用 application-dev.yml 的 stub 值)
       WX_APP_ID: ${WX_APP_ID:-}
@@ -103,6 +109,12 @@ services:
       ZHIPU_API_KEY: ${ZHIPU_API_KEY:-}
       # 大屏令牌 (prod profile 必填)
       DASHBOARD_TOKEN: ${DASHBOARD_TOKEN:-}
+      # CORS 白名单 (S-04): prod 必填真实后台域名(逗号分隔)才会放行带 cookie 跨域;
+      # 留空则退回通配且禁用凭证, 后台带 cookie 跨域登录会失败。dev 留空即可。
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-}
+      # 管理端口 (S-08): prod 把 actuator/prometheus 挪到该内网端口, 不对外发布。
+      # dev profile 不读此项, actuator 仍在业务端口 8081。
+      MANAGEMENT_PORT: ${MANAGEMENT_PORT:-9091}
       # SRS 媒体服务器: api-base 必须用服务名 (server 容器内 localhost 指向自身, 查不到推流);
       # flv/hls/rtmp base 是回给浏览器/小程序的播放地址, 演示默认 localhost, 上线用 .env 覆盖成你的域名
       SRS_API_BASE: http://srs:1985
@@ -111,8 +123,10 @@ services:
       SRS_HLS_BASE: ${SRS_HLS_BASE:-http://localhost:8880}
     ports:
       - "${SERVER_PORT:-8081}:8081"
+    # dev: actuator 在 8081; prod(S-08): actuator 只在内网 MANAGEMENT_PORT(默认 9091)。
+    # 先打 8081, 失败再打管理端口, 兼容两种 profile。
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8081/actuator/health"]
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8081/actuator/health || wget -qO- http://127.0.0.1:${MANAGEMENT_PORT:-9091}/actuator/health"]
       interval: 15s
       timeout: 5s
       retries: 10
