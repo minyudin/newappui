@@ -52,6 +52,7 @@ public class AccessScopeServiceImpl implements AccessScopeService {
                         // 生产口径：同地块按“该用户已绑定认养码”的最新 order_id 判权
                         // 兼容 guest/share（guest 不一定写入 adoption_order.user_id）
                         .apply("order_id = (SELECT MAX(ac2.order_id) FROM adoption_code ac2 WHERE ac2.bind_user_id = {0} AND ac2.plot_id = {1} AND ac2.status = 'active')", userId, plotId)
+                        .orderByDesc(AdoptionCode::getId)
                         .last("LIMIT 1"));
 
         if (code == null) {
@@ -199,6 +200,7 @@ public class AccessScopeServiceImpl implements AccessScopeService {
                         .eq(AdoptionCode::getStatus, "active")
                         // 生产口径：按 bind_user_id 在 adoption_code 维度判“最新有效码”
                         .apply("order_id = (SELECT MAX(ac2.order_id) FROM adoption_code ac2 WHERE ac2.bind_user_id = {0} AND ac2.plot_id = {1} AND ac2.status = 'active')", userId, plotId)
+                        .orderByDesc(AdoptionCode::getId)
                         .last("LIMIT 1"));
 
         if (code == null) {

@@ -47,6 +47,7 @@ import com.longarch.module.task.mapper.ActuatorDeviceMapper;
 import com.longarch.module.task.mapper.DeviceLockMapper;
 import com.longarch.module.task.mapper.OperationTaskMapper;
 import com.longarch.module.task.mapper.OperatorPlotBindingMapper;
+import com.longarch.module.task.service.SchedulerService;
 import com.longarch.module.camera.service.SrsStreamService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -73,6 +74,7 @@ public class AdminServiceImpl implements AdminService {
     private final ActuatorDeviceMapper actuatorMapper;
     private final DeviceLockMapper deviceLockMapper;
     private final OperationTaskMapper taskMapper;
+    private final SchedulerService schedulerService;
     private final OperatorPlotBindingMapper operatorPlotBindingMapper;
     private final SensorDeviceMapper sensorDeviceMapper;
     private final ScreenDeviceMapper screenDeviceMapper;
@@ -882,6 +884,9 @@ public class AdminServiceImpl implements AdminService {
         lock.setLockExpireAt(null);
         deviceLockMapper.updateById(lock);
         log.info("Admin force-unlocked device: deviceId={}, reason={}, by={}", deviceId, req != null ? req.getReason() : "", operatorId);
+
+        // 解锁后立即调度该设备的下一个排队任务，避免队列任务空等到定时兜底（5 分钟）才被派发。
+        schedulerService.dispatchNext(deviceId);
 
         UnlockDeviceVO vo = new UnlockDeviceVO();
         vo.setDeviceId(deviceId);

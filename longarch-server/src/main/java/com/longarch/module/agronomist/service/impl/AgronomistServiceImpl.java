@@ -138,6 +138,29 @@ public class AgronomistServiceImpl implements AgronomistService {
             throw new BizException(ErrorCode.RESOURCE_NOT_FOUND, "设备不存在: deviceId=" + req.getDeviceId());
         }
 
+        // 客户端可携带 idempotencyKey 做重试去重；命中已属本人的任务直接返回，命中他人任务拒绝。
+        String idempotencyKey;
+        if (req.getIdempotencyKey() != null && !req.getIdempotencyKey().isBlank()) {
+            idempotencyKey = "agro:" + req.getIdempotencyKey().trim();
+            OperationTask existing = taskMapper.selectOne(
+                    new LambdaQueryWrapper<OperationTask>()
+                            .eq(OperationTask::getIdempotencyKey, idempotencyKey));
+            if (existing != null) {
+                if (existing.getRequestUserId() != null
+                        && !existing.getRequestUserId().equals(userId)) {
+                    log.warn("Agronomist idempotency key reuse across users: key={}, owner={}, requester={}",
+                            idempotencyKey, existing.getRequestUserId(), userId);
+                    throw new BizException(ErrorCode.FORBIDDEN, "幂等键无效");
+                }
+                log.info("Agronomist idempotent hit: taskId={}", existing.getId());
+                return toCreateTaskVO(existing, priority);
+            }
+        } else {
+            // 未提供幂等键时退回唯一键，避免同毫秒重试撞库（雪花 ID 全局唯一）。
+            idempotencyKey = "agro_" + userId + "_" + req.getPlotId() + "_" + req.getActionType()
+                    + "_" + IdUtil.getSnowflakeNextIdStr();
+        }
+
         OperationTask task = new OperationTask();
         task.setTaskNo("T" + IdUtil.getSnowflakeNextIdStr());
         task.setRequestUserId(userId);
@@ -146,7 +169,7 @@ public class AgronomistServiceImpl implements AgronomistService {
         task.setActionType(req.getActionType());
         task.setActionParams(req.getActionParams());
         task.setSchedulingMode("queue");
-        task.setIdempotencyKey("agro_" + userId + "_" + req.getPlotId() + "_" + req.getActionType() + "_" + System.currentTimeMillis());
+        task.setIdempotencyKey(idempotencyKey);
         task.setPriority(priority);
         task.setTaskStatus("pending");
         task.setDeviceExecutionState("submitted");
@@ -165,6 +188,10 @@ public class AgronomistServiceImpl implements AgronomistService {
         log.info("Agronomist created high-priority task: taskId={}, priority={}, reason={}, by={}",
                 task.getId(), priority, req.getReason(), userId);
 
+        return toCreateTaskVO(task, priority);
+    }
+
+    private CreateTaskVO toCreateTaskVO(OperationTask task, int priority) {
         CreateTaskVO vo = new CreateTaskVO();
         vo.setTaskId(task.getId());
         vo.setTaskNo(task.getTaskNo());

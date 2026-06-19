@@ -36,12 +36,14 @@ public class PermissionGuard {
     public PermissionCheckResult check(Long userId, Long plotId, String actionType) {
         PermissionCheckResult result = new PermissionCheckResult();
 
-        // 1. 查找用户在该地块的认养码
+        // 1. 查找用户在该地块的认养码（全链路统一口径：按 bind_user_id 取最新 order_id 的 active 码）
         AdoptionCode code = adoptionCodeMapper.selectOne(
                 new LambdaQueryWrapper<AdoptionCode>()
                         .eq(AdoptionCode::getBindUserId, userId)
                         .eq(AdoptionCode::getPlotId, plotId)
                         .eq(AdoptionCode::getStatus, "active")
+                        .apply("order_id = (SELECT MAX(ac2.order_id) FROM adoption_code ac2 WHERE ac2.bind_user_id = {0} AND ac2.plot_id = {1} AND ac2.status = 'active')", userId, plotId)
+                        .orderByDesc(AdoptionCode::getId)
                         .last("LIMIT 1"));
 
         if (code == null) {
