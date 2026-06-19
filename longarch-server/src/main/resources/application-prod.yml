@@ -37,6 +37,8 @@ ai:
   scheduled-analysis:
     enabled: true
     cron: "0 0 6,12,18 * * ?"
+    # 单轮最多分析地块数：地块多时一轮全扫会长时间占用 CPU/外网 IO，分轮处理
+    max-plots-per-run: 50
 
 # MQTT 设备通信
 mqtt:
@@ -174,6 +176,20 @@ longarch:
       limit: 30
       window-seconds: 60
     create-adoption-code:
+      limit: 20
+      window-seconds: 60
+    # 公开接口按 IP 限流（防洪峰把小服务器线程/连接占满）
+    guest-login:
+      limit: 30
+      window-seconds: 60
+    adoption-code-verify:
+      limit: 30
+      window-seconds: 60
+    check-nickname:
+      limit: 60
+      window-seconds: 60
+    # AI 走外网智谱、最贵，按用户限得更紧
+    ai-invoke:
       limit: 20
       window-seconds: 60
 

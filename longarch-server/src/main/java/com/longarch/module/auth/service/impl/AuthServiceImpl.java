@@ -11,6 +11,7 @@ import com.longarch.common.enums.ErrorCode;
 import com.longarch.common.exception.BizException;
 import com.longarch.common.config.RateLimitProperties;
 import com.longarch.common.service.RateLimitService;
+import com.longarch.common.util.ClientIpUtil;
 import com.longarch.common.util.NicknameValidator;
 import com.longarch.module.auth.dto.AdminLoginReq;
 import com.longarch.module.auth.dto.BindMobileReq;
@@ -138,6 +139,10 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public WechatLoginVO guestLogin(GuestLoginReq req) {
+        if (rateLimitProperties.isEnabled()) {
+            rateLimitService.enforce("guestLogin", "rl:auth:guest:ip:" + ClientIpUtil.resolve(),
+                    rateLimitProperties.getGuestLogin());
+        }
         AdoptionCode code = adoptionCodeMapper.selectOne(
                 new LambdaQueryWrapper<AdoptionCode>()
                         .eq(AdoptionCode::getCode, req.getCode())
@@ -485,6 +490,10 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public NicknameAvailabilityVO checkNicknameAvailability(String raw) {
+        if (rateLimitProperties.isEnabled()) {
+            rateLimitService.enforce("checkNickname", "rl:auth:nickname:ip:" + ClientIpUtil.resolve(),
+                    rateLimitProperties.getCheckNickname());
+        }
         String normalized = NicknameValidator.normalize(raw);
         try {
             NicknameValidator.validate(normalized);

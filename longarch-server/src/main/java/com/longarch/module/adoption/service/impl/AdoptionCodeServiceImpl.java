@@ -6,8 +6,11 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.longarch.common.config.RateLimitProperties;
 import com.longarch.common.enums.ErrorCode;
 import com.longarch.common.exception.BizException;
+import com.longarch.common.service.RateLimitService;
+import com.longarch.common.util.ClientIpUtil;
 import com.longarch.module.adoption.dto.CreateShareCodeReq;
 import com.longarch.module.adoption.dto.RedeemCodeReq;
 import com.longarch.module.adoption.dto.VerifyCodeReq;
@@ -43,11 +46,17 @@ public class AdoptionCodeServiceImpl implements AdoptionCodeService {
     private final AdoptionOrderMapper adoptionOrderMapper;
     private final ObjectMapper objectMapper;
     private final BusinessDefaultsProperties bizDefaults;
+    private final RateLimitService rateLimitService;
+    private final RateLimitProperties rateLimitProperties;
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
     public VerifyCodeVO verify(VerifyCodeReq req) {
+        if (rateLimitProperties.isEnabled()) {
+            rateLimitService.enforce("adoptionCodeVerify", "rl:adoption:verify:ip:" + ClientIpUtil.resolve(),
+                    rateLimitProperties.getAdoptionCodeVerify());
+        }
         AdoptionCode code = adoptionCodeMapper.selectOne(
                 new LambdaQueryWrapper<AdoptionCode>().eq(AdoptionCode::getCode, req.getCode()));
 
