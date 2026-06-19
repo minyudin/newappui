@@ -135,13 +135,28 @@ springdoc:
 knife4j:
   enable: false
 
-# 日志
+# 日志（OPS-01：显式滚动 + 总量上限，防止单文件无限增长打满磁盘）
 logging:
   level:
     root: INFO
     com.longarch: INFO
   file:
     name: /opt/longarch/logs/longarch-server.log
+  logback:
+    rollingpolicy:
+      max-file-size: 50MB       # 单文件超过即滚动
+      max-history: 30           # 保留 30 天历史
+      total-size-cap: 1GB       # 历史日志总量上限，超出自动清理最旧——磁盘占用封顶
+      clean-history-on-start: true
+
+# P-05：sensor_data 历史读数保留清理（默认开启，按需调小磁盘的服务器尤其依赖）
+sensor:
+  retention:
+    enabled: true
+    days: 90
+    batch-size: 2000
+    max-batches-per-run: 500
+    cron: "0 30 3 * * ?"
 
 longarch:
   admin:
