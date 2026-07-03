@@ -115,7 +115,8 @@
   &__rule {
     width: 60rpx;
     height: 2px;
-    background: $ink;
+    background: $farm-green;
+    border-radius: $radius-full;
     margin: bl(0.75) 0 bl(0.5);
   }
 
@@ -179,8 +180,9 @@
 
     &--user {
       // 用户气泡 · 墨色实心 · 贴右
-      background: $ink;
-      color: $paper;
+      background: $farm-green;
+      color: #fff;
+      border-radius: $radius-full;
 
       .msg__text { color: $paper; }
     }
@@ -354,7 +356,7 @@
     background: $paper-light;
     transition: background 0.15s $ease-folio;
 
-    &:active { background: $ink; }
+    &:active { background: $farm-green; }
     &:active .ai-hints__no { color: $paper-light; }
     &:active .ai-hints__text { color: $paper; }
   }
@@ -417,9 +419,9 @@
     &::after { content: none; border: none; }
 
     &--ready {
-      background: $ink;
-      border-color: $ink;
-      color: $paper;
+      background: $farm-green;
+      border-color: $farm-green;
+      color: #fff;
     }
 
     &[disabled] {

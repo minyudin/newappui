@@ -4,7 +4,7 @@
 
 /* ============================================================
  *  §0 · 登录页 · Login
- *  纸本印章式 · 品牌页首 + 表格化特性 + 墨底主按钮
+ *  清新卡片风 · 藏青品牌头卡 + 白卡特性 + 胶囊主按钮
  * ============================================================ */
 
 .login-page {
@@ -20,25 +20,38 @@
 
 // ---- 印章 · Folio 封面 ----
 .login-cover {
-  @include hairline-bottom;
-  padding-bottom: bl(1.9);
+  position: relative;
+  overflow: hidden;
+  background: $navy;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-float;
+  padding: bl(2.25) bl(2);
   margin-bottom: bl(1.3);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -100rpx;
+    right: -80rpx;
+    width: 360rpx;
+    height: 360rpx;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+  }
 
   &__seal {
     @include folio-seal;
-    color: $ink;
-    letter-spacing: 0.22em;
+    color: rgba(255, 255, 255, 0.55);
     display: block;
     margin-bottom: bl(0.75);
   }
 
   &__title {
-    font-family: $font-serif;
+    font-family: $font-sans;
     font-size: 72px;
     font-weight: 700;
-    line-height: 1;
-    letter-spacing: -0.02em;
-    color: $ink;
+    line-height: 1.1;
+    color: #fff;
     margin-bottom: bl(0.45);
     display: block;
   }
@@ -47,17 +60,17 @@
     @include folio-mono;
     font-size: 20px;
     font-weight: 400;
-    color: $ink-faint;
-    letter-spacing: 0.16em;
+    color: rgba(255, 255, 255, 0.55);
+    letter-spacing: 0.1em;
     display: block;
     margin-bottom: bl(0.75);
   }
 
   &__lede {
-    font-family: $font-serif;
+    font-family: $font-sans;
     font-size: 24px;
     font-weight: 500;
-    color: $ink;
+    color: rgba(255, 255, 255, 0.85);
     line-height: 1.4;
     max-width: 20ch;
     display: block;
@@ -67,7 +80,7 @@
   &__term {
     margin-top: bl(1.1);
     padding-top: bl(0.9);
-    @include hairline-soft-top;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
     display: flex;
   }
 }
@@ -76,28 +89,26 @@
 .login-features {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: bl(0.75);
   margin-bottom: bl(1.1);
 }
 
 .login-feature {
   display: grid;
-  grid-template-columns: bl(3) 1fr;
+  grid-template-columns: bl(4) 1fr;
   align-items: center;
-  gap: bl(1.5);
-  padding: bl(1.2) 0;
-  @include hairline-soft-bottom;
-
-  &:last-child { border-bottom: none; }
+  gap: bl(1.25);
+  padding: bl(1) bl(1.25);
+  @include card($radius-md);
 
   &__no {
-    @include folio-mono;
+    @include icon-chip($sage, 64px, $radius-sm);
     font-size: 22px;
-    font-weight: 500;
-    color: $ink;
-    letter-spacing: 0.08em;
-    line-height: 1;
+    font-weight: 700;
   }
+
+  &:nth-child(2) .login-feature__no { background: pastel($sand); color: color.adjust($sand, $lightness: -18%); }
+  &:nth-child(3) .login-feature__no { background: pastel($fog); color: color.adjust($fog, $lightness: -14%); }
 
   &__body {
     display: flex;
@@ -126,9 +137,8 @@
 
 // ---- 运行信息 / 能力说明 ----
 .login-meta {
-  @include hairline-soft-top;
-  @include hairline-soft-bottom;
-  padding: bl(0.65) 0 bl(0.5);
+  @include card($radius-md);
+  padding: bl(1) bl(1.25) bl(0.9);
   margin-bottom: bl(1.05);
 
   &__grid {
@@ -191,11 +201,10 @@
   font-family: $font-sans;
   font-size: 17px;
   font-weight: 500;
-  color: $clay;
+  color: color.adjust($clay, $lightness: -10%);
   padding: bl(1) bl(1.5);
-  background: soften($clay, 70%);
-  @include hairline-all;
-  border-color: $clay;
+  background: pastel($clay);
+  border-radius: $radius-md;
   display: block;
 }
 
@@ -203,7 +212,6 @@
 .login-bottom {
   margin-top: auto;
   padding-top: bl(1.5);
-  @include hairline-soft-top;
   display: flex;
   flex-direction: column;
   gap: bl(0.85);
@@ -218,39 +226,40 @@
   grid-template-columns: 1fr auto;
   align-items: center;
   gap: bl(1.2);
-  padding: bl(1.75) bl(2);
-  background: $ink;
-  color: $paper;
-  transition: background 0.2s $ease-folio;
-  border-radius: 2px;
+  padding: bl(1.75) bl(2.25);
+  background: $farm-green;
+  color: #fff;
+  transition: background 0.2s $ease-folio, transform 0.15s $ease-folio;
+  border-radius: $radius-full;
+  box-shadow: $shadow-card;
 
   &::after { content: none; border: none; }
 
   &__label {
     font-family: $font-sans;
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 600;
-    letter-spacing: 0.04em;
-    color: $paper;
+    letter-spacing: 0.02em;
+    color: #fff;
   }
 
   &__arrow {
-    font-family: $font-serif;
+    font-family: $font-sans;
     font-size: 26px;
-    color: $paper;
+    color: #fff;
   }
 
-  &:active:not([disabled]) { background: $ink-soft; }
+  &:active:not([disabled]) { background: color.adjust($farm-green, $lightness: -8%); transform: scale(0.98); }
 
   &[disabled] {
-    background: $ink-faint;
-    color: $paper-light;
+    background: $paper-deep;
+    color: $ink-faint;
+    box-shadow: none;
   }
 }
 
 // 次级入口分组的 hairline 标题行 · "§ · 其他身份"
 .login-alt {
-  @include hairline-soft-top;
   padding-top: bl(0.7);
   margin-top: bl(0.3);
   display: flex;
@@ -259,15 +268,14 @@
 
   &__seal {
     @include folio-seal;
-    font-size: 14px;
-    color: $ink-soft;
-    letter-spacing: 0.3em;
+    font-size: 15px;
+    color: $ink-faint;
   }
   &__sub {
     @include folio-mono;
-    font-size: 11px;
+    font-size: 12px;
+    font-weight: 400;
     color: $ink-faint;
-    letter-spacing: 0.18em;
   }
 }
 
@@ -280,10 +288,9 @@
   gap: bl(1);
   padding: bl(1.1) bl(1.5);
   color: $ink;
-  border-radius: 2px;
-  @include hairline-all;
-  border-color: $line;
+  border-radius: $radius-md;
   background: $paper-light;
+  box-shadow: $shadow-card;
   text-align: left;
 
   &::after { content: none; border: none; }
@@ -296,8 +303,8 @@
 %login-secondary-no {
   @include folio-mono;
   font-size: 14px;
-  letter-spacing: 0.22em;
-  color: $ink-soft;
+  font-weight: 500;
+  color: $ink-faint;
 }
 %login-secondary-body {
   display: flex;
@@ -306,11 +313,10 @@
   min-width: 0;
 }
 %login-secondary-text {
-  font-family: $font-serif;
+  font-family: $font-sans;
   font-size: 22px;
-  font-weight: 500;
+  font-weight: 600;
   color: $ink;
-  letter-spacing: 0.04em;
 }
 %login-secondary-sub {
   font-family: $font-sans;
@@ -319,9 +325,9 @@
   letter-spacing: 0.02em;
 }
 %login-secondary-arrow {
-  font-family: $font-serif;
+  font-family: $font-sans;
   font-size: 20px;
-  color: $ink-soft;
+  color: $ink-faint;
 }
 
 .login-adopter {
@@ -335,9 +341,8 @@
 
 .login-operator {
   @extend %login-secondary;
-  border-color: color.adjust($farm-earth, $lightness: 30%);
-  background: color.mix($paper-light, $farm-earth, 94%);
-  &__no    { @extend %login-secondary-no; color: $farm-earth; }
+  background: pastel($farm-earth);
+  &__no    { @extend %login-secondary-no; color: color.adjust($farm-earth, $lightness: -12%); }
   &__body  { @extend %login-secondary-body; }
   &__text  { @extend %login-secondary-text; }
   &__sub   { @extend %login-secondary-sub; }

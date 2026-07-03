@@ -102,7 +102,7 @@
     color: $clay;
     letter-spacing: 0.05em;
     padding: bl(1.5) bl(2);
-    background: soften($clay, 75%);
+    background: pastel($clay);
     @include hairline-all;
     border-color: $clay;
   }
@@ -112,8 +112,9 @@
     @include button-reset;
     margin-top: bl(0.5);
     padding: bl(1.5) bl(2.5);
-    background: $ink;
-    color: $paper;
+    background: $farm-green;
+    color: #fff;
+    border-radius: $radius-full;
     display: grid;
     grid-template-columns: 1fr auto;
     align-items: center;
@@ -121,7 +122,7 @@
     transition: background 0.2s $ease-folio;
 
     &::after { content: none; border: none; }
-    &:active:not([disabled]) { background: $ink-soft; }
+    &:active:not([disabled]) { background: color.adjust($farm-green, $lightness: -8%); }
     &[disabled] { background: $ink-faint; color: $paper-light; }
 
     &--ghost {
@@ -257,7 +258,7 @@
   gap: bl(1.5);
   @include hairline-all;
   border-color: $sage;
-  background: soften($sage, 80%);
+  background: pastel($sage);
 
   &__seal {
     @include folio-seal;

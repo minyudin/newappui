@@ -26,7 +26,7 @@
 
   &__rule {
     height: 1px;
-    background: $ink;
+    background: $line;
 
     &--double {
       position: relative;
@@ -68,7 +68,7 @@
   margin-top: bl(0.5);
   padding: bl(1.25) bl(1.5);
   @include hairline-all;
-  border-color: $ink;
+  border-color: $line;
   background: $paper-light;
   display: flex;
   align-items: baseline;
@@ -144,10 +144,10 @@
     background: $paper-light;
     border-color: $line;
 
-    &--waiting { background: soften($sand, 55%); border-color: $sand; color: color.adjust($sand, $lightness: -38%); }
-    &--running { background: soften($sage, 55%); border-color: $sage; color: color.adjust($sage, $lightness: -30%); }
-    &--success { background: soften($sage, 40%); border-color: $sage; color: color.adjust($sage, $lightness: -35%); }
-    &--fail    { background: soften($clay, 55%); border-color: $clay; color: $clay; }
+    &--waiting { background: pastel($sand); border-color: $sand; color: color.adjust($sand, $lightness: -38%); }
+    &--running { background: pastel($sage); border-color: $sage; color: color.adjust($sage, $lightness: -30%); }
+    &--success { background: pastel($sage); border-color: $sage; color: color.adjust($sage, $lightness: -35%); }
+    &--fail    { background: pastel($clay); border-color: $clay; color: $clay; }
     &--cancel  { background: $paper-light; border-color: $line-soft; color: $ink-faint; }
   }
 
@@ -179,10 +179,10 @@
     background: $paper-light;
     color: $ink;
 
-    &--low    { border-color: $sage;  color: color.adjust($sage, $lightness: -30%); background: soften($sage, 70%); }
-    &--medium { border-color: $sand;  color: color.adjust($sand, $lightness: -42%); background: soften($sand, 55%); }
-    &--high   { border-color: $clay;  color: $clay; background: soften($clay, 65%); }
-    &--review { border-color: $plum;  color: color.adjust($plum, $lightness: -22%); background: soften($plum, 70%); }
+    &--low    { border-color: $sage;  color: color.adjust($sage, $lightness: -30%); background: pastel($sage); }
+    &--medium { border-color: $sand;  color: color.adjust($sand, $lightness: -42%); background: pastel($sand); }
+    &--high   { border-color: $clay;  color: $clay; background: pastel($clay); }
+    &--review { border-color: $plum;  color: color.adjust($plum, $lightness: -22%); background: pastel($plum); }
   }
 
   &__reasons {
@@ -291,7 +291,7 @@
     padding: 2px bl(0.5);
     @include hairline-all;
     border-color: $sand;
-    background: soften($sand, 55%);
+    background: pastel($sand);
     color: color.adjust($sand, $lightness: -42%);
   }
 
@@ -402,7 +402,7 @@
 // ============================================================
 .wo-queue {
   @include hairline-all;
-  border-color: $ink;
+  border-color: $line;
   background: $paper;
   padding: bl(1) bl(1.25);
   display: inline-flex;
@@ -438,7 +438,7 @@
 // ============================================================
 .wo-fail {
   padding: bl(1.25) bl(1.5);
-  background: soften($clay, 80%);
+  background: pastel($clay);
   @include hairline-all;
   border-color: $clay;
   border-left-width: 4px;
@@ -550,12 +550,12 @@
 
   &--passed {
     border-color: var(--accent-current, #{$farm-green});
-    background: var(--accent-current-soft, #{soften($sage, 78%)});
+    background: var(--accent-current-soft, #{pastel($sage)});
     .wo-stamp__seal { color: var(--accent-current, #{$farm-green}); }
   }
   &--fail {
     border-color: $clay;
-    background: soften($clay, 75%);
+    background: pastel($clay);
     .wo-stamp__seal { color: $clay; }
   }
   &--void {
@@ -586,15 +586,16 @@
     color: $clay;
     @include hairline-all;
     border-color: $clay;
-    &:active:not([disabled]) { background: soften($clay, 80%); }
+    &:active:not([disabled]) { background: pastel($clay); }
     &[disabled] { color: $ink-faint; border-color: $line-soft; }
   }
 
   &--back {
     margin-top: bl(0.5);
-    background: $ink;
-    color: $paper;
-    &:active { background: $ink-soft; }
+    background: $farm-green;
+    color: #fff;
+    border-radius: $radius-full;
+    &:active { background: color.adjust($farm-green, $lightness: -8%); }
   }
 }
 
@@ -646,9 +647,10 @@
   }
 
   &__retry {
-    background: $ink;
-    color: $paper;
-    &:active:not([disabled]) { background: $ink-soft; }
+    background: $farm-green;
+    color: #fff;
+    border-radius: $radius-full;
+    &:active:not([disabled]) { background: color.adjust($farm-green, $lightness: -8%); }
     &[disabled] { background: $ink-faint; }
   }
 

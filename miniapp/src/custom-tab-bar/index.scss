@@ -13,8 +13,10 @@
   right: 0;
   height: calc(bl(6.5) + env(safe-area-inset-bottom));
   padding-bottom: env(safe-area-inset-bottom);
-  background: $paper;
-  @include hairline-top;
+  background: $paper-light;
+  border-top-left-radius: $radius-lg;
+  border-top-right-radius: $radius-lg;
+  box-shadow: 0 -6px 24px rgba(44, 58, 85, 0.08);
   display: flex;
   z-index: 500;
 
@@ -24,47 +26,43 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: bl(0.18);
-    @include hairline-soft-right;
+    gap: bl(0.3);
     // 去掉 transition: 点击时 selected 状态立即切换, 不需要 JS 线程排等 200ms
-
-    &:last-child {
-      border-right: none;
-    }
 
     // 按下瞬时反馈, 不加 transition, 让视觉在一帧内改变
     &:active {
-      background: $paper-light;
+      opacity: 0.7;
     }
 
     &--active {
-      background: rgba(241, 239, 234, 0.92);
-
       .tab-bar__seal {
-        color: $ink;
+        background: pastel($slate);
+        color: $farm-green;
       }
 
       .tab-bar__label {
-        color: $ink;
-        font-weight: 500;
+        color: $farm-green;
+        font-weight: 600;
       }
     }
   }
 
   &__seal {
     @include folio-mono;
-    font-size: 14px;
+    font-size: 16px;
+    font-weight: 600;
     color: $ink-faint;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
     line-height: 1;
+    padding: bl(0.4) bl(1);
+    border-radius: $radius-full;
+    background: transparent;
   }
 
   &__label {
-    font-family: $font-serif;
-    font-size: 24px;
-    color: $ink-soft;
-    letter-spacing: 0.15em;
+    font-family: $font-sans;
+    font-size: 22px;
+    color: $ink-faint;
+    letter-spacing: 0.05em;
     line-height: 1;
   }
 }
@@ -80,14 +78,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f5f0eb;
-  color: #1a1714;
+  background: $paper;
+  color: $ink;
 
   &::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at center, transparent 55%, rgba(26, 23, 20, 0.04) 100%);
+    background: radial-gradient(circle at center, transparent 55%, rgba(44, 58, 85, 0.04) 100%);
   }
 
   &__inner {
@@ -115,14 +113,14 @@
 
   &__ring-outer {
     border-width: 2px;
-    border-color: #1a1714 transparent #1a1714 transparent;
+    border-color: $farm-green transparent $farm-green transparent;
     animation: tab-ring-spin 2.2s linear infinite;
   }
 
   &__ring-inner {
     inset: 8px;
     border-width: 2px;
-    border-color: transparent #6b6460 transparent #6b6460;
+    border-color: transparent $ink-faint transparent $ink-faint;
     animation: tab-ring-spin-reverse 1.6s linear infinite;
   }
 
@@ -134,23 +132,24 @@
   }
 
   &__mark-chapter {
-    font-family: $font-serif;
+    font-family: $font-sans;
     font-size: 16px;
-    color: #1a1714;
+    font-weight: 600;
+    color: $ink;
     letter-spacing: 0.08em;
   }
 
   &__mark-sep {
     @include folio-mono;
     font-size: 12px;
-    color: #d4cec9;
+    color: $line;
   }
 
   &__mark-title {
-    font-family: $font-serif;
+    font-family: $font-sans;
     font-size: 16px;
-    color: #6b6460;
-    letter-spacing: 0.18em;
+    color: $ink-soft;
+    letter-spacing: 0.1em;
   }
 }
 

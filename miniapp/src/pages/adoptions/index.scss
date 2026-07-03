@@ -19,19 +19,17 @@
   &__err {
     @include folio-mono;
     font-size: 22px;
-    color: $clay;
-    letter-spacing: 0.05em;
+    font-weight: 500;
+    color: color.adjust($clay, $lightness: -10%);
     padding: bl(1.5) bl(2);
-    background: soften($clay, 75%);
-    @include hairline-all;
-    border-color: $clay;
+    background: pastel($clay);
+    border-radius: $radius-md;
   }
 }
 
 // ---- 页头 · Folio 封面 ----
 .adoptions-head {
-  @include hairline-bottom;
-  padding-bottom: bl(2);
+  padding-bottom: bl(1);
   margin-bottom: bl(0.5);
   display: flex;
   justify-content: space-between;
@@ -48,20 +46,15 @@
 
   &__seal {
     @include folio-seal;
-    color: $ink;
-    letter-spacing: 0.3em;
     display: block;
     margin-bottom: bl(0.5);
   }
 
   &__title {
-    font-family: $font-serif;
-    font-size: 54px;
-    font-weight: 500;
-    color: $ink;
-    line-height: 1.05;
-    letter-spacing: -0.015em;
+    @include folio-title;
+    font-size: 50px;
     display: block;
+    @include section-bar($sage);
   }
 
   &__lede {
@@ -81,19 +74,18 @@
   }
 
   &__meta-num {
-    font-family: $font-serif;
+    font-family: $font-sans;
     font-size: 44px;
-    font-weight: 500;
-    color: $ink;
+    font-weight: 700;
+    color: $farm-green;
     line-height: 1;
-    letter-spacing: -0.01em;
   }
 
   &__meta-label {
     font-family: $font-sans;
     font-size: 20px;
     color: $ink-faint;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.05em;
   }
 }
 
@@ -101,21 +93,20 @@
 .adoption-list {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: bl(1);
 }
 
-// ---- 地块行 · 纯 hairline 列表 · 紧凑 ----
+// ---- 地块卡片 · 白卡圆角 ----
 .plot-card {
-  @include hairline-soft-bottom;
-  padding: bl(1.75) 0;
+  @include card;
+  padding: bl(1.5) bl(1.5);
   display: grid;
   grid-template-columns: bl(7) 1fr auto;
   gap: bl(1.5);
   align-items: center;
-  transition: background 0.15s $ease-folio;
+  transition: transform 0.15s $ease-folio;
 
-  &:first-child { border-top: 1px solid $line-soft; }
-  &:active { background: $paper-light; }
+  &:active { transform: scale(0.98); }
 
   // 左: 印章格 · 田字格底 + 作物核心字
   //   · 底色用极浅土褐 (farm-earth 88% 柔化), 比纯灰多一层"地气"
@@ -125,9 +116,8 @@
     position: relative;
     width: bl(7);
     height: bl(7);
-    background: soften($farm-earth, 88%);
-    @include hairline-all;
-    border-color: $line;
+    background: pastel($sage);
+    border-radius: $radius-md;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -179,20 +169,19 @@
 
   // 作物核心字 · 麦/稻/茄/瓜/菜/椒 · 像书扉页印鉴
   &__cover-char {
-    font-family: $font-serif;
+    font-family: $font-sans;
     font-size: 46px;
-    font-weight: 600;
-    color: $farm-green;
+    font-weight: 700;
+    color: color.adjust($sage, $lightness: -16%);
     line-height: 1;
-    letter-spacing: -0.02em;
   }
 
   // 地块编号 · 藏在底部作为印章编码
   &__cover-id {
     @include folio-mono;
     font-size: 13px;
-    color: $ink-faint;
-    letter-spacing: 0.14em;
+    font-weight: 500;
+    color: color.adjust($sage, $lightness: -10%);
   }
 
   // 中: 主信息
@@ -210,12 +199,11 @@
   }
 
   &__title {
-    font-family: $font-serif;
-    font-size: 34px;
+    font-family: $font-sans;
+    font-size: 32px;
     color: $ink;
-    font-weight: 500;
+    font-weight: 600;
     line-height: 1.2;
-    letter-spacing: -0.005em;
   }
 
   &__arrow {
@@ -243,20 +231,18 @@
     font-family: $font-sans;
     font-size: 18px;
     font-weight: 500;
-    letter-spacing: 0.02em;
     padding: bl(0.4) bl(1);
-    @include hairline-all;
-    border-color: $line-soft;
-    background: $paper-light;
-    color: $ink;
+    border-radius: $radius-full;
+    background: $paper-deep;
+    color: $ink-soft;
     align-self: center;
     display: inline-block;
 
-    &--sage  { background: soften($sage,  50%); border-color: $sage;  color: color.adjust($sage,  $lightness: -35%); }
-    &--sand  { background: soften($sand,  45%); border-color: $sand;  color: color.adjust($sand,  $lightness: -40%); }
-    &--fog   { background: soften($fog,   55%); border-color: $fog;   color: color.adjust($fog,   $lightness: -35%); }
-    &--clay  { background: soften($clay,  55%); border-color: $clay;  color: $clay; }
-    &--ink-faint { background: $paper-light; border-color: $line-soft; color: $ink-faint; }
+    &--sage  { background: pastel($sage);  color: color.adjust($sage,  $lightness: -20%); }
+    &--sand  { background: pastel($sand);  color: color.adjust($sand,  $lightness: -24%); }
+    &--fog   { background: pastel($fog);   color: color.adjust($fog,   $lightness: -18%); }
+    &--clay  { background: pastel($clay);  color: color.adjust($clay,  $lightness: -12%); }
+    &--ink-faint { background: $paper-deep; color: $ink-faint; }
   }
 }
 
@@ -267,19 +253,17 @@
   flex-direction: column;
   align-items: center;
   gap: bl(1);
-  border: 1px dashed $line;
-  background: transparent;
+  @include card;
 
   &__icon {
-    display: none; // Folio 不要装饰 icon
+    display: none;
   }
 
   &__title {
-    font-family: $font-serif;
+    font-family: $font-sans;
     font-size: 34px;
     color: $ink;
-    font-weight: 500;
-    letter-spacing: -0.01em;
+    font-weight: 600;
   }
 
   &__hint {
@@ -308,16 +292,18 @@
   @include button-reset;
   margin-top: bl(1);
   padding: bl(1.5) bl(2.5);
-  background: $ink;
-  color: $paper;
+  background: $farm-green;
+  color: #fff;
+  border-radius: $radius-full;
+  box-shadow: $shadow-card;
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
   gap: bl(1.5);
-  transition: background 0.2s $ease-folio;
+  transition: background 0.2s $ease-folio, transform 0.15s $ease-folio;
 
   &::after { content: none; border: none; }
-  &:active { background: $ink-soft; }
+  &:active { background: color.adjust($farm-green, $lightness: -8%); transform: scale(0.98); }
 
   &__icon { display: none; }
 
@@ -325,14 +311,13 @@
     font-family: $font-sans;
     font-size: 22px;
     font-weight: 600;
-    letter-spacing: 0.04em;
-    color: $paper;
+    color: #fff;
   }
 
   &__arrow {
-    font-family: $font-serif;
+    font-family: $font-sans;
     font-size: 26px;
-    color: $paper;
+    color: #fff;
     text-align: right;
   }
 }

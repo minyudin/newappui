@@ -2,38 +2,65 @@
 @use './tokens' as *;
 
 /* ============================================================
- *  SCSS Mixins · Longarch Miniapp · Folio 印刷品语汇
- *  对齐 admin-next/src/styles/mixins.scss
+ *  SCSS Mixins · Longarch Miniapp · 清新圆润卡片语汇
+ *  白卡片 + 大圆角 + 马卡龙图标组件 + 左竖条章节标题
  * ============================================================ */
 
-// ---- Hairline 分隔线 · 印刷品的灵魂 ----
+// ---- 极浅分隔线 (保留旧 API 名, 视觉柔化) ----
 @mixin hairline-top    { border-top:    1px solid $line; }
 @mixin hairline-bottom { border-bottom: 1px solid $line; }
 @mixin hairline-left   { border-left:   1px solid $line; }
 @mixin hairline-right  { border-right:  1px solid $line; }
-@mixin hairline-all    { border:        1px solid $line; }
+@mixin hairline-all    { border: 1px solid $line; border-radius: $radius-sm; }
 
 @mixin hairline-soft-top    { border-top:    1px solid $line-soft; }
 @mixin hairline-soft-bottom { border-bottom: 1px solid $line-soft; }
 @mixin hairline-soft-left   { border-left:   1px solid $line-soft; }
 @mixin hairline-soft-right  { border-right:  1px solid $line-soft; }
 
-// ---- Folio 编号印章 (小字 · 大写 · 加字距) ----
+// ---- 白色圆角卡片 · 体系的基座 ----
+@mixin card($radius: $radius-lg) {
+  background: $paper-light;
+  border-radius: $radius;
+  box-shadow: $shadow-card;
+}
+
+// ---- 马卡龙图标组件底 (圆角方块, 参考图的"可爱小组件") ----
+@mixin icon-chip($color, $size: 88px, $radius: $radius-md) {
+  width: $size;
+  height: $size;
+  border-radius: $radius;
+  background: pastel($color);
+  color: $color;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+// ---- 淡彩数据瓦片底 (统计块) ----
+@mixin pastel-tile($color, $radius: $radius-md) {
+  background: pastel($color);
+  border-radius: $radius;
+}
+
+// ---- 小标签 (旧 folio-seal 位) · 小号灰字, 圆润 ----
 @mixin folio-seal {
-  font-family: $font-folio;
+  font-family: $font-sans;
   font-size: 22px;
-  letter-spacing: 0.15em;
-  color: $ink-soft;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: $ink-faint;
   text-transform: uppercase;
 }
 
-// ---- 学术标题 (章页标题 · 衬线) ----
+// ---- 标题 · 粗黑圆润 ----
 @mixin folio-title {
-  font-family: $font-serif;
-  font-weight: 500;
-  letter-spacing: -0.01em;
+  font-family: $font-sans;
+  font-weight: 700;
+  letter-spacing: 0;
   color: $ink;
-  line-height: 1.15;
+  line-height: 1.2;
 }
 
 // ---- 正文 ----
@@ -44,19 +71,38 @@
   line-height: 1.6;
 }
 
-// ---- 编号 / 数字 / 代码 (等宽 + 数字对齐) ----
+// ---- 数字 / 代码 (数字对齐) ----
 @mixin folio-mono {
-  font-family: $font-mono;
+  font-family: $font-sans;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0;
 }
 
-// ---- 斜体注释 (衬线 · 学术感) ----
+// ---- 次级注释 (灰色小字, 不再斜体) ----
 @mixin folio-em {
-  font-family: $font-serif;
-  font-style: italic;
+  font-family: $font-sans;
+  font-style: normal;
   color: $ink-soft;
-  letter-spacing: 0.02em;
+  letter-spacing: 0;
+}
+
+// ---- 章节标题: 左侧彩色短竖条 ----
+@mixin section-bar($color: $slate) {
+  position: relative;
+  padding-left: bl(1.25);
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 1em;
+    border-radius: $radius-full;
+    background: $color;
+  }
 }
 
 // ---- baseline 乘数 · 所有间距对齐 16 的倍数 ----
