@@ -19,6 +19,13 @@ export default defineAppConfig({
     'pages/me/index',
     'pages/brand-story/index',
   ],
+  // 首页天气按用户所在位置查询
+  requiredPrivateInfos: ['getLocation'],
+  permission: {
+    'scope.userLocation': {
+      desc: '用于获取你所在位置的实时天气',
+    },
+  },
   window: {
     // 自定义导航栏: 原生导航隐藏, 各页顶部挂 <BrandNavBar /> 品牌栏
     navigationStyle: 'custom',
