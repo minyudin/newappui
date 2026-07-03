@@ -18,28 +18,22 @@
 
 // ---- 页头 ----
 .me-head {
-  @include hairline-bottom;
-  padding-bottom: bl(2);
+  padding-bottom: bl(0.5);
   display: flex;
   flex-direction: column;
   gap: bl(0.25);
 
   &__seal {
     @include folio-seal;
-    color: $ink;
-    letter-spacing: 0.3em;
     display: block;
     margin-bottom: bl(0.5);
   }
 
   &__title {
-    font-family: $font-serif;
-    font-size: 54px;
-    font-weight: 500;
-    color: $ink;
-    line-height: 1.05;
-    letter-spacing: -0.015em;
+    @include folio-title;
+    font-size: 50px;
     display: block;
+    @include section-bar($slate);
   }
 
   &__lede {
@@ -57,24 +51,24 @@
   grid-template-columns: bl(7) 1fr;
   gap: bl(2);
   align-items: center;
-  padding: bl(2) 0;
-  @include hairline-bottom;
+  padding: bl(1.75) bl(1.75);
+  @include card;
 
   &__avatar {
     width: bl(7);
     height: bl(7);
-    background: $paper-light;
-    @include hairline-all;
+    background: pastel($slate);
+    border-radius: $radius-md;
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
   &__avatar-char {
-    font-family: $font-serif;
+    font-family: $font-sans;
     font-size: 56px;
-    color: $ink;
-    font-weight: 400;
+    color: color.adjust($slate, $lightness: -8%);
+    font-weight: 700;
     line-height: 1;
   }
 
@@ -86,9 +80,9 @@
   }
 
   &__name {
-    font-family: $font-serif;
+    font-family: $font-sans;
     font-size: 36px;
-    font-weight: 500;
+    font-weight: 700;
     color: $ink;
     line-height: 1.2;
   }
@@ -103,9 +97,8 @@
   &__meta {
     @include folio-mono;
     font-size: 18px;
+    font-weight: 400;
     color: $ink-faint;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
     margin-top: bl(0.25);
   }
 }
@@ -115,16 +108,16 @@
   display: flex;
   flex-direction: column;
   gap: 0;
+  @include card;
+  padding: bl(1.5) bl(1.75);
 
   &__title {
-    @include folio-seal;
-    font-size: 18px;
-    color: $ink-faint;
-    letter-spacing: 0.3em;
-    padding-bottom: bl(0.75);
-    @include hairline-soft-bottom;
+    @include folio-title;
+    font-size: 26px;
+    @include section-bar($sage);
+    padding-bottom: bl(0.25);
     display: block;
-    margin-bottom: bl(0.5);
+    margin-bottom: bl(0.75);
   }
 }
 
@@ -142,13 +135,12 @@
   &__key {
     @include folio-mono;
     font-size: 18px;
+    font-weight: 500;
     color: $ink-faint;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
   }
 
   &__val {
-    font-family: $font-serif;
+    font-family: $font-sans;
     font-size: 24px;
     color: $ink;
     font-weight: 500;
@@ -175,10 +167,9 @@
   &__edit {
     @include folio-mono;
     font-size: 18px;
-    letter-spacing: 0.18em;
-    color: $ink-faint;
+    font-weight: 500;
+    color: $farm-green;
     flex-shrink: 0;
-    text-transform: uppercase;
   }
 
   // clickable 行: 点击有反馈
@@ -192,7 +183,7 @@
 // ---- 导航行 · 可点, 带箭头 ----
 .me-nav {
   display: grid;
-  grid-template-columns: 1fr bl(2);
+  grid-template-columns: 1fr auto;
   align-items: center;
   gap: bl(1);
   padding: bl(1.25) 0;
@@ -203,14 +194,15 @@
   &:active { background: $paper-light; }
 
   &__key {
-    font-family: $font-serif;
+    font-family: $font-sans;
     font-size: 26px;
+    font-weight: 500;
     color: $ink;
     line-height: 1.2;
   }
 
   &__arrow {
-    font-family: $font-serif;
+    font-family: $font-sans;
     font-size: 28px;
     color: $ink-faint;
     text-align: right;
@@ -228,9 +220,10 @@
   &__flag {
     @include folio-mono;
     font-size: 18px;
-    letter-spacing: 0.12em;
+    font-weight: 400;
     color: $ink-faint;
     text-align: right;
+    white-space: nowrap;
   }
 }
 
@@ -239,21 +232,19 @@
   @include button-reset;
   margin-top: bl(2);
   padding: bl(1.5) bl(2.5);
-  background: $paper;
-  color: $clay;
-  @include hairline-all;
-  border-color: $clay;
-  transition: background 0.2s $ease-folio;
+  background: pastel($clay);
+  color: color.adjust($clay, $lightness: -10%);
+  border-radius: $radius-full;
+  transition: background 0.2s $ease-folio, transform 0.15s $ease-folio;
 
   &::after { content: none; border: none; }
-  &:active:not([disabled]) { background: soften($clay, 80%); }
-  &[disabled] { color: $ink-faint; border-color: $line-soft; }
+  &:active:not([disabled]) { transform: scale(0.98); }
+  &[disabled] { color: $ink-faint; background: $paper-deep; }
 
   &__text {
     @include folio-mono;
     font-size: 22px;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
+    font-weight: 600;
     color: inherit;
   }
 }
@@ -262,9 +253,8 @@
 .me-footer {
   @include folio-mono;
   font-size: 16px;
+  font-weight: 400;
   color: $ink-faint;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
   text-align: center;
   margin-top: bl(1.5);
   opacity: 0.6;

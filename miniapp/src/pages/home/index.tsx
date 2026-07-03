@@ -1,5 +1,6 @@
 import { View, Text } from '@tarojs/components'
 import Taro, { useDidShow, useLoad } from '@tarojs/taro'
+import { Heart, Message, Order, User } from '@nutui/icons-react-taro'
 import { useMemo } from 'react'
 import { useAuthStore } from '@/store/auth'
 import { TAB_BAR_SYNC_EVT } from '@/custom-tab-bar/events'
@@ -193,7 +194,7 @@ export default function HomePage() {
               className='entry entry--primary'
               onClick={() => go('/pages/operator-workbench/index')}
             >
-              <Text className='entry__seal'>§ A</Text>
+              <View className='entry__seal'><Order size={24} /></View>
               <View className='entry__body'>
                 <Text className='entry__title'>运营工作台</Text>
                 <Text className='entry__sub'>待领 · 责任域 · 异常</Text>
@@ -202,7 +203,7 @@ export default function HomePage() {
             </View>
           )}
           <View className='entry' onClick={() => go('/pages/adoptions/index')}>
-            <Text className='entry__seal'>§ B</Text>
+            <View className='entry__seal'><Heart size={24} /></View>
             <View className='entry__body'>
               <Text className='entry__title'>我的认养</Text>
               <Text className='entry__sub'>地块 · 操作 · 农事</Text>
@@ -210,7 +211,7 @@ export default function HomePage() {
             <Text className='entry__arrow'>→</Text>
           </View>
           <View className='entry' onClick={() => go('/pages/ai-assist/index')}>
-            <Text className='entry__seal'>§ C</Text>
+            <View className='entry__seal'><Message size={24} /></View>
             <View className='entry__body'>
               <Text className='entry__title'>AI 农技</Text>
               <Text className='entry__sub'>问答 · 诊断 · 节气建议</Text>
@@ -218,7 +219,7 @@ export default function HomePage() {
             <Text className='entry__arrow'>→</Text>
           </View>
           <View className='entry' onClick={() => go('/pages/me/index')}>
-            <Text className='entry__seal'>§ D</Text>
+            <View className='entry__seal'><User size={24} /></View>
             <View className='entry__body'>
               <Text className='entry__title'>个人中心</Text>
               <Text className='entry__sub'>账号 · 设置 · 退出</Text>

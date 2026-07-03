@@ -113,7 +113,7 @@
     color: $clay;
     letter-spacing: 0.05em;
     padding: bl(0.75) bl(1);
-    background: soften($clay, 75%);
+    background: pastel($clay);
     @include hairline-all;
     border-color: $clay;
   }
@@ -128,8 +128,9 @@
   // 用户气泡 · 靠右 · 墨色底
   &--user {
     align-self: flex-end;
-    background: $ink;
-    border-color: $ink;
+    background: $navy;
+    border-color: $navy;
+    border-radius: $radius-md $radius-md $radius-xs $radius-md;
 
     .bubble__text {
       color: $paper;
@@ -145,15 +146,16 @@
     @include button-reset;
     margin-top: bl(0.5);
     padding: bl(1) bl(1.5);
-    background: $ink;
-    color: $paper;
+    background: $farm-green;
+    color: #fff;
+    border-radius: $radius-full;
     display: grid;
     grid-template-columns: 1fr auto;
     align-items: center;
     gap: bl(1);
 
     &::after { content: none; border: none; }
-    &:active:not([disabled]) { background: $ink-soft; }
+    &:active:not([disabled]) { background: color.adjust($farm-green, $lightness: -8%); }
     &[disabled] { background: $ink-faint; color: $paper-light; }
   }
 
@@ -209,8 +211,8 @@
 
     &:active {
       background: $paper-light;
-      border-color: $ink;
-      color: $ink;
+      border-color: $farm-green;
+      color: $farm-green;
     }
   }
 }
@@ -259,15 +261,16 @@
     @include button-reset;
     padding: 0 bl(1.5);
     height: bl(5);
-    background: $ink;
-    color: $paper;
+    background: $farm-green;
+    color: #fff;
+    border-radius: $radius-full;
     @include folio-mono;
     font-size: 22px;
     letter-spacing: 0.3em;
     text-transform: uppercase;
 
     &::after { content: none; border: none; }
-    &:active:not([disabled]) { background: $ink-soft; }
+    &:active:not([disabled]) { background: color.adjust($farm-green, $lightness: -8%); }
     &[disabled] { background: $ink-faint; color: $paper-light; }
   }
 

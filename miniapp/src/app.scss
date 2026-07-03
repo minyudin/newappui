@@ -5,7 +5,7 @@
 
 /* ============================================================
  *  Longarch Miniapp · 全局样式
- *  纸本印刷美学 · 无圆角 · 无阴影 · 无渐变 · 编号至上
+ *  清新圆润卡片风 · 浅蓝灰底 · 白卡大圆角 · 马卡龙图标
  * ============================================================ */
 
 /* ---- 季节主题 fallback (app.tsx 启动时会被 applySeasonTheme 覆盖) ---- */
@@ -16,6 +16,26 @@
   --paper-current:       #{$paper};
 }
 
+/* ---- NutUI 主题 · 对齐清新卡片风 ---- */
+page {
+  --nutui-color-primary: #{$farm-green};
+  --nutui-color-primary-stop-1: #{$farm-green};
+  --nutui-color-primary-stop-2: #{color.adjust($farm-green, $lightness: -6%)};
+  --nutui-dialog-content-border-radius: #{$radius-md};
+}
+
+/* Dialog 按钮 · 主按钮实底靛蓝, 取消浅灰底 */
+.nut-dialog-footer-ok.nut-button {
+  background: $farm-green;
+  color: #fff;
+  border-radius: $radius-full;
+}
+.nut-dialog-footer-cancel.nut-button {
+  background: $paper-deep;
+  color: $ink;
+  border-radius: $radius-full;
+}
+
 page {
   background: $paper;
   color: $ink;
@@ -23,9 +43,6 @@ page {
   font-size: 28px;
   line-height: 1.6;
   letter-spacing: 0.01em;
-  // 极淡的纸颗粒纹理 (小程序网页端会显示)
-  background-image: radial-gradient(rgba(138, 133, 123, 0.04) 1px, transparent 1px);
-  background-size: 6px 6px;
 }
 
 // ---- 按钮全局 reset · 去掉微信默认边框圆角 ----
@@ -34,7 +51,7 @@ page {
 // 的热区, 直接覆盖邻居元素 → 所有相邻按钮点击都命中本按钮.
 // 这里直接 `content: none` 把伪元素彻底拿掉, 根治.
 button {
-  border-radius: 0;
+  border-radius: $radius-full;
   padding: 0;
   background: transparent;
   color: inherit;
@@ -53,12 +70,11 @@ button {
  * ============================================================ */
 .folio-page {
   min-height: 100vh;
-  padding: bl(3) bl(2.5) bl(6);
+  padding: bl(3) bl(2) bl(6);
 
   &__header {
-    @include hairline-soft-bottom;
-    padding-bottom: bl(2);
-    margin-bottom: bl(2);
+    padding-bottom: bl(1.5);
+    margin-bottom: bl(1.5);
     display: flex;
     flex-direction: column;
     gap: bl(0.5);
@@ -66,63 +82,61 @@ button {
 
   &__seal {
     @include folio-seal;
-    color: $ink;
-    letter-spacing: 0.3em;
+    font-size: 20px;
     display: block;
   }
 
   &__title {
-    font-family: $font-serif;
-    font-size: 48px;
-    font-weight: 500;
-    line-height: 1.05;
-    letter-spacing: -0.015em;
-    color: $ink;
+    @include folio-title;
+    font-size: 44px;
     display: flex;
     align-items: baseline;
     gap: bl(0.75);
     flex-wrap: wrap;
+    @include section-bar($slate);
   }
 
   &__title-cn {
-    font-family: $font-serif;
+    font-family: $font-sans;
     font-size: 26px;
     font-weight: 400;
     color: $ink-soft;
-    letter-spacing: 0.3em;
   }
 
   &__lede {
     @include folio-em;
     font-size: 22px;
-    color: $ink-soft;
+    color: $ink-faint;
     max-width: 60ch;
   }
 
   &__body {
     display: flex;
     flex-direction: column;
-    gap: bl(3);
+    gap: bl(2);
   }
 
   &__section {
+    @include card;
+    padding: bl(1.75) bl(1.75);
     display: flex;
     flex-direction: column;
-    gap: bl(1.5);
+    gap: bl(1.25);
   }
 
   &__section-title {
-    @include folio-seal;
-    font-size: 18px;
-    color: $ink-faint;
-    letter-spacing: 0.3em;
+    @include folio-title;
+    font-size: 28px;
     display: flex;
     align-items: baseline;
     gap: bl(0.75);
+    @include section-bar($sage);
 
     em {
       @include folio-em;
-      font-size: 22px;
+      font-size: 20px;
+      font-weight: 400;
+      color: $ink-faint;
       text-transform: none;
     }
   }
@@ -142,30 +156,26 @@ button {
 
   &__meta {
     @include folio-mono;
-    font-size: 18px;
+    font-size: 20px;
+    font-weight: 500;
     color: $ink-faint;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
   }
 
   &__title {
-    font-family: $font-serif;
+    @include folio-title;
     font-size: 30px;
-    font-weight: 500;
-    color: $ink;
-    line-height: 1.2;
   }
 
   &__sub {
     @include folio-em;
     font-size: 22px;
+    color: $ink-faint;
   }
 
   &__status {
     @include folio-mono;
-    font-size: 18px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
+    font-size: 20px;
+    font-weight: 500;
     color: $ink-soft;
   }
 }
@@ -178,39 +188,42 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: bl(1.25);
-  padding: bl(2.25) bl(3);
-  background: $ink;
-  color: $paper;
-  font-family: $font-mono;
-  font-size: 26px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  transition: background 0.2s $ease-folio;
+  gap: bl(0.75);
+  padding: bl(1.75) bl(3);
+  background: $farm-green;
+  color: #fff;
+  border-radius: $radius-full;
+  font-family: $font-sans;
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: background 0.2s $ease-folio, transform 0.15s $ease-folio;
   width: 100%;
+  box-shadow: $shadow-card;
 
   &__arrow {
-    font-family: $font-serif;
+    font-family: $font-sans;
     font-size: 32px;
-    color: $paper;
+    color: #fff;
   }
 
-  &:active:not([disabled]) { background: $ink-soft; }
-  &[disabled] { background: $ink-faint; color: $paper-light; }
+  &:active:not([disabled]) { background: color.adjust($farm-green, $lightness: -8%); transform: scale(0.98); }
+  &[disabled] { background: $paper-deep; color: $ink-faint; box-shadow: none; }
 
   &--ghost {
-    background: transparent;
+    background: $paper-light;
     color: $ink;
-    @include hairline-all;
-    &:active:not([disabled]) { background: $paper-light; }
+    border: 1px solid $line;
+    box-shadow: none;
+    &:active:not([disabled]) { background: $paper-deep; }
     &[disabled] { color: $ink-faint; border-color: $line-soft; }
     .folio-btn__arrow { color: $ink; }
   }
 
   &--accent {
     background: $sage;
-    color: $paper-light;
-    &:active:not([disabled]) { background: color.adjust($sage, $lightness: -5%); }
+    color: #fff;
+    &:active:not([disabled]) { background: color.adjust($sage, $lightness: -6%); }
   }
 }
 
@@ -223,24 +236,46 @@ button {
   padding: bl(0.5) bl(1.25);
   @include folio-mono;
   font-size: 20px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: $ink;
-  @include hairline-all;
-  border-color: $line-soft;
-  background: $paper-light;
+  font-weight: 500;
+  color: $ink-soft;
+  border: none;
+  border-radius: $radius-full;
+  background: $paper-deep;
 
-  &--sage  { background: soften($sage,  60%); border-color: $sage; color: color.adjust($sage, $lightness: -30%); }
-  &--fog   { background: soften($fog,   60%); border-color: $fog;  color: color.adjust($fog,  $lightness: -30%); }
-  &--sand  { background: soften($sand,  50%); border-color: $sand; color: color.adjust($sand, $lightness: -35%); }
-  &--clay  { background: soften($clay,  60%); border-color: $clay; color: $clay; }
-  &--moss  { background: soften($moss,  55%); border-color: $moss; color: color.adjust($moss, $lightness: -25%); }
-  &--plum  { background: soften($plum,  55%); border-color: $plum; color: color.adjust($plum, $lightness: -20%); }
-  &--slate { background: soften($slate, 60%); border-color: $slate; color: color.adjust($slate, $lightness: -25%); }
-  &--muted { background: $paper-light; border-color: $line-soft; color: $ink-faint; }
+  &--sage  { background: pastel($sage);  color: color.adjust($sage, $lightness: -18%); }
+  &--fog   { background: pastel($fog);   color: color.adjust($fog,  $lightness: -18%); }
+  &--sand  { background: pastel($sand);  color: color.adjust($sand, $lightness: -22%); }
+  &--clay  { background: pastel($clay);  color: color.adjust($clay, $lightness: -12%); }
+  &--moss  { background: pastel($moss);  color: color.adjust($moss, $lightness: -18%); }
+  &--plum  { background: pastel($plum);  color: color.adjust($plum, $lightness: -18%); }
+  &--slate { background: pastel($slate); color: color.adjust($slate, $lightness: -14%); }
+  &--muted { background: $paper-deep; color: $ink-faint; }
   // N52 · TASK_STATUS_LABEL.cancelled tone='ink-faint' · plot 页操作列表 / 其他
-  //       若只是默认 paper-light 背景会让 cancelled 任务和正常任务混在一起无区分
-  &--ink-faint { background: $paper-light; border-color: $line-soft; color: $ink-faint; }
+  //       若只是默认背景会让 cancelled 任务和正常任务混在一起无区分
+  &--ink-faint { background: $paper-deep; color: $ink-faint; }
+}
+
+/* ============================================================
+ *  卡片入场渐显 · 所有 card() 共用
+ * ============================================================ */
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+ *  插图占位 · 找到图后替换为 <Image mode='aspectFill'>
+ *  建议尺寸: hero 横图 686×300rpx · 卡片封面 1:1 · 空状态 480×360rpx
+ * ============================================================ */
+.illo-slot {
+  border-radius: $radius-md;
+  background: pastel($fog);
+  border: 2px dashed rgba(106, 168, 232, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: color.adjust($fog, $lightness: -14%);
+  font-size: 22px;
 }
 
 /* ============================================================
@@ -322,13 +357,14 @@ button {
   bottom: bl(8);
   transform: translateX(-50%);
   z-index: 950;
-  background: $ink;
-  color: $paper;
-  padding: bl(1) bl(1.6);
-  border-left: 4px solid var(--accent-current, $sage);
-  font-family: $font-serif;
+  background: $navy;
+  color: #fff;
+  padding: bl(1) bl(1.75);
+  border-radius: $radius-full;
+  box-shadow: $shadow-float;
+  font-family: $font-sans;
   font-size: 24px;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   display: flex;
   align-items: center;
   gap: bl(0.5);
@@ -338,10 +374,10 @@ button {
 }
 .folio-toast--out { animation: folio-toast-out 0.32s $ease-folio both; }
 .folio-toast__seal {
-  font-family: $font-folio;
+  font-family: $font-sans;
   font-size: 14px;
-  letter-spacing: 0.24em;
-  color: $paper-deep;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.6);
   text-transform: uppercase;
 }
 

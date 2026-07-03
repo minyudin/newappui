@@ -1,48 +1,62 @@
 /* ============================================================
- *  SCSS Tokens · Longarch Miniapp · 莫兰迪纸本美学
- *  与 admin-next/src/styles/tokens.scss 色值完全一致
+ *  SCSS Tokens · Longarch Miniapp · 清新圆润卡片风
+ *  浅蓝灰底 + 纯白大圆角卡片 + 马卡龙彩色图标组件
  *  (字号/间距按移动端 2x 放大, 适配高分辨率屏)
  * ============================================================ */
 
 @use 'sass:color';
 
-// ---- 莫兰迪基色 ----
-$paper:         #e8e8e5;   // 暖灰纸底
-$paper-deep:    #dddad3;   // 比纸深一度
-$paper-light:   #f1efea;   // 最浅 · 卡片底
+// ---- 底色体系 ----
+$paper:         #f2f4f8;   // 页面底 · 浅蓝灰
+$paper-deep:    #e5e9f1;   // 比底深一度 · 分块/骨架
+$paper-light:   #ffffff;   // 卡片底 · 纯白
 
-$ink:           #2d2a26;   // 墨灰主文字
-$ink-soft:      #5a564f;   // 次级文字
-$ink-faint:     #8a857b;   // 三级 / 占位
+$ink:           #23272f;   // 主文字 · 近黑
+$ink-soft:      #5b6472;   // 次级文字
+$ink-faint:     #9aa3b2;   // 三级 / 占位
 
-// ---- 自然色 (莫兰迪) ----
-$sage:          #9fb58e;   // 莫兰迪绿 · 主 accent
-$fog:           #a0bcd0;   // 雾蓝
-$sand:          #d9c9a8;   // 沙黄
-$clay:          #c5826a;   // 砖红 · 告警
-$slate:         #7e9bc0;   // 柔蓝 · 数据
-$moss:          #9baa7a;   // 柔绿 · OK
-$plum:          #a68c9c;   // 柔紫 · 次级 accent
+// ---- 马卡龙彩色系 (图标组件 / 状态) ----
+$sage:          #58c2a4;   // 薄荷绿 · 主 accent
+$fog:           #6aa8e8;   // 天蓝
+$sand:          #f0b350;   // 奶油黄
+$clay:          #ef7e6d;   // 珊瑚红 · 告警
+$slate:         #7c83f7;   // 长春花蓝紫 · 数据/主按钮
+$moss:          #67b877;   // 柔绿 · OK
+$plum:          #e58ab4;   // 樱花粉 · 次级 accent
 
-// ---- 农业主色 (深田绿 + 土褐, 给重点农业元素用) ----
-// 当需要"田""土"的视觉暗示时用, 避免 Morandi 柔色在"农业感"上发力不够.
-// 保留 ink 为最强对比的文字色, 这两色只用于: 生长进度条刻度、节气印章、重点按钮
-$farm-green:    #3d5a3f;   // 深田绿 · 生长/节气印章/重点行动
-$farm-earth:    #6b5537;   // 土褐 · 次级重点 / 时节印记
+// ---- 深色 Hero / 重点色 ----
+$farm-green:    #5d63e0;   // 靛蓝紫 · 主行动/重点(原深田绿位)
+$farm-earth:    #f09a4e;   // 暖橙 · 次级重点
 
-// ---- hairline ----
-$line:          #c8c4bb;   // 主分隔线
-$line-soft:     #dcd8cf;   // 次分隔线
+$navy:          #2c3a55;   // 深藏青 · Hero 卡片底
+$navy-deep:     #232e45;   // 更深一度
+$navy-chip:     rgba(255, 255, 255, 0.12);  // Hero 上的半透明胶囊
 
-// ---- 字体栈 · 与 admin-next 同源 ----
+// ---- 分隔线 ----
+$line:          #e2e7f0;   // 主分隔线 · 极浅
+$line-soft:     #ecf0f6;   // 次分隔线
+
+// ---- 圆角 ----
+$radius-xs:     10px;
+$radius-sm:     16px;
+$radius-md:     24px;      // 小组件 / chip
+$radius-lg:     32px;      // 标准卡片
+$radius-xl:     44px;      // Hero / 大卡
+$radius-full:   999px;     // 胶囊
+
+// ---- 阴影 (极淡, 仅托起卡片) ----
+$shadow-card:   0 4px 24px rgba(44, 58, 85, 0.05);
+$shadow-float:  0 8px 32px rgba(44, 58, 85, 0.10);
+
+// ---- 字体栈 · 圆润现代无衬线 ----
 $font-sans:  -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Noto Sans SC', system-ui, sans-serif;
-$font-serif: 'Noto Serif SC', 'Source Han Serif SC', 'PingFang SC', Georgia, serif;
+$font-serif: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Noto Sans SC', system-ui, sans-serif;
 $font-mono:  'SF Mono', Menlo, Consolas, 'Courier New', monospace;
-$font-folio: 'SF Mono', Menlo, Consolas, monospace;
+$font-folio: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Noto Sans SC', system-ui, sans-serif;
 
-// ---- 栅格 · 小程序 px 即 rpx, 整体 2x 于 admin-next ----
-$gutter:        48px;      // 页缘 (= admin-next 24px × 2)
-$baseline:      16px;      // bl(n) 的基本单位 (= admin-next 8px × 2)
+// ---- 栅格 · 小程序 px 即 rpx, 整体 2x ----
+$gutter:        48px;      // 页缘
+$baseline:      18px;      // bl(n) 的基本单位 · 加大留白
 $col-count:     12;
 
 // ---- 缓动 ----
@@ -56,7 +70,12 @@ $z-sheet-mask:  100;
 $z-sheet:       101;
 $z-toast:       900;
 
-// ---- 柔化: 任何色 mix 40% 纸底, 用于 chip 背景 ----
+// ---- 柔化: 任何色 mix 白底, 用于马卡龙 chip / 图标组件背景 ----
 @function soften($color, $amount: 40%) {
   @return color.mix($paper-light, $color, $amount);
+}
+
+// ---- 马卡龙淡底: 图标组件的标准背景 (色的 14% 浓度) ----
+@function pastel($color) {
+  @return color.mix($color, $paper-light, 14%);
 }

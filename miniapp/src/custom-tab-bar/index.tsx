@@ -1,6 +1,7 @@
 import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { useEffect, useRef, useState } from 'react'
+import { Home, Heart, Message, User, Order } from '@nutui/icons-react-taro'
+import { FunctionComponent, useEffect, useRef, useState } from 'react'
 import { TAB_BAR_SYNC_EVT } from './events'
 import { useAuthStore } from '@/store/auth'
 import './index.scss'
@@ -26,31 +27,32 @@ interface TabItem {
   pagePath: string
   text: string
   seal: string
+  icon: FunctionComponent<{ size?: string | number; color?: string; className?: string }>
 }
 
 function getVisibleTabs(roleType: string | undefined | null): TabItem[] {
   // operator: 首页 / 工作台 / AI / 我的 (4 个 · 工作台高频, 单独留一席)
   if (roleType === 'operator') {
     return [
-      { pagePath: '/pages/home/index', text: '首页', seal: '§ 00' },
-      { pagePath: '/pages/operator-workbench/index', text: '工作台', seal: '§ 01' },
-      { pagePath: '/pages/ai-assist/index', text: 'AI询问', seal: '§ 02' },
-      { pagePath: '/pages/me/index', text: '我的', seal: '§ 03' },
+      { pagePath: '/pages/home/index', text: '首页', seal: '§ 00', icon: Home },
+      { pagePath: '/pages/operator-workbench/index', text: '工作台', seal: '§ 01', icon: Order },
+      { pagePath: '/pages/ai-assist/index', text: 'AI询问', seal: '§ 02', icon: Message },
+      { pagePath: '/pages/me/index', text: '我的', seal: '§ 03', icon: User },
     ]
   }
   // M6 · guest 是分享码进入的临时用户: 没有认养订单, AI 询问也用不到.
   //      只留 "我的" 作为身份 / 退出入口
   if (roleType === 'guest') {
     return [
-      { pagePath: '/pages/me/index', text: '我的', seal: '§ 01' },
+      { pagePath: '/pages/me/index', text: '我的', seal: '§ 01', icon: User },
     ]
   }
   // adopter / agronomist / admin: 首页 / 认养 / AI / 我的
   return [
-    { pagePath: '/pages/home/index', text: '首页', seal: '§ 00' },
-    { pagePath: '/pages/adoptions/index', text: '认养', seal: '§ 01' },
-    { pagePath: '/pages/ai-assist/index', text: 'AI询问', seal: '§ 02' },
-    { pagePath: '/pages/me/index', text: '我的', seal: '§ 03' },
+    { pagePath: '/pages/home/index', text: '首页', seal: '§ 00', icon: Home },
+    { pagePath: '/pages/adoptions/index', text: '认养', seal: '§ 01', icon: Heart },
+    { pagePath: '/pages/ai-assist/index', text: 'AI询问', seal: '§ 02', icon: Message },
+    { pagePath: '/pages/me/index', text: '我的', seal: '§ 03', icon: User },
   ]
 }
 
@@ -168,7 +170,7 @@ export default function CustomTabBar() {
               className={`tab-bar__item ${active ? 'tab-bar__item--active' : ''}`}
               onClick={() => handleTap(idx)}
             >
-              <Text className='tab-bar__seal'>{tab.seal}</Text>
+              <tab.icon className='tab-bar__icon' size={22} />
               <Text className='tab-bar__label'>{tab.text}</Text>
             </View>
           )

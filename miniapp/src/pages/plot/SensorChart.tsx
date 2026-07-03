@@ -108,11 +108,11 @@ export default function SensorChart({ plotId, sensors }: Props) {
   // 计算 path
   const { paths, xAxis, yAxis } = useMemo(() => {
     if (seriesData.length === 0) {
-      return { paths: [] as Array<{ metricKey: string; d: string; color: string }>, xAxis: [], yAxis: [] as number[] }
+      return { paths: [] as ChartPath[], xAxis: [], yAxis: [] as number[] }
     }
     const values = seriesData.flatMap((s) => s.points.map((p) => p.v)).filter((v) => Number.isFinite(v))
     if (values.length === 0) {
-      return { paths: [] as Array<{ metricKey: string; d: string; color: string }>, xAxis: [], yAxis: [] as number[] }
+      return { paths: [] as ChartPath[], xAxis: [], yAxis: [] as number[] }
     }
     let minV = Math.min(...values)
     let maxV = Math.max(...values)
@@ -125,15 +125,21 @@ export default function SensorChart({ plotId, sensors }: Props) {
     const innerH = VIEW_H - PAD_T - PAD_B
 
     const paths = seriesData.map((series, sidx) => {
-      const pathParts = series.points.map((p, i) => {
-        const x = PAD_L + (i / Math.max(series.points.length - 1, 1)) * innerW
-        const y = PAD_T + (1 - (p.v - minV) / span) * innerH
-        return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`
-      })
+      const pts = series.points.map((p, i) => ({
+        x: PAD_L + (i / Math.max(series.points.length - 1, 1)) * innerW,
+        y: PAD_T + (1 - (p.v - minV) / span) * innerH,
+      }))
+      const d = smoothPath(pts)
+      const baseY = PAD_T + innerH
+      const areaD = pts.length > 1
+        ? `${d} L${pts[pts.length - 1].x.toFixed(1)},${baseY} L${pts[0].x.toFixed(1)},${baseY} Z`
+        : ''
       return {
         metricKey: series.metricKey,
-        d: pathParts.join(' '),
+        d,
+        areaD,
         color: lineColor(sidx),
+        last: pts[pts.length - 1],
       }
     })
 
@@ -225,7 +231,7 @@ export default function SensorChart({ plotId, sensors }: Props) {
                     x2={VIEW_W - PAD_R}
                     y1={y}
                     y2={y}
-                    stroke='#dcd8cf'
+                    stroke='#e5e9f1'
                     strokeWidth='1'
                     strokeDasharray={i === 1 ? '0' : '2,3'}
                   />
@@ -234,7 +240,7 @@ export default function SensorChart({ plotId, sensors }: Props) {
                     y={y + 4}
                     fontSize='12'
                     fontFamily='monospace'
-                    fill='#8a857b'
+                    fill='#9aa3b2'
                     textAnchor='end'
                   >
                     {fmtNum(yv)}
@@ -251,16 +257,34 @@ export default function SensorChart({ plotId, sensors }: Props) {
                 y={VIEW_H - 8}
                 fontSize='12'
                 fontFamily='monospace'
-                fill='#8a857b'
+                fill='#9aa3b2'
                 textAnchor={i === 0 ? 'start' : i === xAxis.length - 1 ? 'end' : 'middle'}
               >
                 {t.label}
               </text>
             ))}
 
-            {/* 曲线(多指标) */}
-            {paths.map((p) => (
-              <path key={p.metricKey} d={p.d} stroke={p.color} strokeWidth='1.5' fill='none' strokeLinejoin='round' />
+            {/* 渐变定义 */}
+            <defs>
+              {paths.map((p, i) => (
+                <linearGradient key={p.metricKey} id={`area-${i}`} x1='0' y1='0' x2='0' y2='1'>
+                  <stop offset='0%' stopColor={p.color} stopOpacity='0.22' />
+                  <stop offset='100%' stopColor={p.color} stopOpacity='0' />
+                </linearGradient>
+              ))}
+            </defs>
+
+            {/* 面积渐变 + 圆滑曲线 + 端点 */}
+            {paths.map((p, i) => (
+              <g key={p.metricKey}>
+                {p.areaD ? <path d={p.areaD} fill={`url(#area-${i})`} stroke='none' /> : null}
+                <path d={p.d} stroke={p.color} strokeWidth='2.5' fill='none' strokeLinejoin='round' strokeLinecap='round' />
+                {p.last ? (
+                  <g>
+                    <circle cx={p.last.x} cy={p.last.y} r='5' fill='#fff' stroke={p.color} strokeWidth='2.5' />
+                  </g>
+                ) : null}
+              </g>
             ))}
           </svg>
         )}
@@ -338,6 +362,33 @@ function metricLabel(metricKey: string): string {
 }
 
 function lineColor(index: number): string {
-  const palette = ['#2d2a26', '#6f8a6f', '#9a7d62', '#627b9a', '#8d6a92']
+  const palette = ['#5d63e0', '#58c2a4', '#f0b350', '#6aa8e8', '#e58ab4']
   return palette[index % palette.length]
+}
+
+interface ChartPath {
+  metricKey: string
+  d: string
+  areaD: string
+  color: string
+  last?: { x: number; y: number }
+}
+
+// Catmull-Rom → 三次贝塞尔 · 圆滑曲线
+function smoothPath(pts: Array<{ x: number; y: number }>): string {
+  if (pts.length === 0) return ''
+  if (pts.length === 1) return `M${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`
+  const parts = [`M${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`]
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] || pts[i]
+    const p1 = pts[i]
+    const p2 = pts[i + 1]
+    const p3 = pts[i + 2] || p2
+    const c1x = p1.x + (p2.x - p0.x) / 6
+    const c1y = p1.y + (p2.y - p0.y) / 6
+    const c2x = p2.x - (p3.x - p1.x) / 6
+    const c2y = p2.y - (p3.y - p1.y) / 6
+    parts.push(`C${c1x.toFixed(1)},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`)
+  }
+  return parts.join(' ')
 }

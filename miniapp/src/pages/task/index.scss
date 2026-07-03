@@ -21,7 +21,7 @@
     color: $clay;
     letter-spacing: 0.05em;
     padding: bl(1.5) bl(2);
-    background: soften($clay, 75%);
+    background: pastel($clay);
     @include hairline-all;
     border-color: $clay;
   }
@@ -393,10 +393,10 @@
   // height: fit-content 在 WXSS 支持不稳, 改用 inline-block 让内容自适应
   display: inline-block;
 
-  &--sage  { background: soften($sage,  60%); border-color: $sage;  color: color.adjust($sage,  $lightness: -30%); }
-  &--sand  { background: soften($sand,  50%); border-color: $sand;  color: color.adjust($sand,  $lightness: -35%); }
-  &--fog   { background: soften($fog,   60%); border-color: $fog;   color: color.adjust($fog,   $lightness: -30%); }
-  &--clay  { background: soften($clay,  60%); border-color: $clay;  color: $clay; }
+  &--sage  { background: pastel($sage); border-color: $sage;  color: color.adjust($sage,  $lightness: -30%); }
+  &--sand  { background: pastel($sand); border-color: $sand;  color: color.adjust($sand,  $lightness: -35%); }
+  &--fog   { background: pastel($fog); border-color: $fog;   color: color.adjust($fog,   $lightness: -30%); }
+  &--clay  { background: pastel($clay); border-color: $clay;  color: $clay; }
   &--ink-faint { background: $paper-light; border-color: $line-soft; color: $ink-faint; }
 }
 
@@ -477,7 +477,7 @@
     color: $clay;
     letter-spacing: 0.05em;
     padding: bl(1.25) bl(1.5);
-    background: soften($clay, 75%);
+    background: pastel($clay);
     @include hairline-all;
     border-color: $clay;
   }
@@ -486,8 +486,9 @@
     @include button-reset;
     margin-top: bl(1);
     padding: bl(2.25) bl(3);
-    background: $ink;
-    color: $paper;
+    background: $farm-green;
+    color: #fff;
+    border-radius: $radius-full;
     @include folio-mono;
     font-size: 16px;
     letter-spacing: 0.16em;
@@ -496,7 +497,7 @@
     transition: background 0.2s $ease-folio;
 
     &::after { border: none; }
-    &:active:not([disabled]) { background: $ink-soft; }
+    &:active:not([disabled]) { background: color.adjust($farm-green, $lightness: -8%); }
     &[disabled] { background: $ink-faint; color: $paper-light; }
   }
 
@@ -626,7 +627,7 @@
     height: 6px;
     background: rgba(0, 0, 0, 0.06);
     overflow: hidden;
-    border-radius: 0;
+    border-radius: $radius-full;
     margin: bl(0.25) 0;
   }
 

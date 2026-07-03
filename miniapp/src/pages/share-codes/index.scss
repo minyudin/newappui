@@ -32,7 +32,7 @@
   &__card {
     width: min(82vw, 560px);
     @include hairline-all;
-    border-color: $ink;
+    border-color: $line;
     background: $paper-light;
     padding: bl(1.5) bl(2);
     display: flex;
@@ -126,7 +126,7 @@
 // ---- 新建区 · 收据式 ----
 .share-create {
   @include hairline-all;
-  border-color: $ink;
+  border-color: $line;
   background: $paper-light;
   padding: bl(1.1);
   display: flex;
@@ -176,15 +176,16 @@
   }
   &__btn {
     @include button-reset;
-    background: $ink;
-    color: $paper;
+    background: $farm-green;
+    color: #fff;
+    border-radius: $radius-full;
     padding: bl(0.9) bl(1.3);
     @include folio-mono;
     font-size: 20px;
     letter-spacing: 0.2em;
     text-transform: uppercase;
     &::after { content: none; border: none; }
-    &:active:not([disabled]) { background: $ink-soft; }
+    &:active:not([disabled]) { background: color.adjust($farm-green, $lightness: -8%); }
     &[disabled] { background: $ink-faint; }
   }
   &__hint {
@@ -199,7 +200,7 @@
   color: $clay;
   font-size: 18px;
   padding: bl(0.5) bl(0.75);
-  background: soften($clay, 75%);
+  background: pastel($clay);
   @include hairline-all;
   border-color: $clay;
 }
@@ -246,7 +247,7 @@
 .share-card {
   position: relative;
   @include hairline-all;
-  border-color: $ink;
+  border-color: $line;
   background: $paper-light;
   padding: bl(1.25) bl(1.5);
   display: flex;
@@ -301,12 +302,12 @@
     &--active {
       color: $farm-green;
       border-color: $farm-green;
-      background: soften($sage, 72%);
+      background: pastel($sage);
     }
     &--revoked {
       color: $clay;
       border-color: $clay;
-      background: soften($clay, 72%);
+      background: pastel($clay);
     }
   }
 

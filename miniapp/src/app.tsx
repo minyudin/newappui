@@ -4,6 +4,7 @@ import { useLaunch } from '@tarojs/taro'
 import { useAuthStore } from '@/store/auth'
 import { applySeasonTheme } from '@/lib/solar-terms'
 import FolioCorners from '@/components/FolioCorners'
+import '@nutui/nutui-react-taro/dist/style.css'
 import './app.scss'
 
 /**

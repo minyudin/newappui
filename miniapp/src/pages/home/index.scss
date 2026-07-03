@@ -1,16 +1,16 @@
+@use 'sass:color';
 @use '@/styles/tokens' as *;
 @use '@/styles/mixins' as *;
 
 /* ============================================================
- *  §00 · HOME · Compact Folio (小程序紧凑版)
- *  保留: 衬线印章 + hairline + 等宽 mono
- *  删除: 100vh hero · 视差 · 双 ticker · §FIN · scroll hint
+ *  §00 · HOME · 清新卡片风
+ *  深藏青 Hero 大卡 + 白卡分区 + 马卡龙数据瓦片
  * ============================================================ */
 
 .home-page {
   min-height: 100vh;
   background: $paper;
-  padding: 0 0 calc(bl(8) + env(safe-area-inset-bottom));
+  padding: 0 bl(2) calc(bl(8) + env(safe-area-inset-bottom));
   overflow-x: hidden;
 }
 
@@ -18,11 +18,28 @@
 //  HERO · 紧凑印章条 (~180rpx)
 // ============================================================
 .hero {
-  padding: bl(1.5) bl(2) bl(1.25);
-  @include hairline-bottom;
+  position: relative;
+  overflow: hidden;
+  margin-top: bl(1.5);
+  padding: bl(2) bl(2) bl(1.75);
+  background: $navy;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-float;
   display: flex;
   flex-direction: column;
   gap: bl(1);
+
+  // 装饰大圆 (参考图 Hero 右上角)
+  &::before {
+    content: '';
+    position: absolute;
+    top: -80rpx;
+    right: -60rpx;
+    width: 320rpx;
+    height: 320rpx;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+  }
 
   &__row {
     display: flex;
@@ -33,15 +50,14 @@
   &__seal {
     @include folio-seal;
     font-size: 18px;
-    color: $ink;
-    letter-spacing: 0.32em;
+    color: rgba(255, 255, 255, 0.55);
   }
 
   &__stamp {
     @include folio-mono;
     font-size: 18px;
-    color: $ink-faint;
-    letter-spacing: 0.12em;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.55);
   }
 
   &__main {
@@ -59,18 +75,17 @@
   }
 
   &__term {
-    font-family: $font-serif;
-    font-size: 44px;
-    font-weight: 500;
-    color: $ink;
-    line-height: 1.1;
-    letter-spacing: -0.015em;
+    font-family: $font-sans;
+    font-size: 46px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.15;
   }
 
   &__pentad {
     @include folio-em;
     font-size: 22px;
-    color: $ink-soft;
+    color: rgba(255, 255, 255, 0.7);
     line-height: 1.3;
   }
 
@@ -84,17 +99,18 @@
   }
 
   &__greet {
-    font-family: $font-serif;
+    font-family: $font-sans;
     font-size: 26px;
-    color: $ink;
+    font-weight: 500;
+    color: #fff;
     line-height: 1.2;
   }
 
   &__role {
     @include folio-mono;
     font-size: 16px;
-    color: $ink-faint;
-    letter-spacing: 0.16em;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.5);
   }
 }
 
@@ -102,53 +118,47 @@
 //  Ticker (1 条, 不再是双道)
 // ============================================================
 .ticker {
-  border-top: 1px solid $ink;
-  border-bottom: 1px solid $line-soft;
-  padding: bl(0.625) 0;
-  background: $paper;
+  margin-top: bl(1.25);
+  padding: bl(0.625) bl(1);
+  background: pastel($slate);
+  border-radius: $radius-full;
+  color: color.adjust($slate, $lightness: -14%);
+  overflow: hidden;
 }
 
 // ============================================================
 //  通用 Section (紧凑版 padding bl(1.5) bl(2))
 // ============================================================
 .section {
-  padding: bl(1.5) bl(2);
+  margin-top: bl(1.75);
 
   &__head {
     display: flex;
     align-items: baseline;
     gap: bl(0.75);
     margin-bottom: bl(1);
-    @include hairline-soft-bottom;
-    padding-bottom: bl(0.5);
+    @include section-bar($slate);
   }
 
   &__seal {
-    @include folio-seal;
-    font-size: 18px;
-    color: $ink;
-    letter-spacing: 0.28em;
+    display: none;
   }
 
   &__title {
-    font-family: $font-serif;
-    font-size: 32px;
-    font-weight: 500;
-    color: $ink;
-    letter-spacing: -0.01em;
-    line-height: 1;
+    @include folio-title;
+    font-size: 34px;
+    line-height: 1.1;
   }
 
   &__title-en {
     @include folio-em;
     font-size: 18px;
     color: $ink-faint;
-    letter-spacing: 0.16em;
     margin-left: auto;
   }
 
   &--coda {
-    padding: bl(2) bl(2);
+    margin-top: bl(2);
   }
 }
 
@@ -192,37 +202,40 @@
 }
 
 .focus-cell {
-  padding: bl(0.75) 0;
+  @include card($radius-md);
+  padding: bl(1.25) bl(1);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: bl(0.25);
   cursor: pointer;
-  transition: opacity 0.2s $ease-folio;
+  transition: transform 0.15s $ease-folio, opacity 0.2s $ease-folio;
 
-  &:active { opacity: 0.6; }
+  &:active { transform: scale(0.97); opacity: 0.85; }
 
   &__num {
-    font-family: $font-serif;
+    font-family: $font-sans;
+    font-weight: 700;
     line-height: 1;
   }
 
   &__label {
-    font-family: $font-serif;
+    font-family: $font-sans;
     font-size: 22px;
-    color: $ink;
+    color: $ink-soft;
     line-height: 1.2;
 
     &--alert { color: $clay; }
   }
 
   &__rule {
-    width: 100%;
-    height: 2px;
-    background: $ink;
+    width: bl(2.5);
+    height: 6px;
+    border-radius: $radius-full;
+    background: pastel($slate);
     margin-top: bl(0.5);
 
-    &--alert { background: $clay; }
+    &--alert { background: pastel($clay); }
   }
 }
 
@@ -231,9 +244,9 @@
 // ============================================================
 .now-plot {
   @include folio-mono;
-  font-size: 18px;
-  color: $ink-soft;
-  letter-spacing: 0.18em;
+  font-size: 20px;
+  font-weight: 500;
+  color: $ink-faint;
   margin-bottom: bl(0.875);
   display: block;
 }
@@ -241,7 +254,7 @@
 .now-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: bl(0.75) bl(1.5);
+  gap: bl(1);
   margin-bottom: bl(1);
 }
 
@@ -249,8 +262,13 @@
   display: flex;
   flex-direction: column;
   gap: 4rpx;
-  padding: bl(0.5) 0;
-  border-bottom: 1px solid $line-soft;
+  padding: bl(1) bl(1.25);
+  border-radius: $radius-md;
+
+  &:nth-child(1) { background: pastel($sand); }
+  &:nth-child(2) { background: pastel($fog); }
+  &:nth-child(3) { background: pastel($plum); }
+  &:nth-child(4) { background: pastel($sage); }
 
   &__head {
     display: flex;
@@ -261,12 +279,12 @@
   &__label {
     @include folio-mono;
     font-size: 18px;
-    color: $ink-faint;
-    letter-spacing: 0.18em;
+    font-weight: 500;
+    color: $ink-soft;
   }
 
   &__trend {
-    font-family: $font-serif;
+    font-family: $font-sans;
     font-size: 22px;
 
     &--up { color: $sage; }
@@ -281,19 +299,18 @@
   }
 
   &__num {
-    font-family: $font-serif;
-    font-size: 36px;
-    font-weight: 500;
+    font-family: $font-sans;
+    font-size: 40px;
+    font-weight: 700;
     color: $ink;
-    letter-spacing: -0.015em;
     line-height: 1;
   }
 
   &__unit {
     @include folio-mono;
     font-size: 18px;
+    font-weight: 400;
     color: $ink-faint;
-    letter-spacing: 0.06em;
   }
 }
 
@@ -301,25 +318,26 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: bl(0.75) 0;
-  border-top: 2px solid $ink;
-  border-bottom: 2px solid $ink;
+  padding: bl(1.25) bl(1.75);
+  background: $farm-green;
+  border-radius: $radius-full;
+  box-shadow: $shadow-card;
   cursor: pointer;
-  transition: background 0.2s $ease-folio;
+  transition: transform 0.15s $ease-folio;
 
-  &:active { background: $paper-light; }
+  &:active { transform: scale(0.98); }
 
   &__text {
-    font-family: $font-serif;
-    font-size: 24px;
-    color: $ink;
-    font-weight: 500;
+    font-family: $font-sans;
+    font-size: 26px;
+    color: #fff;
+    font-weight: 600;
   }
 
   &__arrow {
-    font-family: $font-serif;
+    font-family: $font-sans;
     font-size: 26px;
-    color: $ink;
+    color: #fff;
   }
 }
 
@@ -328,20 +346,19 @@
 // ============================================================
 .rec-row {
   display: grid;
-  grid-template-columns: bl(3) 1fr;
+  grid-template-columns: bl(4) 1fr;
   gap: bl(1);
-  padding: bl(0.875) 0;
-  border-top: 1px solid $line-soft;
+  align-items: center;
+  padding: bl(1.25) bl(1.25);
+  @include card($radius-md);
 
-  &:last-child { border-bottom: 1px solid $line-soft; }
+  & + & { margin-top: bl(0.75); }
 
   &__no {
-    font-family: $font-serif;
-    font-size: 40px;
-    font-weight: 400;
-    color: $ink-faint;
-    line-height: 1;
-    letter-spacing: -0.02em;
+    @include icon-chip($fog, 64px, $radius-sm);
+    font-family: $font-sans;
+    font-size: 26px;
+    font-weight: 700;
   }
 
   &__body {
@@ -359,24 +376,27 @@
   }
 
   &__title {
-    font-family: $font-serif;
+    font-family: $font-sans;
     font-size: 26px;
     color: $ink;
-    font-weight: 500;
+    font-weight: 600;
     line-height: 1.3;
   }
 
   &__tag {
     @include folio-mono;
-    font-size: 14px;
-    color: $ink-faint;
-    letter-spacing: 0.28em;
+    font-size: 16px;
+    font-weight: 500;
+    color: color.adjust($slate, $lightness: -8%);
+    background: pastel($slate);
+    border-radius: $radius-full;
+    padding: 2rpx bl(0.75);
   }
 
   &__desc {
     @include folio-em;
     font-size: 20px;
-    color: $ink-soft;
+    color: $ink-faint;
     line-height: 1.5;
   }
 }
@@ -387,43 +407,41 @@
 .entries {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: bl(1.25);
 }
 
 .entry {
   display: grid;
-  grid-template-columns: bl(2.5) 1fr bl(2);
-  gap: bl(1);
-  padding: bl(1) 0;
+  grid-template-columns: bl(4) 1fr bl(2);
+  gap: bl(1.25);
+  padding: bl(1.5) bl(1.5);
   align-items: center;
-  border-top: 1px solid $line-soft;
+  @include card($radius-md);
   cursor: pointer;
-  transition: background 0.2s $ease-folio;
+  transition: transform 0.15s $ease-folio;
 
-  &:last-child { border-bottom: 1px solid $line-soft; }
-  &:active { background: $paper-light; }
+  &:active { transform: scale(0.98); }
 
   &--primary {
-    background: $ink;
-    padding: bl(1.25) bl(1);
-    border-color: $ink;
+    background: $navy;
+    box-shadow: $shadow-float;
 
-    .entry__seal,
     .entry__title,
-    .entry__sub,
     .entry__arrow {
-      color: $paper;
+      color: #fff;
     }
-    .entry__seal { color: $paper-light; }
-    .entry__sub { opacity: 0.78; }
+    .entry__seal { background: $navy-chip; color: #fff; }
+    .entry__sub { color: rgba(255, 255, 255, 0.7); }
   }
 
   &__seal {
-    @include folio-seal;
-    font-size: 16px;
-    color: $ink-faint;
-    letter-spacing: 0.32em;
+    @include icon-chip($sage, 64px, $radius-sm);
+    font-size: 22px;
+    font-weight: 700;
   }
+
+  &:nth-child(odd) .entry__seal { background: pastel($sand); color: color.adjust($sand, $lightness: -18%); }
+  &--primary .entry__seal { background: $navy-chip; color: #fff; }
 
   &__body {
     display: flex;
@@ -433,22 +451,22 @@
   }
 
   &__title {
-    font-family: $font-serif;
+    font-family: $font-sans;
     font-size: 26px;
     color: $ink;
-    font-weight: 500;
+    font-weight: 600;
     line-height: 1.2;
   }
 
   &__sub {
     @include folio-em;
     font-size: 18px;
-    color: $ink-soft;
+    color: $ink-faint;
     line-height: 1.4;
   }
 
   &__arrow {
-    font-family: $font-serif;
+    font-family: $font-sans;
     font-size: 24px;
     color: $ink-faint;
     text-align: right;
@@ -462,15 +480,14 @@
 // ============================================================
 .coda {
   text-align: center;
-  padding: bl(1) 0 bl(0.75);
-  @include hairline-soft-bottom;
+  padding: bl(1.5) bl(1);
+  @include card($radius-md);
 
   &__quote {
-    font-family: $font-serif;
+    font-family: $font-sans;
     font-size: 28px;
-    color: $ink;
+    color: $ink-soft;
     line-height: 1.5;
-    font-style: italic;
     display: block;
   }
 
@@ -485,8 +502,8 @@
   &__set {
     @include folio-mono;
     font-size: 16px;
+    font-weight: 400;
     color: $ink-faint;
-    letter-spacing: 0.2em;
     text-align: center;
     margin-top: bl(1);
     display: block;
