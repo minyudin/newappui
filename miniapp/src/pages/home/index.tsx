@@ -193,21 +193,21 @@ export default function HomePage() {
         <View className='focus-grid'>
           <View className='focus-cell' onClick={() => go('/pages/adoptions/index')}>
             <View className='focus-cell__num'>
-              <DigitFlipper value={stats.adoptionCount} unit='块' size='hero' />
+              <DigitFlipper value={String(stats.adoptionCount)} unit='块' size='hero' />
             </View>
             <Text className='focus-cell__label'>认养地块</Text>
             <View className='focus-cell__rule' />
           </View>
           <View className='focus-cell' onClick={() => go('/pages/task/index', false)}>
             <View className='focus-cell__num'>
-              <DigitFlipper value={stats.todoCount} unit='件' size='hero' />
+              <DigitFlipper value={String(stats.todoCount)} unit='件' size='hero' />
             </View>
             <Text className='focus-cell__label'>进行中任务</Text>
             <View className='focus-cell__rule' />
           </View>
           <View className='focus-cell' onClick={() => go('/pages/task/index', false)}>
             <View className={`focus-cell__num ${stats.alertCount > 0 ? 'focus-cell__num--alert' : ''}`}>
-              <DigitFlipper value={stats.alertCount} unit='项' size='hero' alert={stats.alertCount > 0} />
+              <DigitFlipper value={String(stats.alertCount)} unit='项' size='hero' alert={stats.alertCount > 0} />
             </View>
             <Text className={`focus-cell__label ${stats.alertCount > 0 ? 'focus-cell__label--alert' : ''}`}>异常任务</Text>
             <View className={`focus-cell__rule ${stats.alertCount > 0 ? 'focus-cell__rule--alert' : ''}`} />
