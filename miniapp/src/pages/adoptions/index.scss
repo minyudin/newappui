@@ -167,6 +167,12 @@
     gap: bl(0.2);
   }
 
+  // 作物矢量图标 · 命中映射时替代印章字
+  &__cover-icon {
+    width: 72px;
+    height: 72px;
+  }
+
   // 作物核心字 · 麦/稻/茄/瓜/菜/椒 · 像书扉页印鉴
   &__cover-char {
     font-family: $font-sans;

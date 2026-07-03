@@ -8,7 +8,7 @@ import type { AdoptionListItem, OrderStatus } from '@/types'
 import { TAB_BAR_SYNC_EVT } from '@/custom-tab-bar/events'
 import { useRequireRole } from '@/hooks/useRequireRole'
 import { usePageRefresh } from '@/hooks/usePageRefresh'
-import { cropGlyph } from '@/lib/crop-glyph'
+import { cropGlyph, cropIcon } from '@/lib/crop-glyph'
 import PlotMicroBar from '@/components/PlotMicroBar'
 import DigitFlipper from '@/components/DigitFlipper'
 import './index.scss'
@@ -200,7 +200,15 @@ export default function AdoptionsPage() {
                     />
                   ) : (
                     <View className='plot-card__cover-fallback'>
-                      <Text className='plot-card__cover-char'>{cropGlyph(item.cropName)}</Text>
+                      {cropIcon(item.cropName) ? (
+                        <Image
+                          className='plot-card__cover-icon'
+                          src={cropIcon(item.cropName)!}
+                          mode='aspectFit'
+                        />
+                      ) : (
+                        <Text className='plot-card__cover-char'>{cropGlyph(item.cropName)}</Text>
+                      )}
                       <Text className='plot-card__cover-id'>
                         {String(item.plotId).slice(-4)}
                       </Text>
