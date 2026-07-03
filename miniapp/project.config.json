@@ -14,7 +14,7 @@
     "autoAudits": false,
     "checkInvalidKey": true,
     "checkSiteMap": true,
-    "uploadWithSourceMap": true,
+    "uploadWithSourceMap": false,
     "compileHotReLoad": false,
     "useMultiFrameRuntime": true,
     "useApiHook": true,
@@ -39,5 +39,12 @@
   },
   "compileType": "miniprogram",
   "libVersion": "3.4.3",
-  "condition": {}
+  "condition": {},
+  "packOptions": {
+    "ignore": [
+      { "type": "suffix", "value": ".map" },
+      { "type": "suffix", "value": ".wxss.map" }
+    ],
+    "include": []
+  }
 }
