@@ -1,11 +1,8 @@
 import { View, Text, Button } from '@tarojs/components'
 import Taro, { useLoad, useUnload } from '@tarojs/taro'
-import { Clock, ShieldCheck, Video } from '@nutui/icons-react-taro'
 import { useRef, useState } from 'react'
 import { wechatLogin } from '@/api/auth'
 import { useAuthStore } from '@/store/auth'
-import TermStamp from '@/components/TermStamp'
-import Marquee from '@/components/Marquee'
 import './index.scss'
 import BrandNavBar from '@/components/BrandNavBar'
 
@@ -192,52 +189,17 @@ export default function LoginPage() {
 
   return (
     <View className='login-page'>
-      <BrandNavBar />
-      {/* --- 封面印章 --- */}
-      <View className='login-cover'>
-        <Text className='login-cover__seal'>§ 00 · LONGARCH</Text>
-        <Text className='login-cover__title'>陇上管家</Text>
-        <Text className='login-cover__title-cn'>Longarch · Folio</Text>
-        <Text className='login-cover__lede'>
-          认养一块田，看它慢慢长大
-        </Text>
-        {/* 节气印章 · 让封面按月呼吸, 每月进入都看到不同的时节标记 */}
-        <View className='login-cover__term'>
-          <TermStamp />
-        </View>
+      <BrandNavBar hideBack />
+      {/* --- Hero · 纯排版, 无卡片 --- */}
+      <View className='login-hero'>
+        <Text className='login-hero__title'>陇上管家</Text>
+        <Text className='login-hero__lede'>认养一块田，看它慢慢长大</Text>
+        <Text className='login-hero__points'>实时监测 · 远程看田 · 可信溯源</Text>
       </View>
 
-      {/* --- 特性表 (hairline 行, 简化为单列) --- */}
-      <View className='login-features'>
-        <View className='login-feature'>
-          <View className='login-feature__no'><Clock size={22} /></View>
-          <View className='login-feature__body'>
-            <Text className='login-feature__title'>实时监测</Text>
-            <Text className='login-feature__sub'>温湿 · 光照 · 土壤数据</Text>
-          </View>
-        </View>
+      {errMsg ? <Text className='login-err'>{errMsg}</Text> : null}
 
-        <View className='login-feature'>
-          <View className='login-feature__no'><Video size={22} /></View>
-          <View className='login-feature__body'>
-            <Text className='login-feature__title'>远程看田</Text>
-            <Text className='login-feature__sub'>手机查看现场画面</Text>
-          </View>
-        </View>
-
-        <View className='login-feature'>
-          <View className='login-feature__no'><ShieldCheck size={22} /></View>
-          <View className='login-feature__body'>
-            <Text className='login-feature__title'>可信溯源</Text>
-            <Text className='login-feature__sub'>种 · 养 · 收 · 全程可查</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* --- 错误提示 --- */}
-      {errMsg ? <Text className='login-err'>! {errMsg}</Text> : null}
-
-      {/* --- 底部 CTA · 主印章 + 3 个编号入口 --- */}
+      {/* --- 底部 · 单主按钮 + 文字次级入口 --- */}
       <View className='login-bottom'>
         <Button
           className='login-cta'
@@ -245,55 +207,31 @@ export default function LoginPage() {
           disabled={loading}
           onClick={handleLogin}
         >
-          <Text className='login-cta__label'>
-            {loading ? '进入中…' : '微信一键登录'}
+          {loading ? '进入中…' : '微信一键登录'}
+        </Button>
+
+        <View className='login-links'>
+          <Text
+            className='login-links__item'
+            onClick={() => !loading && Taro.navigateTo({ url: '/pages/adopter-login/index' })}
+          >
+            认养用户
           </Text>
-          <Text className='login-cta__arrow'>→</Text>
-        </Button>
-
-        <View className='login-alt'>
-          <Text className='login-alt__seal'>§ · 其他身份</Text>
-          <Text className='login-alt__sub'>用于运营 · 农技 · 分享访问</Text>
+          <Text className='login-links__dot'>·</Text>
+          <Text
+            className='login-links__item'
+            onClick={() => !loading && Taro.navigateTo({ url: '/pages/operator-login/index' })}
+          >
+            操作员
+          </Text>
+          <Text className='login-links__dot'>·</Text>
+          <Text
+            className='login-links__item'
+            onClick={() => !loading && Taro.navigateTo({ url: '/pages/guest-login/index' })}
+          >
+            分享码访问
+          </Text>
         </View>
-
-        <Button
-          className='login-adopter'
-          disabled={loading}
-          onClick={() => Taro.navigateTo({ url: '/pages/adopter-login/index' })}
-        >
-          <Text className='login-adopter__no'>§ 01</Text>
-          <View className='login-adopter__body'>
-            <Text className='login-adopter__text'>认养用户</Text>
-            <Text className='login-adopter__sub'>名下已有地块 · adopter</Text>
-          </View>
-          <Text className='login-adopter__arrow'>→</Text>
-        </Button>
-
-        <Button
-          className='login-operator'
-          disabled={loading}
-          onClick={() => Taro.navigateTo({ url: '/pages/operator-login/index' })}
-        >
-          <Text className='login-operator__no'>§ 02</Text>
-          <View className='login-operator__body'>
-            <Text className='login-operator__text'>操作员</Text>
-            <Text className='login-operator__sub'>维护地块 · 审核任务 · operator</Text>
-          </View>
-          <Text className='login-operator__arrow'>→</Text>
-        </Button>
-
-        <Button
-          className='login-guest'
-          disabled={loading}
-          onClick={() => Taro.navigateTo({ url: '/pages/guest-login/index' })}
-        >
-          <Text className='login-guest__no'>§ 03</Text>
-          <View className='login-guest__body'>
-            <Text className='login-guest__text'>分享码访问</Text>
-            <Text className='login-guest__sub'>朋友转来的一次性码 · guest</Text>
-          </View>
-          <Text className='login-guest__arrow'>→</Text>
-        </Button>
 
         <Text className='login-terms'>
           继续即同意{' '}
@@ -311,18 +249,6 @@ export default function LoginPage() {
             隐私政策
           </Text>
         </Text>
-
-        <Marquee
-          items={[
-            '§ FOLIO No.07',
-            '智慧农业 · 信息管理',
-            '认养 · 远程作业 · 节气感知',
-            'MQTT 时序入库 · 责任域审核',
-            'Spring Boot 3 · React · Taro',
-            '陇上示范农场',
-          ]}
-          speed={48}
-        />
       </View>
     </View>
   )

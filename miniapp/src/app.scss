@@ -16,6 +16,14 @@
   --paper-current:       #{$paper};
 }
 
+/* ---- 全局隐藏滚动条 (页面仍可滚动) ---- */
+::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+  color: transparent;
+}
+
 /* ---- NutUI 主题 · 对齐清新卡片风 ---- */
 page {
   --nutui-color-primary: #{$farm-green};
