@@ -241,6 +241,8 @@ CREATE TABLE IF NOT EXISTS `operation_task` (
     `queued_at` TIMESTAMP DEFAULT NULL,
     `started_at` TIMESTAMP DEFAULT NULL,
     `finished_at` TIMESTAMP DEFAULT NULL,
+    `ack_deadline_at` TIMESTAMP DEFAULT NULL,
+    `result_deadline_at` TIMESTAMP DEFAULT NULL,
     `review_state` VARCHAR(32) NOT NULL DEFAULT 'none',
     `risk_level` VARCHAR(16) NOT NULL DEFAULT 'low',
     `risk_reasons` VARCHAR(1024) DEFAULT NULL,

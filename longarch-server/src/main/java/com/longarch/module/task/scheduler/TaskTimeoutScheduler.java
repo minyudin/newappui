@@ -20,9 +20,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 定时扫描超时的设备锁和任务：
- * 1. 锁过期 → 释放锁 + 标记任务失败 + 调度下一个
- * 2. DISPATCHED 状态超过 5 分钟无回调 → 标记超时失败
+ * 定时超时扫描 · 三条独立职责:
+ *
+ *   1. checkAckTimeout    (每 5s)  · 快速失败: DISPATCHED 状态下 ackDeadlineAt 过期
+ *                                    -> 判"设备未在 ACK 窗口内确认接收", 覆盖设备离线/网络断
+ *   2. checkResultTimeout (每 30s) · 自适应失败: RUNNING/NETWORK_PENDING 状态下 resultDeadlineAt 过期
+ *                                    -> 判"执行超时", 超时窗口随任务时长动态计算
+ *   3. checkExpiredLocks  (每 60s) · 设备锁租约到期: 释放锁 + 关联任务失败 + dispatchNext
+ *
+ * 语义详见 硬件对接指南.md §5.2 与 V10__task_two_phase_deadlines.sql
  */
 @Slf4j
 @Component
@@ -35,7 +41,100 @@ public class TaskTimeoutScheduler {
     private final DeviceObservabilityMetrics deviceObservabilityMetrics;
 
     /**
-     * 每 60 秒扫描一次过期的设备锁
+     * ACK 阶段超时: DISPATCHED 状态下 ackDeadlineAt 已过期, 意味着设备根本没确认收到.
+     * 目的是让"设备离线/网络断"的失败尽快让用户可见 (默认 ~10s + 5s 扫描间隔).
+     */
+    @Scheduled(fixedDelay = 5_000, initialDelay = 15_000)
+    @Transactional
+    public void checkAckTimeout() {
+        LocalDateTime now = LocalDateTime.now();
+        List<OperationTask> staleTasks = taskMapper.selectList(
+                new LambdaQueryWrapper<OperationTask>()
+                        .eq(OperationTask::getTaskStatus, TaskStatus.RUNNING.getValue())
+                        .eq(OperationTask::getDeviceExecutionState, DeviceExecutionState.DISPATCHED.getValue())
+                        .isNotNull(OperationTask::getAckDeadlineAt)
+                        .lt(OperationTask::getAckDeadlineAt, now));
+
+        for (OperationTask task : staleTasks) {
+            log.warn("ACK timeout detected: taskId={}, ackDeadlineAt={}",
+                    task.getId(), task.getAckDeadlineAt());
+            int updated = taskMapper.update(null,
+                    new LambdaUpdateWrapper<OperationTask>()
+                            .eq(OperationTask::getId, task.getId())
+                            .eq(OperationTask::getTaskStatus, TaskStatus.RUNNING.getValue())
+                            .eq(OperationTask::getDeviceExecutionState, DeviceExecutionState.DISPATCHED.getValue())
+                            .set(OperationTask::getTaskStatus, TaskStatus.FAILED.getValue())
+                            .set(OperationTask::getDeviceExecutionState, DeviceExecutionState.FAILED.getValue())
+                            .set(OperationTask::getFailReason, "设备未在 ACK 窗口内确认接收(可能离线或网络中断)")
+                            .set(OperationTask::getFinishedAt, LocalDateTime.now())
+                            .set(OperationTask::getAckDeadlineAt, null)
+                            .set(OperationTask::getResultDeadlineAt, null)
+                            .set(OperationTask::getCancelable, 0));
+            if (updated == 0) {
+                log.info("Skip mark ACK-timeout failed due to state mismatch: taskId={}", task.getId());
+                continue;
+            }
+            deviceObservabilityMetrics.recordGateMisjudge("ack_timeout", task.getActionType());
+            schedulerService.dispatchNext(task.getDeviceId());
+        }
+
+        if (!staleTasks.isEmpty()) {
+            log.info("ACK timeout scan completed: {} tasks marked failed", staleTasks.size());
+        }
+    }
+
+    /**
+     * Result 阶段超时: RUNNING 或 NETWORK_PENDING_CONFIRMATION 状态下 resultDeadlineAt 已过期.
+     * 意味着设备接收了指令但没能在 (durationSeconds + slack) 内完成动作, 判"执行超时".
+     */
+    @Scheduled(fixedDelay = 30_000, initialDelay = 30_000)
+    @Transactional
+    public void checkResultTimeout() {
+        LocalDateTime now = LocalDateTime.now();
+        List<OperationTask> staleTasks = taskMapper.selectList(
+                new LambdaQueryWrapper<OperationTask>()
+                        .eq(OperationTask::getTaskStatus, TaskStatus.RUNNING.getValue())
+                        .in(OperationTask::getDeviceExecutionState,
+                                DeviceExecutionState.RUNNING.getValue(),
+                                DeviceExecutionState.NETWORK_PENDING_CONFIRMATION.getValue())
+                        .isNotNull(OperationTask::getResultDeadlineAt)
+                        .lt(OperationTask::getResultDeadlineAt, now));
+
+        for (OperationTask task : staleTasks) {
+            log.warn("Result timeout detected: taskId={}, resultDeadlineAt={}, state={}",
+                    task.getId(), task.getResultDeadlineAt(), task.getDeviceExecutionState());
+            int updated = taskMapper.update(null,
+                    new LambdaUpdateWrapper<OperationTask>()
+                            .eq(OperationTask::getId, task.getId())
+                            .eq(OperationTask::getTaskStatus, TaskStatus.RUNNING.getValue())
+                            .in(OperationTask::getDeviceExecutionState,
+                                    DeviceExecutionState.RUNNING.getValue(),
+                                    DeviceExecutionState.NETWORK_PENDING_CONFIRMATION.getValue())
+                            .set(OperationTask::getTaskStatus, TaskStatus.FAILED.getValue())
+                            .set(OperationTask::getDeviceExecutionState, DeviceExecutionState.FAILED.getValue())
+                            .set(OperationTask::getFailReason, "设备已接收但未在预期时长内完成执行")
+                            .set(OperationTask::getFinishedAt, LocalDateTime.now())
+                            .set(OperationTask::getAckDeadlineAt, null)
+                            .set(OperationTask::getResultDeadlineAt, null)
+                            .set(OperationTask::getCancelable, 0));
+            if (updated == 0) {
+                log.info("Skip mark result-timeout failed due to state mismatch: taskId={}", task.getId());
+                continue;
+            }
+            deviceObservabilityMetrics.recordGateMisjudge("result_timeout", task.getActionType());
+            schedulerService.dispatchNext(task.getDeviceId());
+        }
+
+        if (!staleTasks.isEmpty()) {
+            log.info("Result timeout scan completed: {} tasks marked failed", staleTasks.size());
+        }
+    }
+
+    /**
+     * 设备锁过期扫描 · 与两阶段回执正交.
+     *   · 锁 TTL 默认 30 分钟(SchedulerServiceImpl 里设置)
+     *   · 兜底防止设备锁被意外遗留 (进程崩溃/网络分区等极端情况)
+     *   · 正常路径下, success/failed 回执 或 ACK/Result 超时 都会走 dispatchNext 主动释放锁
      */
     @Scheduled(fixedDelay = 60_000, initialDelay = 30_000)
     @Transactional
@@ -50,7 +149,6 @@ public class TaskTimeoutScheduler {
             log.warn("Device lock expired: deviceId={}, currentTaskId={}, expireAt={}",
                     lock.getDeviceId(), lock.getCurrentTaskId(), lock.getLockExpireAt());
 
-            // 标记关联任务为超时失败
             if (lock.getCurrentTaskId() != null) {
                 OperationTask task = taskMapper.selectById(lock.getCurrentTaskId());
                 if (task != null && !TaskStatus.valueOf(task.getTaskStatus().toUpperCase()).isTerminal()) {
@@ -60,8 +158,10 @@ public class TaskTimeoutScheduler {
                                     .eq(OperationTask::getTaskStatus, TaskStatus.RUNNING.getValue())
                                     .set(OperationTask::getTaskStatus, TaskStatus.FAILED.getValue())
                                     .set(OperationTask::getDeviceExecutionState, DeviceExecutionState.FAILED.getValue())
-                                    .set(OperationTask::getFailReason, "设备执行超时，锁已过期")
+                                    .set(OperationTask::getFailReason, "设备执行超时,锁已过期")
                                     .set(OperationTask::getFinishedAt, LocalDateTime.now())
+                                    .set(OperationTask::getAckDeadlineAt, null)
+                                    .set(OperationTask::getResultDeadlineAt, null)
                                     .set(OperationTask::getCancelable, 0));
                     if (updated > 0) {
                         log.warn("Task marked failed due to lock expiry: taskId={}", task.getId());
@@ -71,7 +171,6 @@ public class TaskTimeoutScheduler {
                 }
             }
 
-            // 释放锁
             lock.setLockStatus("free");
             lock.setCurrentTaskId(null);
             lock.setLockOwner(null);
@@ -79,52 +178,11 @@ public class TaskTimeoutScheduler {
             lock.setLockExpireAt(null);
             deviceLockMapper.updateById(lock);
 
-            // 调度下一个排队任务
             schedulerService.dispatchNext(lock.getDeviceId());
         }
 
         if (!expiredLocks.isEmpty()) {
             log.info("Expired lock scan completed: {} locks released", expiredLocks.size());
-        }
-    }
-
-    /**
-     * 每 2 分钟扫描 DISPATCHED 超过 5 分钟但没收到回调的任务
-     */
-    @Scheduled(fixedDelay = 120_000, initialDelay = 60_000)
-    @Transactional
-    public void checkStaleDispatchedTasks() {
-        LocalDateTime threshold = LocalDateTime.now().minusMinutes(5);
-        List<OperationTask> staleTasks = taskMapper.selectList(
-                new LambdaQueryWrapper<OperationTask>()
-                        .eq(OperationTask::getTaskStatus, TaskStatus.RUNNING.getValue())
-                        .eq(OperationTask::getDeviceExecutionState, DeviceExecutionState.DISPATCHED.getValue())
-                        .lt(OperationTask::getStartedAt, threshold));
-
-        for (OperationTask task : staleTasks) {
-            log.warn("Stale dispatched task detected: taskId={}, startedAt={}", task.getId(), task.getStartedAt());
-            int updated = taskMapper.update(null,
-                    new LambdaUpdateWrapper<OperationTask>()
-                            .eq(OperationTask::getId, task.getId())
-                            .eq(OperationTask::getTaskStatus, TaskStatus.RUNNING.getValue())
-                            .eq(OperationTask::getDeviceExecutionState, DeviceExecutionState.DISPATCHED.getValue())
-                            .set(OperationTask::getTaskStatus, TaskStatus.FAILED.getValue())
-                            .set(OperationTask::getDeviceExecutionState, DeviceExecutionState.FAILED.getValue())
-                            .set(OperationTask::getFailReason, "MQTT指令已下发但设备未在5分钟内回调")
-                            .set(OperationTask::getFinishedAt, LocalDateTime.now())
-                            .set(OperationTask::getCancelable, 0));
-            if (updated == 0) {
-                log.info("Skip mark stale dispatched task failed due to state mismatch: taskId={}", task.getId());
-                continue;
-            }
-            deviceObservabilityMetrics.recordGateMisjudge("false_positive", task.getActionType());
-
-            // 释放对应设备锁
-            schedulerService.dispatchNext(task.getDeviceId());
-        }
-
-        if (!staleTasks.isEmpty()) {
-            log.info("Stale dispatch scan completed: {} tasks marked failed", staleTasks.size());
         }
     }
 }

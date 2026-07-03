@@ -37,6 +37,17 @@ public class MqttProperties {
     private int connectionTimeout = 10;
     private long commandTtlSeconds = 300;
     private int maxPayloadBytes = 64 * 1024;
+
+    /**
+     * 两阶段回执超时配置 (V10 · 见 硬件对接指南.md §5.2)
+     *   · ACK 阶段:    设备收到指令后, 必须在 ackTimeoutSeconds 内发 accepted 回执 (默认 10s)
+     *   · Result 阶段: 从 dispatch 起算, deadline = max(resultTimeoutMinSeconds,
+     *                                                 durationSeconds + resultTimeoutSlackSeconds)
+     *   · command.expiresAt 会写为 Result deadline 的 epoch, 让设备端也能自校验过期不执行
+     */
+    private int ackTimeoutSeconds = 10;
+    private int resultTimeoutSlackSeconds = 30;
+    private int resultTimeoutMinSeconds = 30;
     private boolean strictDeviceIdentity = false;
     private boolean requireMessageId = false;
     private boolean requireTimestamp = false;

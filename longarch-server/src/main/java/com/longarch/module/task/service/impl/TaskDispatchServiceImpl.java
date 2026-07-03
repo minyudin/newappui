@@ -62,12 +62,35 @@ public class TaskDispatchServiceImpl implements TaskDispatchService {
             // 采集执行前的传感器快照
             String sensorBefore = collectSensorSnapshot(task.getPlotId());
 
-            // 更新任务状态为 dispatched
+            // 先解析 actionParams (dispatch 前算 result deadline 要用到 durationMinutes)
+            Map<String, Object> paramsMap = null;
+            if (task.getActionParams() != null && !task.getActionParams().isBlank()) {
+                try {
+                    paramsMap = objectMapper.readValue(task.getActionParams(), new TypeReference<Map<String, Object>>() {});
+                } catch (Exception e) {
+                    log.warn("Failed to parse actionParams for taskId={}: {}", task.getId(), e.getMessage());
+                }
+            }
+
+            // 两阶段截止时间 · 详见 硬件对接指南.md §5.2
+            long issuedAt = System.currentTimeMillis();
+            long ackTimeoutMs = Math.max(1, mqttProperties.getAckTimeoutSeconds()) * 1000L;
+            long durationSeconds = extractDurationSeconds(paramsMap);
+            long resultTimeoutSeconds = Math.max(
+                    mqttProperties.getResultTimeoutMinSeconds(),
+                    durationSeconds + mqttProperties.getResultTimeoutSlackSeconds());
+            long resultTimeoutMs = resultTimeoutSeconds * 1000L;
+            LocalDateTime ackDeadline = LocalDateTime.now().plusNanos(ackTimeoutMs * 1_000_000L);
+            LocalDateTime resultDeadline = LocalDateTime.now().plusNanos(resultTimeoutMs * 1_000_000L);
+
+            // 更新任务状态为 dispatched, 同时写入两阶段 deadline
             taskMapper.update(null,
                     new LambdaUpdateWrapper<OperationTask>()
                             .eq(OperationTask::getId, task.getId())
                             .eq(OperationTask::getTaskStatus, TaskStatus.RUNNING.getValue())
-                            .set(OperationTask::getDeviceExecutionState, DeviceExecutionState.DISPATCHED.getValue()));
+                            .set(OperationTask::getDeviceExecutionState, DeviceExecutionState.DISPATCHED.getValue())
+                            .set(OperationTask::getAckDeadlineAt, ackDeadline)
+                            .set(OperationTask::getResultDeadlineAt, resultDeadline));
 
             // 构建 MQTT 指令
             DeviceCommand command = new DeviceCommand();
@@ -77,17 +100,10 @@ public class TaskDispatchServiceImpl implements TaskDispatchService {
             command.setDeviceNo(device.getDeviceNo());
             command.setActionType(task.getActionType());
             command.setCallbackTopic(mqttProperties.getCallbackTopicPrefix() + device.getDeviceNo());
-            long issuedAt = System.currentTimeMillis();
             command.setTimestamp(issuedAt);
-            command.setExpiresAt(issuedAt + Math.max(1, mqttProperties.getCommandTtlSeconds()) * 1000L);
-
-            if (task.getActionParams() != null && !task.getActionParams().isBlank()) {
-                try {
-                    command.setActionParams(objectMapper.readValue(task.getActionParams(), new TypeReference<Map<String, Object>>() {}));
-                } catch (Exception e) {
-                    log.warn("Failed to parse actionParams for taskId={}: {}", task.getId(), e.getMessage());
-                }
-            }
+            // expiresAt = Result deadline · 让设备端也能自校验, 双侧一致
+            command.setExpiresAt(issuedAt + resultTimeoutMs);
+            command.setActionParams(paramsMap);
 
             String topic = mqttProperties.getCommandTopicPrefix() + device.getDeviceNo();
             String payload = objectMapper.writeValueAsString(command);
@@ -154,6 +170,27 @@ public class TaskDispatchServiceImpl implements TaskDispatchService {
             log.warn("Failed to collect sensor snapshot for plotId={}: {}", plotId, e.getMessage());
             return null;
         }
+    }
+
+    /**
+     * 从 actionParams 中提取任务预期执行时长(秒), 优先级:
+     *   1. durationMinutes  (最常见, task/index.tsx 表单默认字段)
+     *   2. durationSeconds  (极少数动作用秒级)
+     * 都没有则返回 0, 由 resultTimeoutMinSeconds 兜底.
+     */
+    private long extractDurationSeconds(Map<String, Object> paramsMap) {
+        if (paramsMap == null) return 0;
+        Object mins = paramsMap.get("durationMinutes");
+        if (mins instanceof Number) return ((Number) mins).longValue() * 60L;
+        if (mins instanceof String s && !s.isBlank()) {
+            try { return Long.parseLong(s.trim()) * 60L; } catch (NumberFormatException ignored) {}
+        }
+        Object secs = paramsMap.get("durationSeconds");
+        if (secs instanceof Number) return ((Number) secs).longValue();
+        if (secs instanceof String s && !s.isBlank()) {
+            try { return Long.parseLong(s.trim()); } catch (NumberFormatException ignored) {}
+        }
+        return 0;
     }
 
     private void markFailed(OperationTask task, String reason) {

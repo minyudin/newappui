@@ -114,6 +114,26 @@ function fmtDot(ts: string | null | undefined): string {
   return `${dateA}  ${timeA}`
 }
 
+// 把后端 "yyyy-MM-dd HH:mm:ss" 解析成本地 epoch 毫秒.
+//   · 刻意手工解析而非 new Date(str): iOS JSCore 对非 ISO 字符串会返回 Invalid Date.
+//   · 服务端与设备同为 Asia/Shanghai, 按本地时区构造即可, 用于倒计时足够精确.
+function parseServerTime(ts: string | null | undefined): number {
+  if (!ts) return NaN
+  const m = ts.match(/(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2}):(\d{2})/)
+  if (!m) return NaN
+  return new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]).getTime()
+}
+
+// 剩余秒数 → "M:SS" (>=1h 时 "H:MM:SS"), 已过期或无效显示 "0:00"
+function fmtCountdown(remainMs: number): string {
+  const s = Math.max(0, Math.floor(remainMs / 1000))
+  const h = Math.floor(s / 3600)
+  const m = Math.floor((s % 3600) / 60)
+  const sec = s % 60
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return h > 0 ? `${h}:${pad(m)}:${pad(sec)}` : `${m}:${pad(sec)}`
+}
+
 export default function TaskDetailPage() {
   const router = useRouter()
   const taskId = Number(router.params.taskId || 0)
@@ -122,8 +142,11 @@ export default function TaskDetailPage() {
   const [loading, setLoading] = useState(false)
   const [err, setErr] = useState('')
   const [cancelling, setCancelling] = useState(false)
+  // 每秒自增, 仅用于驱动"设备回执倒计时"重渲染; 非终态且有 deadline 时才跑
+  const [nowTs, setNowTs] = useState(() => Date.now())
 
   const pollTimer = useRef<ReturnType<typeof setInterval> | null>(null)
+  const tickTimer = useRef<ReturnType<typeof setInterval> | null>(null)
   const detailRef = useRef<OperationTaskDetail | null>(null)
   const cancellingRef = useRef(false)
 
@@ -148,10 +171,24 @@ export default function TaskDetailPage() {
       clearInterval(pollTimer.current)
       pollTimer.current = null
     }
+    stopTick()
+  }
+
+  function startTick() {
+    if (tickTimer.current) return
+    tickTimer.current = setInterval(() => setNowTs(Date.now()), 1000)
+  }
+
+  function stopTick() {
+    if (tickTimer.current) {
+      clearInterval(tickTimer.current)
+      tickTimer.current = null
+    }
   }
 
   function startPolling() {
     stopPolling()
+    startTick()
     pollTimer.current = setInterval(async () => {
       try {
         const qs = await getQueueStatus(taskId)
@@ -279,6 +316,20 @@ export default function TaskDetailPage() {
   const isCancelled = detail.taskStatus === 'cancelled'
   const isReviewRequired = reviewState === 'operator_required'
 
+  // 设备回执追踪 (两阶段) · 仅非终态且已进入下发/执行链路时展示
+  const execState = detail.deviceExecutionState
+  const relayVisible =
+    !isTerminal(detail.taskStatus as TaskStatusValue) &&
+    (execState === 'dispatched' || execState === 'running' || execState === 'network_pending_confirmation')
+  // 阶段: dispatched=等设备确认(ACK); running/network=等执行完成(RESULT)
+  const relayPhase: 'ack' | 'result' = execState === 'dispatched' ? 'ack' : 'result'
+  const relayDeadline = relayPhase === 'ack' ? detail.ackDeadlineAt : detail.resultDeadlineAt
+  const relayDeadlineMs = parseServerTime(relayDeadline)
+  const relayRemainMs = Number.isNaN(relayDeadlineMs) ? NaN : relayDeadlineMs - nowTs
+  const relayCountdown = Number.isNaN(relayRemainMs) ? null : fmtCountdown(relayRemainMs)
+  const relayOverdue = !Number.isNaN(relayRemainMs) && relayRemainMs <= 0
+  const isNetworkPending = execState === 'network_pending_confirmation'
+
   // 工单票据编号拆成 T + body (供大号展示)
   const taskNoHead = detail.taskNo.slice(0, 1)
   const taskNoBody = detail.taskNo.slice(1)
@@ -359,6 +410,57 @@ export default function TaskDetailPage() {
           )
         })}
       </View>
+
+      {/* --- 设备回执追踪 · 两阶段 (ACK → RESULT) · 派工单回执联 --- */}
+      {relayVisible ? (
+        <View className='wo-relay'>
+          <View className='wo-relay__head'>
+            <Text className='wo-relay__seal'>§ RELAY · 设备回执</Text>
+            {isNetworkPending ? (
+              <Text className='wo-relay__flag'>网络待确认</Text>
+            ) : null}
+          </View>
+
+          {/* 三段微时间轴: 已下发 → 设备确认 → 执行完成 */}
+          <View className='wo-relay__track'>
+            <View className='wo-relay__node wo-relay__node--done'>
+              <Text className='wo-relay__mark'>◼</Text>
+              <Text className='wo-relay__label'>已下发</Text>
+            </View>
+            <View className='wo-relay__seg' />
+            <View className={`wo-relay__node ${relayPhase === 'ack' ? 'wo-relay__node--current' : 'wo-relay__node--done'}`}>
+              <Text className='wo-relay__mark'>{relayPhase === 'ack' ? '◑' : '◼'}</Text>
+              <Text className='wo-relay__label'>设备确认</Text>
+            </View>
+            <View className='wo-relay__seg' />
+            <View className={`wo-relay__node ${relayPhase === 'result' ? 'wo-relay__node--current' : ''}`}>
+              <Text className='wo-relay__mark'>{relayPhase === 'result' ? '◑' : '◯'}</Text>
+              <Text className='wo-relay__label'>执行完成</Text>
+            </View>
+          </View>
+
+          {/* 倒计时联 · 编号式 */}
+          {relayCountdown != null ? (
+            <View className={`wo-relay__timer ${relayOverdue ? 'wo-relay__timer--overdue' : ''}`}>
+              <Text className='wo-relay__timer-key'>
+                {relayPhase === 'ack' ? '设备确认倒计时' : '预计完成倒计时'}
+              </Text>
+              <View className='wo-relay__timer-leader' />
+              <Text className='wo-relay__timer-val'>
+                {relayOverdue ? '确认中…' : relayCountdown}
+              </Text>
+            </View>
+          ) : null}
+
+          <Text className='wo-relay__hint'>
+            {relayPhase === 'ack'
+              ? '· 正在等待设备回传确认, 超时未确认将判为离线失败'
+              : isNetworkPending
+              ? '· 设备已回报动作完成, 正在二次确认网络回执'
+              : '· 设备已确认接收, 正在执行, 完成后自动回传结果'}
+          </Text>
+        </View>
+      ) : null}
 
       {/* --- 排队提示 · 墨色编号票 --- */}
       {detail.queueNo && !isTerminal(detail.taskStatus as TaskStatusValue) ? (

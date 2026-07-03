@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 # 后端 Spring Boot（JDK 17）
 # 构建：docker build -t longarch-server .
 # 运行：docker run --rm -p 8081:8081 --env-file ../.env longarch-server
@@ -5,10 +6,17 @@
 FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /app
 
-COPY pom.xml .
-COPY src ./src
+# 国内阿里云 Maven 镜像，加速依赖下载
+COPY settings.xml /root/.m2/settings.xml
 
-RUN mvn -q -DskipTests package
+# 先解析依赖并缓存（利用 BuildKit 缓存 + 层缓存）
+COPY pom.xml .
+RUN --mount=type=cache,target=/root/.m2/repository \
+    mvn -q -s /root/.m2/settings.xml -DskipTests dependency:go-offline
+
+COPY src ./src
+RUN --mount=type=cache,target=/root/.m2/repository \
+    mvn -q -s /root/.m2/settings.xml -DskipTests package
 
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app

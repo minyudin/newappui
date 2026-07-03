@@ -33,6 +33,15 @@ public class OperationTask {
     private LocalDateTime finishedAt;
 
     /**
+     * 两阶段回执截止时间(V10 引入)
+     *   · ackDeadlineAt    : 设备需在此之前发 accepted 回执, 否则判"设备未确认接收"失败
+     *   · resultDeadlineAt : 设备需在此之前发 success/failed 回执, 否则判"执行超时"失败
+     * dispatch 时同时写入, 收到 accepted 后清 ackDeadlineAt, 终态时两列都清空.
+     */
+    private LocalDateTime ackDeadlineAt;
+    private LocalDateTime resultDeadlineAt;
+
+    /**
      * operator review flow:
      *   none -> operator_required -> (approved|rejected)
      */

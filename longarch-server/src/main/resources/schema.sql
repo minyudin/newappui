@@ -285,6 +285,8 @@ CREATE TABLE IF NOT EXISTS `operation_task` (
     `queued_at` DATETIME DEFAULT NULL,
     `started_at` DATETIME DEFAULT NULL,
     `finished_at` DATETIME DEFAULT NULL,
+    `ack_deadline_at` DATETIME DEFAULT NULL COMMENT 'ACK 阶段截止时间',
+    `result_deadline_at` DATETIME DEFAULT NULL COMMENT 'Result 阶段截止时间',
     `review_state` VARCHAR(32) NOT NULL DEFAULT 'none',
     `risk_level` VARCHAR(16) NOT NULL DEFAULT 'low',
     `risk_reasons` VARCHAR(1024) DEFAULT NULL,
@@ -302,7 +304,9 @@ CREATE TABLE IF NOT EXISTS `operation_task` (
     KEY `idx_device_status` (`device_id`, `task_status`),
     KEY `idx_plot_status` (`plot_id`, `task_status`),
     KEY `idx_operation_task_review_state` (`review_state`, `created_at`),
-    KEY `idx_operation_task_assignee` (`assignee_user_id`, `created_at`)
+    KEY `idx_operation_task_assignee` (`assignee_user_id`, `created_at`),
+    KEY `idx_op_task_ack_deadline` (`ack_deadline_at`),
+    KEY `idx_op_task_result_deadline` (`result_deadline_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='操作任务表';
 
 -- 13. 任务队列表

@@ -459,6 +459,8 @@ public class TaskServiceImpl implements TaskService {
         vo.setQueuedAt(task.getQueuedAt() != null ? task.getQueuedAt().format(FMT) : null);
         vo.setStartedAt(task.getStartedAt() != null ? task.getStartedAt().format(FMT) : null);
         vo.setFinishedAt(task.getFinishedAt() != null ? task.getFinishedAt().format(FMT) : null);
+        vo.setAckDeadlineAt(task.getAckDeadlineAt() != null ? task.getAckDeadlineAt().format(FMT) : null);
+        vo.setResultDeadlineAt(task.getResultDeadlineAt() != null ? task.getResultDeadlineAt().format(FMT) : null);
         vo.setCancelable(task.getCancelable() == 1);
         vo.setReviewState(task.getReviewState());
         vo.setRiskLevel(task.getRiskLevel());

@@ -134,6 +134,24 @@ public class DeviceCallbackListener {
 
         String callbackStatus = callback.getStatus();
         switch (callbackStatus) {
+            case "accepted" -> {
+                // 两阶段回执 · 阶段 1: 设备确认收到指令并开始执行
+                //   · device_execution_state 从 DISPATCHED 推进到 RUNNING
+                //   · ack_deadline_at 置 NULL, ACK 阶段不再纳入超时扫描
+                //   · task_status 保持 RUNNING (在 SchedulerServiceImpl 抢任务时就已经置为 RUNNING)
+                int updated = taskMapper.update(null,
+                        new LambdaUpdateWrapper<OperationTask>()
+                                .eq(OperationTask::getId, task.getId())
+                                .eq(OperationTask::getTaskStatus, TaskStatus.RUNNING.getValue())
+                                .eq(OperationTask::getDeviceExecutionState, DeviceExecutionState.DISPATCHED.getValue())
+                                .set(OperationTask::getDeviceExecutionState, DeviceExecutionState.RUNNING.getValue())
+                                .set(OperationTask::getAckDeadlineAt, null));
+                if (updated > 0) {
+                    log.info("Task ACK received: taskId={}", task.getId());
+                } else {
+                    log.info("Callback accepted ignored due to state mismatch: taskId={}", task.getId());
+                }
+            }
             case "success" -> {
                 int updated = taskMapper.update(null,
                         new LambdaUpdateWrapper<OperationTask>()
@@ -142,6 +160,8 @@ public class DeviceCallbackListener {
                                 .set(OperationTask::getTaskStatus, TaskStatus.SUCCESS.getValue())
                                 .set(OperationTask::getDeviceExecutionState, DeviceExecutionState.SUCCESS.getValue())
                                 .set(OperationTask::getFinishedAt, LocalDateTime.now())
+                                .set(OperationTask::getAckDeadlineAt, null)
+                                .set(OperationTask::getResultDeadlineAt, null)
                                 .set(OperationTask::getCancelable, 0));
                 if (updated > 0) {
                     log.info("Task completed successfully via callback: taskId={}", task.getId());
@@ -162,6 +182,8 @@ public class DeviceCallbackListener {
                                 .set(OperationTask::getDeviceExecutionState, DeviceExecutionState.FAILED.getValue())
                                 .set(OperationTask::getFailReason, callback.getFailReason())
                                 .set(OperationTask::getFinishedAt, LocalDateTime.now())
+                                .set(OperationTask::getAckDeadlineAt, null)
+                                .set(OperationTask::getResultDeadlineAt, null)
                                 .set(OperationTask::getCancelable, 0));
                 if (updated > 0) {
                     log.warn("Task failed via callback: taskId={}, reason={}", task.getId(), callback.getFailReason());

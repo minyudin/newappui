@@ -257,6 +257,147 @@
 }
 
 // ============================================================
+//   · 设备回执追踪 · 两阶段 (ACK → RESULT) · 回执联
+//     · 双 hairline 包夹 · 三段微时间轴 · 倒计时用 leader dots
+// ============================================================
+.wo-relay {
+  @include hairline-all;
+  border-color: $line;
+  background: $paper-light;
+  padding: bl(1.1) bl(1.25) bl(1);
+  display: flex;
+  flex-direction: column;
+  gap: bl(0.75);
+
+  &__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: bl(1);
+  }
+
+  &__seal {
+    @include folio-mono;
+    font-size: 17px;
+    letter-spacing: 0.3em;
+    color: $ink-faint;
+    text-transform: uppercase;
+  }
+
+  &__flag {
+    @include folio-mono;
+    font-size: 15px;
+    letter-spacing: 0.18em;
+    padding: 2px bl(0.5);
+    @include hairline-all;
+    border-color: $sand;
+    background: soften($sand, 55%);
+    color: color.adjust($sand, $lightness: -42%);
+  }
+
+  // --- 三段微时间轴 ---
+  &__track {
+    display: flex;
+    align-items: center;
+    gap: bl(0.4);
+    padding: bl(0.4) 0;
+  }
+
+  &__seg {
+    flex: 1;
+    height: 1px;
+    background-image: radial-gradient($ink-faint 35%, transparent 40%);
+    background-size: 5px 1px;
+    background-repeat: repeat-x;
+    opacity: 0.5;
+  }
+
+  &__node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+
+    .wo-relay__mark {
+      font-family: $font-serif;
+      font-size: 22px;
+      line-height: 1;
+      color: $ink-faint;
+    }
+
+    .wo-relay__label {
+      @include folio-mono;
+      font-size: 14px;
+      letter-spacing: 0.12em;
+      color: $ink-faint;
+    }
+
+    &--done {
+      .wo-relay__mark { color: $ink; }
+      .wo-relay__label { color: $ink-soft; }
+    }
+
+    &--current {
+      .wo-relay__mark { color: var(--accent-current, #{$farm-green}); }
+      .wo-relay__label {
+        color: $ink;
+        font-weight: 600;
+      }
+    }
+  }
+
+  // --- 倒计时联 · key ……leader…… val ---
+  &__timer {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: baseline;
+    gap: bl(0.6);
+    padding: bl(0.6) 0 bl(0.2);
+    @include hairline-soft-top;
+  }
+
+  &__timer-key {
+    @include folio-mono;
+    font-size: 16px;
+    letter-spacing: 0.2em;
+    color: $ink-faint;
+  }
+
+  &__timer-leader {
+    height: 1px;
+    background-image: radial-gradient($ink-faint 35%, transparent 40%);
+    background-size: 6px 1px;
+    background-repeat: repeat-x;
+    align-self: center;
+    opacity: 0.55;
+  }
+
+  &__timer-val {
+    font-family: $font-mono;
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    color: var(--accent-current, #{$farm-green});
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__timer--overdue &__timer-val {
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    color: $ink-soft;
+  }
+
+  &__hint {
+    @include folio-em;
+    font-size: 18px;
+    color: $ink-soft;
+    line-height: 1.4;
+  }
+}
+
+// ============================================================
 //   · 排队提示 · 编号式
 // ============================================================
 .wo-queue {

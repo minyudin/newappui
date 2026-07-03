@@ -106,13 +106,21 @@ export type TaskStatusValue =
   | 'failed'
   | 'cancelled'
 
+// 设备执行阶段 · 与后端 DeviceExecutionState 枚举对齐 (V12 · 两阶段回执)
+//   submitted            · 任务已创建, 尚未调度
+//   queued               · 设备忙, 已入队
+//   dispatched           · 命令已发出, 等待设备发 accepted 回执 (ACK 阶段)
+//   running              · 设备已确认接收, 正在执行 (Result 阶段)
+//   network_pending_confirmation · 设备已回报动作完成, 正在二次确认网络回执
+//   success / failed     · 终态
 export type DeviceExecutionState =
   | 'submitted'
+  | 'queued'
   | 'dispatched'
-  | 'executing'
-  | 'succeeded'
+  | 'running'
+  | 'network_pending_confirmation'
+  | 'success'
   | 'failed'
-  | 'cancelled'
 
 /** 允许的动作 · 从 /plots/{plotId}/allowed-actions 拉 */
 export interface AllowedAction {
@@ -194,6 +202,10 @@ export interface OperationTaskDetail {
   queuedAt: string | null
   startedAt: string | null
   finishedAt: string | null
+  /** ACK 阶段截止时间 · 非空时表示正在等设备确认接收 (两阶段回执 · V12) */
+  ackDeadlineAt?: string | null
+  /** Result 阶段截止时间 · 非空时表示设备已确认, 正在等执行完成回执 */
+  resultDeadlineAt?: string | null
   cancelable: boolean
   /** 运营审核链路 · 后端 TaskDetailVO 的 reviewState (none / operator_required / approved / rejected) */
   reviewState?: string | null
