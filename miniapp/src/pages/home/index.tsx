@@ -11,6 +11,7 @@ import { TAB_BAR_SYNC_EVT } from '@/custom-tab-bar/events'
 import DigitFlipper from '@/components/DigitFlipper'
 import Marquee from '@/components/Marquee'
 import { getCurrentPentad } from '@/lib/solar-terms'
+import { getWeatherNow, type WeatherNow } from '@/lib/weather'
 import recIrrigation from '@/assets/recs/irrigation.jpg'
 import recStorm from '@/assets/recs/storm.jpg'
 import recGrowth from '@/assets/recs/growth.jpg'
@@ -88,6 +89,7 @@ export default function HomePage() {
   const greetName = userInfo?.nickname || '游客'
 
   const [stats, setStats] = useState<HomeStats>(EMPTY_STATS)
+  const [weather, setWeather] = useState<WeatherNow | null>(null)
   const fetchedAtRef = useRef(0)
 
   async function refreshStats() {
@@ -148,6 +150,7 @@ export default function HomePage() {
   useDidShow(() => {
     Taro.eventCenter.trigger(TAB_BAR_SYNC_EVT, '/pages/home/index')
     void refreshStats()
+    void getWeatherNow().then((w) => { if (w) setWeather(w) })
   })
 
   function go(path: string, isTab = true) {
@@ -179,6 +182,16 @@ export default function HomePage() {
             <Text className='hero__role'>FOLIO No.07 / {roleLabelEn(roleType)}</Text>
           </View>
         </View>
+        {weather ? (
+          <View className='hero__chips'>
+            <View className='hero__chip'>
+              <Text className='hero__chip-text'>{weather.text} {weather.temp}°C</Text>
+            </View>
+            <View className='hero__chip'>
+              <Text className='hero__chip-text'>陇上示范农场 · 兰州</Text>
+            </View>
+          </View>
+        ) : null}
       </View>
 
       {/* ===== Ticker · 1 条工业元数据 ===== */}

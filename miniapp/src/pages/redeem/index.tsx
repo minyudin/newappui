@@ -18,6 +18,14 @@ import BrandNavBar from '@/components/BrandNavBar'
 
 type Stage = 'idle' | 'verified' | 'redeemed'
 
+// 彩带粒子 (位置/延迟/时长预生成, 避免渲染间抖动)
+const CONFETTI = Array.from({ length: 18 }, (_, i) => ({
+  left: (i * 53) % 100,
+  delay: (i * 137) % 600,
+  dur: 1800 + ((i * 211) % 900),
+  tone: ['green', 'sand', 'fog', 'clay'][i % 4],
+}))
+
 export default function RedeemPage() {
   const [code, setCode] = useState('')
   const [stage, setStage] = useState<Stage>('idle')
@@ -79,7 +87,7 @@ export default function RedeemPage() {
     try {
       await redeemAdoptionCode(code.trim())
       setStage('redeemed')
-      Taro.showToast({ title: '兑换成功', icon: 'success', duration: 1200 })
+      Taro.vibrateShort({ type: 'medium' }).catch(() => {})
       keepLocked = true
       if (navigateTimerRef.current) clearTimeout(navigateTimerRef.current)
       navigateTimerRef.current = setTimeout(() => {
@@ -88,7 +96,7 @@ export default function RedeemPage() {
         Taro.switchTab({ url: '/pages/adoptions/index' }).catch(() =>
           Taro.redirectTo({ url: '/pages/adoptions/index' }),
         )
-      }, 1500)
+      }, 2400)
     } catch (e) {
       setErr(e instanceof Error ? e.message : '兑换失败')
       setStage('verified') // 保留在预览态让用户看错误
@@ -249,10 +257,22 @@ export default function RedeemPage() {
       )}
 
       {stage === 'redeemed' && (
-        <View className='redeem-done'>
-          <Text className='redeem-done__seal'>§ · 已绑定</Text>
-          <Text className='redeem-done__title'>兑换成功</Text>
-          <Text className='redeem-done__hint'>即将跳转到「我的认养」...</Text>
+        <View className='celebrate'>
+          <View className='celebrate__confetti'>
+            {CONFETTI.map((c, i) => (
+              <View
+                key={i}
+                className={`celebrate__piece celebrate__piece--${c.tone}`}
+                style={{ left: `${c.left}%`, animationDelay: `${c.delay}ms`, animationDuration: `${c.dur}ms` }}
+              />
+            ))}
+          </View>
+          <View className='celebrate__badge'>
+            <Text className='celebrate__check'>✓</Text>
+          </View>
+          <Text className='celebrate__title'>兑换成功</Text>
+          <Text className='celebrate__sub'>地块已绑定到你的认养</Text>
+          <Text className='celebrate__hint'>即将进入「我的认养」…</Text>
         </View>
       )}
     </View>

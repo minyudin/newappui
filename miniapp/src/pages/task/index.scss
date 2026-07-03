@@ -10,10 +10,10 @@
 .task-page {
   min-height: 100vh;
   background: $paper;
-  padding: bl(3) bl(2.5) calc(bl(3) + env(safe-area-inset-bottom));
+  padding: bl(0.75) bl(2) calc(bl(3) + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
-  gap: bl(2.2);
+  gap: bl(1.75);
 
   &__err {
     @include folio-mono;
@@ -29,79 +29,75 @@
 
 // ---- 页头 ----
 .task-head {
-  @include hairline-bottom;
-  padding-bottom: bl(2);
   display: flex;
   flex-direction: column;
   gap: bl(0.25);
 
   &__seal {
-    @include folio-seal;
-    color: $ink;
-    letter-spacing: 0.3em;
-    display: block;
-    margin-bottom: bl(0.5);
+    display: none;
   }
 
   &__title {
-    font-family: $font-serif;
-    font-size: 42px;
-    font-weight: 500;
+    font-family: $font-sans;
+    font-size: 40px;
+    font-weight: 700;
     color: $ink;
-    line-height: 1.1;
-    letter-spacing: -0.015em;
+    line-height: 1.2;
     display: block;
   }
 
   &__lede {
-    @include folio-em;
-    font-size: 18px;
+    font-family: $font-sans;
+    font-size: 20px;
     color: $ink-soft;
-    line-height: 1.4;
+    line-height: 1.5;
     display: block;
     margin-top: bl(0.25);
   }
 
   &__state {
     font-family: $font-sans;
-    font-size: 14px;
+    font-size: 18px;
     color: $ink-faint;
-    letter-spacing: 0.02em;
-    margin-top: bl(0.55);
+    margin-top: bl(0.5);
     display: block;
   }
 }
 
-// ---- 分区 (节号) ----
+// ---- 分区 ----
 .task-section {
   display: flex;
   flex-direction: column;
   gap: bl(1);
 
   &__title {
-    @include folio-seal;
-    font-size: 14px;
-    color: $ink-faint;
-    letter-spacing: 0.3em;
-    padding-bottom: bl(0.75);
-    @include hairline-soft-bottom;
+    font-family: $font-sans;
+    font-size: 26px;
+    font-weight: 700;
+    color: $ink;
+    padding-left: bl(0.9);
+    border-left: 6rpx solid $farm-green;
+    line-height: 1.2;
     display: block;
   }
 }
 
 .task-empty {
-  padding: bl(5) bl(2);
+  padding: bl(4) bl(2);
   text-align: center;
-  @include folio-em;
+  font-family: $font-sans;
   color: $ink-faint;
-  font-size: 24px;
+  font-size: 22px;
+  background: #fff;
+  border-radius: $radius-md;
+  box-shadow: $shadow-card;
 }
 
 .task-hint {
-  @include folio-em;
-  font-size: 14px;
+  font-family: $font-sans;
+  font-size: 18px;
   color: $ink-faint;
-  line-height: 1.45;
+  line-height: 1.5;
   display: block;
 }
 
@@ -113,8 +109,9 @@
 }
 
 .camera-card {
-  @include hairline-all;
-  background: $paper-light;
+  background: #fff;
+  border-radius: $radius-md;
+  box-shadow: $shadow-card;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -193,8 +190,9 @@
   }
 
   &__name {
-    font-family: $font-serif;
+    font-family: $font-sans;
     font-size: 26px;
+    font-weight: 600;
     color: $ink;
     display: block;
     overflow: hidden;
@@ -211,32 +209,33 @@
   }
 
   &__cta {
-    @include folio-seal;
+    font-family: $font-sans;
     font-size: 20px;
-    color: $ink;
-    letter-spacing: 0.2em;
+    font-weight: 500;
+    color: $farm-green;
     flex-shrink: 0;
   }
 }
 
-// ---- 动作列表 · 纵向 hairline 行 (不再用卡片) ----
+// ---- 动作列表 · 白卡行 ----
 .action-grid {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: bl(0.75);
 }
 
 .action-card {
-  padding: bl(1.25) 0;
-  @include hairline-soft-bottom;
+  padding: bl(1.1) bl(1.5);
+  background: #fff;
+  border-radius: $radius-md;
+  box-shadow: $shadow-card;
   display: grid;
-  grid-template-columns: bl(2.5) 1fr bl(1.8);
-  gap: bl(1.5);
+  grid-template-columns: bl(3) 1fr bl(1.8);
+  gap: bl(1.25);
   align-items: center;
-  transition: background 0.15s $ease-folio;
+  transition: transform 0.15s $ease-folio;
 
-  &:first-child { border-top: 1px solid $line-soft; }
-  &:active:not(.action-card--disabled) { background: $paper-light; }
+  &:active:not(.action-card--disabled) { transform: scale(0.98); }
 
   &--disabled {
     opacity: 0.55;
@@ -250,34 +249,32 @@
   }
 
   &__name {
-    font-family: $font-serif;
-    font-size: 20px;
-    font-weight: 500;
+    font-family: $font-sans;
+    font-size: 24px;
+    font-weight: 600;
     color: $ink;
     line-height: 1.2;
     display: block;
   }
 
   &__device {
-    @include folio-mono;
-    font-size: 14px;
-    color: $sage;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
+    font-family: $font-sans;
+    font-size: 18px;
+    color: $ink-faint;
     display: block;
   }
 
   &__reason {
-    @include folio-em;
-    font-size: 14px;
+    font-family: $font-sans;
+    font-size: 18px;
     color: $clay;
     line-height: 1.3;
     display: block;
   }
 
   &__arrow {
-    font-family: $font-serif;
-    font-size: 22px;
+    font-family: $font-sans;
+    font-size: 24px;
     color: $ink-faint;
     text-align: right;
 
@@ -285,49 +282,53 @@
   }
 }
 
-// ---- 动作图标 · folio-mono 编号替代 ----
+// ---- 动作图标 · 圆形马卡龙色块 ----
 .action-icon {
-  width: bl(2.5);
-  height: bl(2.5);
-  background: $paper-light;
-  @include hairline-all;
+  width: bl(3);
+  height: bl(3);
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: $font-serif;
-  font-size: 20px;
-  color: $ink;
+  font-family: $font-sans;
+  font-size: 24px;
+  font-weight: 600;
   line-height: 1;
+  background: $paper-light;
 
   &::before {
     content: '·';
     color: $ink-faint;
   }
 
-  &--water::before    { content: '水'; color: $fog; }
-  &--fertilize::before { content: '肥'; color: color.adjust($sand, $lightness: -20%); }
-  &--spray::before    { content: '喷'; color: $sage; }
+  &--water    { background: pastel($fog); }
+  &--water::before    { content: '水'; color: color.adjust($fog, $lightness: -30%); }
+  &--fertilize { background: pastel($sand); }
+  &--fertilize::before { content: '肥'; color: color.adjust($sand, $lightness: -35%); }
+  &--spray    { background: pastel($sage); }
+  &--spray::before    { content: '喷'; color: color.adjust($sage, $lightness: -30%); }
   &--default::before  { content: '·'; }
 }
 
-// ---- 任务行列表 ----
+// ---- 任务卡列表 ----
 .task-list {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: bl(0.75);
 }
 
 .task-card {
-  padding: bl(1.25) 0;
-  @include hairline-soft-bottom;
+  padding: bl(1.1) bl(1.5);
+  background: #fff;
+  border-radius: $radius-md;
+  box-shadow: $shadow-card;
   display: grid;
   grid-template-columns: 1fr auto;
   grid-template-rows: auto auto;
-  gap: 2px bl(1.5);
-  transition: background 0.15s $ease-folio;
+  gap: 4rpx bl(1.5);
+  transition: transform 0.15s $ease-folio;
 
-  &:first-child { border-top: 1px solid $line-soft; }
-  &:active { background: $paper-light; }
+  &:active { transform: scale(0.98); }
 
   &__head {
     grid-column: 1;
@@ -339,19 +340,17 @@
   }
 
   &__name {
-    font-family: $font-serif;
-    font-size: 20px;
+    font-family: $font-sans;
+    font-size: 24px;
     color: $ink;
-    font-weight: 500;
+    font-weight: 600;
     line-height: 1.2;
   }
 
   &__no {
-    @include folio-mono;
-    font-size: 13px;
+    font-family: $font-sans;
+    font-size: 16px;
     color: $ink-faint;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
   }
 
   &__meta {
@@ -364,15 +363,14 @@
   }
 
   &__time {
-    @include folio-mono;
-    font-size: 14px;
+    font-family: $font-sans;
+    font-size: 18px;
     color: $ink-soft;
-    letter-spacing: 0.08em;
   }
 
   &__queue {
-    @include folio-em;
-    font-size: 14px;
+    font-family: $font-sans;
+    font-size: 18px;
     color: $sage;
   }
 }
@@ -381,23 +379,20 @@
   grid-column: 2;
   grid-row: 1 / span 2;
   align-self: center;
-  @include folio-mono;
-  font-size: 12px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  padding: bl(0.2) bl(0.75);
-  @include hairline-all;
-  border-color: $line-soft;
+  font-family: $font-sans;
+  font-size: 18px;
+  font-weight: 500;
+  padding: bl(0.3) bl(0.9);
+  border-radius: $radius-full;
   background: $paper-light;
   color: $ink;
-  // height: fit-content 在 WXSS 支持不稳, 改用 inline-block 让内容自适应
   display: inline-block;
 
-  &--sage  { background: pastel($sage); border-color: $sage;  color: color.adjust($sage,  $lightness: -30%); }
-  &--sand  { background: pastel($sand); border-color: $sand;  color: color.adjust($sand,  $lightness: -35%); }
-  &--fog   { background: pastel($fog); border-color: $fog;   color: color.adjust($fog,   $lightness: -30%); }
-  &--clay  { background: pastel($clay); border-color: $clay;  color: $clay; }
-  &--ink-faint { background: $paper-light; border-color: $line-soft; color: $ink-faint; }
+  &--sage  { background: pastel($sage);  color: color.adjust($sage,  $lightness: -30%); }
+  &--sand  { background: pastel($sand);  color: color.adjust($sand,  $lightness: -35%); }
+  &--fog   { background: pastel($fog);   color: color.adjust($fog,   $lightness: -30%); }
+  &--clay  { background: pastel($clay);  color: $clay; }
+  &--ink-faint { background: $paper-light; color: $ink-faint; }
 }
 
 // ---- 底部 sheet · mask + sheet 兄弟节点 ----
@@ -417,8 +412,8 @@
   left: 0;
   right: 0;
   width: 100%;
-  background: $paper;
-  @include hairline-top;
+  background: #fff;
+  border-radius: $radius-lg $radius-lg 0 0;
   padding: bl(3) bl(3) calc(bl(3) + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
@@ -436,11 +431,10 @@
   }
 
   &__title {
-    font-family: $font-serif;
+    font-family: $font-sans;
     font-size: 30px;
     color: $ink;
-    font-weight: 500;
-    letter-spacing: -0.01em;
+    font-weight: 700;
   }
 
   &__close {
@@ -454,14 +448,12 @@
   }
 
   &__device {
-    @include folio-mono;
-    font-size: 14px;
+    font-family: $font-sans;
+    font-size: 18px;
     color: $ink-soft;
-    letter-spacing: 0.15em;
     padding: bl(1) bl(1.5);
     background: $paper-light;
-    @include hairline-all;
-    border-color: $line-soft;
+    border-radius: $radius-sm;
   }
 
   &__form {
@@ -592,10 +584,11 @@
  *   显示 maxDailyOperations 已用/剩余, 让用户清楚 quota
  * ============================================================ */
 .task-quota {
-  margin-bottom: bl(2);
+  margin-bottom: bl(1);
   padding: bl(1.5);
-  @include hairline-all;
-  background: $paper-light;
+  background: #fff;
+  border-radius: $radius-md;
+  box-shadow: $shadow-card;
   display: flex;
   flex-direction: column;
   gap: bl(0.75);
@@ -607,19 +600,16 @@
   }
 
   &__key {
-    @include folio-mono;
-    font-size: 18px;
+    font-family: $font-sans;
+    font-size: 20px;
     color: $ink-faint;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
   }
 
   &__val {
-    font-family: $font-serif;
+    font-family: $font-sans;
     font-size: 26px;
     color: $ink;
-    font-weight: 500;
-    letter-spacing: 0.04em;
+    font-weight: 700;
   }
 
   &__bar {

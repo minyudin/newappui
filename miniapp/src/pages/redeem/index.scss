@@ -249,37 +249,92 @@
   }
 }
 
-// ---- 成功态 ----
-.redeem-done {
+// ---- 成功态 · 庆祝页 ----
+@keyframes celebrate-pop {
+  0%   { transform: scale(0); opacity: 0; }
+  60%  { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes celebrate-rise {
+  0%   { opacity: 0; transform: translateY(24rpx); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes celebrate-fall {
+  0%   { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(80vh) rotate(540deg); opacity: 0; }
+}
+
+.celebrate {
+  position: relative;
   padding: bl(8) bl(3);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: bl(1.5);
-  @include hairline-all;
-  border-color: $sage;
-  background: pastel($sage);
+  overflow: hidden;
 
-  &__seal {
-    @include folio-seal;
-    font-size: 22px;
-    color: color.adjust($sage, $lightness: -20%);
-    letter-spacing: 0.35em;
+  &__confetti {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  &__piece {
+    position: absolute;
+    top: 0;
+    width: 14rpx;
+    height: 26rpx;
+    border-radius: 4rpx;
+    animation: celebrate-fall 2s ease-in forwards;
+
+    &--green { background: $farm-green; }
+    &--sand  { background: $sand; }
+    &--fog   { background: $fog; }
+    &--clay  { background: $clay; }
+  }
+
+  &__badge {
+    width: 160rpx;
+    height: 160rpx;
+    border-radius: 50%;
+    background: $farm-green;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 12rpx 40rpx rgba(93, 99, 224, 0.35);
+    animation: celebrate-pop 0.5s $ease-folio both;
+  }
+
+  &__check {
+    font-size: 44px;
+    color: #fff;
+    font-weight: 600;
+    line-height: 1;
   }
 
   &__title {
-    font-family: $font-serif;
-    font-size: 56px;
+    font-family: $font-sans;
+    font-size: 44px;
     color: $ink;
-    font-weight: 500;
-    margin-top: bl(0.5);
-    letter-spacing: -0.01em;
+    font-weight: 700;
+    margin-top: bl(2);
+    animation: celebrate-rise 0.45s $ease-folio 0.2s both;
+  }
+
+  &__sub {
+    font-family: $font-sans;
+    font-size: 24px;
+    color: $ink-soft;
+    margin-top: bl(0.75);
+    animation: celebrate-rise 0.45s $ease-folio 0.32s both;
   }
 
   &__hint {
-    @include folio-em;
-    font-size: 24px;
-    color: $ink-soft;
-    margin-top: bl(1);
+    font-family: $font-sans;
+    font-size: 20px;
+    color: $ink-faint;
+    margin-top: bl(2);
+    animation: celebrate-rise 0.45s $ease-folio 0.45s both;
   }
 }

@@ -112,6 +112,27 @@
     font-weight: 400;
     color: rgba(255, 255, 255, 0.5);
   }
+
+  // 天气 / 节气 chips
+  &__chips {
+    display: flex;
+    gap: bl(0.6);
+    margin-top: bl(1);
+    flex-wrap: wrap;
+  }
+
+  &__chip {
+    padding: bl(0.35) bl(1);
+    background: rgba(255, 255, 255, 0.16);
+    border-radius: $radius-full;
+  }
+
+  &__chip-text {
+    font-family: $font-sans;
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.92);
+    line-height: 1.4;
+  }
 }
 
 // ============================================================
