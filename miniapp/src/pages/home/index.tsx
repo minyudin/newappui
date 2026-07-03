@@ -186,10 +186,37 @@ export default function HomePage() {
         <Marquee items={TICKER} speed={42} />
       </View>
 
-      {/* ===== §01 · 我的关注 · 3 数字卡 ===== */}
+      {/* ===== §01 · 入口 · 四圆形图标 ===== */}
       <View className='section'>
         <View className='section__head'>
           <Text className='section__seal'>§ 01</Text>
+          <Text className='section__title'>入口</Text>
+          <Text className='section__title-en'>ENTRIES</Text>
+        </View>
+        <View className='entries'>
+          <View className='entry' onClick={() => go('/pages/adoptions/index')}>
+            <View className='entry__circle'><Heart size={26} /></View>
+            <Text className='entry__label'>我的认养</Text>
+          </View>
+          <View className='entry' onClick={() => go('/pages/ai-assist/index')}>
+            <View className='entry__circle'><Message size={26} /></View>
+            <Text className='entry__label'>AI 农技</Text>
+          </View>
+          <View className='entry' onClick={() => go('/pages/me/index')}>
+            <View className='entry__circle'><User size={26} /></View>
+            <Text className='entry__label'>个人中心</Text>
+          </View>
+          <View className='entry' onClick={() => go('/pages/brand-story/index', false)}>
+            <View className='entry__circle'><Order size={26} /></View>
+            <Text className='entry__label'>品牌故事</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* ===== §02 · 我的关注 · 3 数字卡 ===== */}
+      <View className='section'>
+        <View className='section__head'>
+          <Text className='section__seal'>§ 02</Text>
           <Text className='section__title'>关注</Text>
           <Text className='section__title-en'>FOCUS</Text>
         </View>
@@ -218,10 +245,10 @@ export default function HomePage() {
         </View>
       </View>
 
-      {/* ===== §02 · 此刻 · 4 mini cells ===== */}
+      {/* ===== §03 · 此刻 · 4 mini cells ===== */}
       <View className='section'>
         <View className='section__head'>
-          <Text className='section__seal'>§ 02</Text>
+          <Text className='section__seal'>§ 03</Text>
           <Text className='section__title'>此刻</Text>
           <Text className='section__title-en'>NOW</Text>
           <View className='rec'>
@@ -256,10 +283,10 @@ export default function HomePage() {
         )}
       </View>
 
-      {/* ===== §03 · 今日推荐 · Editorial 序号 ===== */}
+      {/* ===== §04 · 今日推荐 · 图片轮播 ===== */}
       <View className='section'>
         <View className='section__head'>
-          <Text className='section__seal'>§ 03</Text>
+          <Text className='section__seal'>§ 04</Text>
           <Text className='section__title'>推荐</Text>
           <Text className='section__title-en'>FEATURED</Text>
         </View>
@@ -286,35 +313,6 @@ export default function HomePage() {
             </SwiperItem>
           ))}
         </Swiper>
-      </View>
-
-      {/* ===== §04 · 入口 · 角色感知 ===== */}
-      <View className='section'>
-        <View className='section__head'>
-          <Text className='section__seal'>§ 04</Text>
-          <Text className='section__title'>入口</Text>
-          <Text className='section__title-en'>ENTRIES</Text>
-        </View>
-        <View className='entries'>
-          {(roleType === 'operator' || roleType === 'agronomist') && (
-            <View className='entry' onClick={() => go('/pages/operator-workbench/index')}>
-              <View className='entry__circle'><Order size={26} /></View>
-              <Text className='entry__label'>工作台</Text>
-            </View>
-          )}
-          <View className='entry' onClick={() => go('/pages/adoptions/index')}>
-            <View className='entry__circle'><Heart size={26} /></View>
-            <Text className='entry__label'>我的认养</Text>
-          </View>
-          <View className='entry' onClick={() => go('/pages/ai-assist/index')}>
-            <View className='entry__circle'><Message size={26} /></View>
-            <Text className='entry__label'>AI 农技</Text>
-          </View>
-          <View className='entry' onClick={() => go('/pages/me/index')}>
-            <View className='entry__circle'><User size={26} /></View>
-            <Text className='entry__label'>个人中心</Text>
-          </View>
-        </View>
       </View>
 
       {/* ===== §05 · 番外 · 一句引文 ===== */}

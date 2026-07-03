@@ -17,6 +17,7 @@ export default defineAppConfig({
     'pages/task-detail/index',
     'pages/camera/index',
     'pages/me/index',
+    'pages/brand-story/index',
   ],
   window: {
     // 自定义导航栏: 原生导航隐藏, 各页顶部挂 <BrandNavBar /> 品牌栏
