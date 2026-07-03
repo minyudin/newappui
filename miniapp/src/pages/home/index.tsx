@@ -1,4 +1,4 @@
-import { View, Text } from '@tarojs/components'
+import { View, Text, Swiper, SwiperItem, Image } from '@tarojs/components'
 import Taro, { useDidShow, useLoad } from '@tarojs/taro'
 import { Heart, Message, Order, User } from '@nutui/icons-react-taro'
 import { useMemo, useRef, useState } from 'react'
@@ -11,6 +11,9 @@ import { TAB_BAR_SYNC_EVT } from '@/custom-tab-bar/events'
 import DigitFlipper from '@/components/DigitFlipper'
 import Marquee from '@/components/Marquee'
 import { getCurrentPentad } from '@/lib/solar-terms'
+import recIrrigation from '@/assets/recs/irrigation.jpg'
+import recStorm from '@/assets/recs/storm.jpg'
+import recGrowth from '@/assets/recs/growth.jpg'
 import './index.scss'
 import BrandNavBar from '@/components/BrandNavBar'
 
@@ -35,9 +38,9 @@ import BrandNavBar from '@/components/BrandNavBar'
 // ---- 编辑内容 --------------------------------------------------
 
 const FEATURE_RECS = [
-  { no: '01', title: '芒种宜浇水',           desc: '土壤湿度 60% 以下 · 当日剩余 7/10', tag: 'IRRIG' },
-  { no: '02', title: '雷雨预警 · 6 级东南风',  desc: '建议巡查卷帘机 + 排水口 · 19:30 影响', tag: 'WEATHER' },
-  { no: '03', title: '株高 +12cm / 周',      desc: '§02 大棚长势优于均值 8% · 进入开花期', tag: 'GROWTH' },
+  { no: '01', title: '芒种宜浇水',           desc: '土壤湿度 60% 以下 · 当日剩余 7/10', tag: 'IRRIG',   img: recIrrigation },
+  { no: '02', title: '雷雨预警 · 6 级东南风',  desc: '建议巡查卷帘机 + 排水口 · 19:30 影响', tag: 'WEATHER', img: recStorm },
+  { no: '03', title: '株高 +12cm / 周',      desc: '§02 大棚长势优于均值 8% · 进入开花期', tag: 'GROWTH',  img: recGrowth },
 ]
 
 const TICKER = [
@@ -260,18 +263,29 @@ export default function HomePage() {
           <Text className='section__title'>推荐</Text>
           <Text className='section__title-en'>FEATURED</Text>
         </View>
-        {FEATURE_RECS.map((r) => (
-          <View key={r.no} className='rec-row'>
-            <Text className='rec-row__no'>{r.no}</Text>
-            <View className='rec-row__body'>
-              <View className='rec-row__head'>
-                <Text className='rec-row__title'>{r.title}</Text>
-                <Text className='rec-row__tag'>{r.tag}</Text>
+        <Swiper
+          className='rec-swiper'
+          circular
+          autoplay
+          interval={4000}
+          indicatorDots
+          indicatorColor='rgba(255, 255, 255, 0.4)'
+          indicatorActiveColor='#ffffff'
+        >
+          {FEATURE_RECS.map((r) => (
+            <SwiperItem key={r.no}>
+              <View className='rec-slide'>
+                <Image className='rec-slide__img' src={r.img} mode='aspectFill' />
+                <View className='rec-slide__mask' />
+                <View className='rec-slide__body'>
+                  <Text className='rec-slide__tag'>{r.tag}</Text>
+                  <Text className='rec-slide__title'>{r.title}</Text>
+                  <Text className='rec-slide__desc'>{r.desc}</Text>
+                </View>
               </View>
-              <Text className='rec-row__desc'>{r.desc}</Text>
-            </View>
-          </View>
-        ))}
+            </SwiperItem>
+          ))}
+        </Swiper>
       </View>
 
       {/* ===== §04 · 入口 · 角色感知 ===== */}
@@ -283,41 +297,22 @@ export default function HomePage() {
         </View>
         <View className='entries'>
           {(roleType === 'operator' || roleType === 'agronomist') && (
-            <View
-              className='entry entry--primary'
-              onClick={() => go('/pages/operator-workbench/index')}
-            >
-              <View className='entry__seal'><Order size={24} /></View>
-              <View className='entry__body'>
-                <Text className='entry__title'>运营工作台</Text>
-                <Text className='entry__sub'>待领 · 责任域 · 异常</Text>
-              </View>
-              <Text className='entry__arrow'>→</Text>
+            <View className='entry' onClick={() => go('/pages/operator-workbench/index')}>
+              <View className='entry__circle'><Order size={26} /></View>
+              <Text className='entry__label'>工作台</Text>
             </View>
           )}
           <View className='entry' onClick={() => go('/pages/adoptions/index')}>
-            <View className='entry__seal'><Heart size={24} /></View>
-            <View className='entry__body'>
-              <Text className='entry__title'>我的认养</Text>
-              <Text className='entry__sub'>地块 · 操作 · 农事</Text>
-            </View>
-            <Text className='entry__arrow'>→</Text>
+            <View className='entry__circle'><Heart size={26} /></View>
+            <Text className='entry__label'>我的认养</Text>
           </View>
           <View className='entry' onClick={() => go('/pages/ai-assist/index')}>
-            <View className='entry__seal'><Message size={24} /></View>
-            <View className='entry__body'>
-              <Text className='entry__title'>AI 农技</Text>
-              <Text className='entry__sub'>问答 · 诊断 · 节气建议</Text>
-            </View>
-            <Text className='entry__arrow'>→</Text>
+            <View className='entry__circle'><Message size={26} /></View>
+            <Text className='entry__label'>AI 农技</Text>
           </View>
           <View className='entry' onClick={() => go('/pages/me/index')}>
-            <View className='entry__seal'><User size={24} /></View>
-            <View className='entry__body'>
-              <Text className='entry__title'>个人中心</Text>
-              <Text className='entry__sub'>账号 · 设置 · 退出</Text>
-            </View>
-            <Text className='entry__arrow'>→</Text>
+            <View className='entry__circle'><User size={26} /></View>
+            <Text className='entry__label'>个人中心</Text>
           </View>
         </View>
       </View>
