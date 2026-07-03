@@ -329,3 +329,53 @@
 }
 
 // .logout-btn 已彻底移除 · logout 链移到 .adoptions-head__logout
+
+// ---- 空态附加 · 二维码占位 + 联系工作人员 ----
+.contact-qr {
+  margin-top: bl(2.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: bl(1.25);
+
+  &__box {
+    position: relative;
+    width: 280rpx;
+    height: 280rpx;
+    background: #fff;
+    border: 2rpx dashed rgba(0, 0, 0, 0.18);
+    border-radius: $radius-md;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  // 二维码三个定位角
+  &__corner {
+    position: absolute;
+    width: 56rpx;
+    height: 56rpx;
+    border: 8rpx solid $ink;
+    border-radius: 10rpx;
+
+    &--tl { top: 24rpx; left: 24rpx; }
+    &--tr { top: 24rpx; right: 24rpx; }
+    &--bl { bottom: 24rpx; left: 24rpx; }
+  }
+
+  &__glyph {
+    @include folio-mono;
+    font-size: 26px;
+    font-weight: 600;
+    color: $ink-faint;
+    letter-spacing: 0.2em;
+  }
+
+  &__hint {
+    font-family: $font-sans;
+    font-size: 22px;
+    color: $ink-soft;
+    text-align: center;
+    line-height: 1.5;
+  }
+}

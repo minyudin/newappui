@@ -267,6 +267,19 @@ export default function AdoptionsPage() {
         <Text className='action-btn__text'>兑换认养码</Text>
         <Text className='action-btn__arrow'>→</Text>
       </Button>
+
+      {/* --- 空态附加 · 二维码占位 + 联系工作人员 --- */}
+      {list.length === 0 && !loading && (
+        <View className='contact-qr'>
+          <View className='contact-qr__box'>
+            <View className='contact-qr__corner contact-qr__corner--tl' />
+            <View className='contact-qr__corner contact-qr__corner--tr' />
+            <View className='contact-qr__corner contact-qr__corner--bl' />
+            <Text className='contact-qr__glyph'>QR</Text>
+          </View>
+          <Text className='contact-qr__hint'>请联系我们的工作人员获取地块吧</Text>
+        </View>
+      )}
     </View>
   )
 }
