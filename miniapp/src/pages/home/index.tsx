@@ -243,14 +243,14 @@ export default function HomePage() {
             <Text className='focus-cell__label'>认养地块</Text>
             <View className='focus-cell__rule' />
           </View>
-          <View className='focus-cell' onClick={() => go('/pages/task/index', false)}>
+          <View className='focus-cell' onClick={() => go('/pages/adoptions/index')}>
             <View className='focus-cell__num'>
               <DigitFlipper value={String(stats.todoCount)} unit='件' size='hero' />
             </View>
             <Text className='focus-cell__label'>进行中任务</Text>
             <View className='focus-cell__rule' />
           </View>
-          <View className='focus-cell' onClick={() => go('/pages/task/index', false)}>
+          <View className='focus-cell' onClick={() => go('/pages/adoptions/index')}>
             <View className={`focus-cell__num ${stats.alertCount > 0 ? 'focus-cell__num--alert' : ''}`}>
               <DigitFlipper value={String(stats.alertCount)} unit='项' size='hero' alert={stats.alertCount > 0} />
             </View>
