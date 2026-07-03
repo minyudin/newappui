@@ -8,6 +8,7 @@ import DigitFlipper from '@/components/DigitFlipper'
 import Marquee from '@/components/Marquee'
 import { getCurrentPentad } from '@/lib/solar-terms'
 import './index.scss'
+import BrandNavBar from '@/components/BrandNavBar'
 
 /**
  * §00 · HOME · Compact Folio (小程序适配版)
@@ -79,6 +80,7 @@ export default function HomePage() {
 
   return (
     <View className='home-page'>
+      <BrandNavBar />
       {/* ===== HERO · 紧凑印章条 (~180rpx) ===== */}
       <View className='hero'>
         <View className='hero__row'>

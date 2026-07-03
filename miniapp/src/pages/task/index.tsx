@@ -17,6 +17,7 @@ import type {
   TaskStatusValue,
 } from '@/types'
 import './index.scss'
+import BrandNavBar from '@/components/BrandNavBar'
 
 /**
  * §4 · 操作任务 (按地块)
@@ -294,6 +295,7 @@ export default function TaskPage() {
 
   return (
     <View className='task-page'>
+      <BrandNavBar />
       {/* --- 页头 --- */}
       <View className='task-head'>
         <Text className='task-head__seal'>§ 03 · 操作申请</Text>

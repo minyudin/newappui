@@ -1,0 +1,67 @@
+@use '@/styles/tokens' as *;
+
+.brand-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: $z-header;
+  background: rgba(242, 244, 248, 0.92); // $paper 半透明 · 沉浸式毛玻璃
+  backdrop-filter: blur(20px);
+
+  &__row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__back {
+    position: absolute;
+    left: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 56px;
+    height: 56px;
+    border-radius: $radius-full;
+    background: $paper-light;
+    box-shadow: $shadow-card;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__back-icon {
+    font-size: 40px;
+    line-height: 1;
+    color: $ink;
+    margin-top: -4px;
+  }
+
+  &__brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  // 英文字标 · 系统衬线大写加宽, 复刻高奢字标感 (零版权成本)
+  &__brand-en {
+    font-family: Georgia, 'Times New Roman', 'Songti SC', serif;
+    font-size: 30px;
+    font-weight: 500;
+    letter-spacing: 8px;
+    text-indent: 8px; // 抵消最后一个字符的字距, 视觉居中
+    color: $ink;
+    line-height: 1;
+  }
+
+  &__brand-cn {
+    font-family: $font-sans;
+    font-size: 20px;
+    letter-spacing: 12px;
+    text-indent: 12px;
+    color: $ink-soft;
+    line-height: 1;
+  }
+}

@@ -10,6 +10,7 @@ import Taro, {
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { getSnapshot, getLiveUrl } from '@/api/camera'
 import './index.scss'
+import BrandNavBar from '@/components/BrandNavBar'
 
 /**
  * §5 · 摄像头页 · 双模式
@@ -149,6 +150,7 @@ function CameraSnapshotView({ cameraId, cameraName }: { cameraId: number; camera
 
   return (
     <View className='camera-snapshot'>
+      <BrandNavBar />
       <View className='camera-snapshot__head'>
         <Text className='camera-snapshot__seal'>§ 05 · 现场画面</Text>
         <Text className='camera-snapshot__title'>{cameraName}</Text>
@@ -275,6 +277,7 @@ function CameraLiveView({ cameraId, cameraName }: { cameraId: number; cameraName
   if (!h5Base) {
     return (
       <View className='camera-fallback'>
+        <BrandNavBar />
         <View className='camera-fallback__head'>
           <Text className='camera-fallback__seal'>§ 05 · 摄像头</Text>
           <Text className='camera-fallback__title'>{cameraName}</Text>
@@ -306,6 +309,7 @@ function CameraLiveView({ cameraId, cameraName }: { cameraId: number; cameraName
   if (fetchErr || (!flvUrl && !hlsUrl)) {
     return (
       <View className='camera-fallback'>
+        <BrandNavBar />
         <View className='camera-fallback__head'>
           <Text className='camera-fallback__seal'>§ 05 · 摄像头 · 异常</Text>
           <Text className='camera-fallback__title'>{cameraName}</Text>
@@ -320,6 +324,7 @@ function CameraLiveView({ cameraId, cameraName }: { cameraId: number; cameraName
   // 3. H5 已配 + URL 齐全 → 全屏 webview
   return (
     <View className='camera-stage'>
+      <BrandNavBar />
       <WebView
         src={webviewSrc}
         onMessage={(e) => console.log('[CameraPage] webview message', e)}

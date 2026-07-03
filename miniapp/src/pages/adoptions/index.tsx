@@ -12,6 +12,7 @@ import { cropGlyph, cropIcon } from '@/lib/crop-glyph'
 import PlotMicroBar from '@/components/PlotMicroBar'
 import DigitFlipper from '@/components/DigitFlipper'
 import './index.scss'
+import BrandNavBar from '@/components/BrandNavBar'
 
 /**
  * §1 · 我的认养 (首页 · 登录后着陆页)
@@ -155,6 +156,7 @@ export default function AdoptionsPage() {
 
   return (
     <View className='adoptions-page'>
+      <BrandNavBar />
       {/* --- 页头 · Folio 封面 + 右上 meta (logout 已移到我的 tab) --- */}
       <View className='adoptions-head'>
         <View className='adoptions-head__left'>

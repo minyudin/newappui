@@ -5,6 +5,7 @@ import { guestLogin } from '@/api/auth'
 import { verifyAdoptionCode } from '@/api/adoption'
 import { useAuthStore } from '@/store/auth'
 import './index.scss'
+import BrandNavBar from '@/components/BrandNavBar'
 
 function normalizeCode(v: string): string {
   return (v || '').trim().replace(/\s+/g, '').toUpperCase()
@@ -67,6 +68,7 @@ export default function GuestLoginPage() {
 
   return (
     <View className='guest-login-page'>
+      <BrandNavBar />
       <View className='guest-login-page__body'>
       <View className='guest-login-head'>
         <Text className='guest-login-head__seal'>§ · 访客</Text>

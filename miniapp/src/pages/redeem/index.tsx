@@ -5,6 +5,7 @@ import { verifyAdoptionCode, redeemAdoptionCode } from '@/api/adoption'
 import { useAuthStore } from '@/store/auth'
 import type { VerifyCodeResponse } from '@/types'
 import './index.scss'
+import BrandNavBar from '@/components/BrandNavBar'
 
 /**
  * §2 · 兑换认养码页
@@ -105,6 +106,7 @@ export default function RedeemPage() {
 
   return (
     <View className='redeem-page'>
+      <BrandNavBar />
       <View className='redeem-head'>
         <Text className='redeem-head__seal'>§ 02 · 兑换认养码</Text>
         <Text className='redeem-head__title'>兑换认养码</Text>

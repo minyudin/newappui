@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/auth'
 import type { AiChatResponse } from '@/types'
 import { TAB_BAR_SYNC_EVT } from '@/custom-tab-bar/events'
 import './index.scss'
+import BrandNavBar from '@/components/BrandNavBar'
 
 /**
  * §02 · AI 询问 (Compact Folio 对话)
@@ -182,6 +183,7 @@ export default function AiAssistPage() {
 
   return (
     <View className='ai-page'>
+      <BrandNavBar />
       {/* === Hero · 紧凑印章条 === */}
       <View className='ai-hero'>
         <View className='ai-hero__row'>

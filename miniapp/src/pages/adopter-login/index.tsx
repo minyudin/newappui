@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from 'react'
 import { wechatLogin } from '@/api/auth'
 import { useAuthStore } from '@/store/auth'
 import './index.scss'
+import BrandNavBar from '@/components/BrandNavBar'
 
 const STUB_DEVICE_KEY = 'stub_device_id'
 
@@ -83,6 +84,7 @@ export default function AdopterLoginPage() {
 
   return (
     <View className='ad-login-page'>
+      <BrandNavBar />
       <View className='ad-login-page__body'>
       <View className='ad-login-head'>
         <Text className='ad-login-head__seal'>§ · 认养用户</Text>

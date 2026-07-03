@@ -6,6 +6,7 @@ import { useAuthStore } from '@/store/auth'
 import { useRequireRole } from '@/hooks/useRequireRole'
 import { TAB_BAR_SYNC_EVT } from '@/custom-tab-bar/events'
 import './index.scss'
+import BrandNavBar from '@/components/BrandNavBar'
 
 type TabKey = 'plots' | 'queue'
 
@@ -130,6 +131,7 @@ export default function OperatorWorkbenchPage() {
 
   return (
     <View className='opwb'>
+      <BrandNavBar />
       <View className='opwb-head'>
         <Text className='opwb-head__seal'>§ · 运营工作台</Text>
         <Text className='opwb-head__title'>运营工作台</Text>

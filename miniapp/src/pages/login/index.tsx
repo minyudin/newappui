@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/auth'
 import TermStamp from '@/components/TermStamp'
 import Marquee from '@/components/Marquee'
 import './index.scss'
+import BrandNavBar from '@/components/BrandNavBar'
 
 /**
  * §0 · 登录页 (生产链路 · 真微信 code2session 版)
@@ -191,6 +192,7 @@ export default function LoginPage() {
 
   return (
     <View className='login-page'>
+      <BrandNavBar />
       {/* --- 封面印章 --- */}
       <View className='login-cover'>
         <Text className='login-cover__seal'>§ 00 · LONGARCH</Text>

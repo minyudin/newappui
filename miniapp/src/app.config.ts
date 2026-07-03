@@ -19,6 +19,8 @@ export default defineAppConfig({
     'pages/me/index',
   ],
   window: {
+    // 自定义导航栏: 原生导航隐藏, 各页顶部挂 <BrandNavBar /> 品牌栏
+    navigationStyle: 'custom',
     backgroundTextStyle: 'light',
     navigationBarBackgroundColor: '#e8e8e5',
     navigationBarTitleText: '陇上管家',

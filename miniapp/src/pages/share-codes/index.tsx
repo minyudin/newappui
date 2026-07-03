@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from 'react'
 import { createShareCode, getMyShareCodes, revokeShareCode } from '@/api/adoption'
 import type { ShareCodeItem } from '@/types'
 import './index.scss'
+import BrandNavBar from '@/components/BrandNavBar'
 
 function parsePlotId(v: string | undefined): number {
   const n = Number(v || 0)
@@ -118,6 +119,7 @@ export default function ShareCodesPage() {
 
   return (
     <View className='share-page'>
+      <BrandNavBar />
       {showSuccess ? (
         <View className='share-success'>
           <View className='share-success__card'>
