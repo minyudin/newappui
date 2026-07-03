@@ -10,7 +10,7 @@
 .me-page {
   min-height: 100vh;
   background: $paper;
-  padding: bl(3) bl(2.5) calc(bl(10) + env(safe-area-inset-bottom)); // 留 tabBar 空间
+  padding: bl(0.75) bl(2.5) calc(bl(10) + env(safe-area-inset-bottom)); // 顶部由 BrandNavBar 占位, 底部留 tabBar 空间
   display: flex;
   flex-direction: column;
   gap: bl(2.5);

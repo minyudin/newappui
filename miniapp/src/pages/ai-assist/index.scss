@@ -1,9 +1,10 @@
+@use 'sass:color';
 @use '@/styles/tokens' as *;
 @use '@/styles/mixins' as *;
 
 /* ============================================================
- *  §02 · AI 询问 (Compact Folio 对话)
- *  Hero 紧凑印章 + flex 撑开对话流 + 黏底输入区
+ *  §02 · AI 农技助手 · 商业化对话布局
+ *  简洁标题 + 居中欢迎/推荐问题卡 + 气泡对话流 + 圆角输入栏
  * ============================================================ */
 
 .ai-page {
@@ -12,55 +13,31 @@
   background: $paper;
   display: flex;
   flex-direction: column;
-  // 输入区高度 + tabBar 高度 = 不再 padding-bottom, 用 flex 撑
   padding-bottom: calc(bl(7) + env(safe-area-inset-bottom));
   box-sizing: border-box;
   overflow: hidden;
 }
 
 // ============================================================
-//  Hero · 紧凑印章
+//  Hero · 简洁标题
 // ============================================================
 .ai-hero {
-  padding: bl(1.25) bl(2) bl(1);
-  @include hairline-bottom;
+  padding: bl(0.75) bl(2) bl(1);
   flex-shrink: 0;
 
-  &__row {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: bl(0.5);
-  }
-
-  &__seal {
-    @include folio-seal;
-    font-size: 18px;
-    color: $ink;
-    letter-spacing: 0.32em;
-  }
-
-  &__stamp {
-    @include folio-mono;
-    font-size: 16px;
-    color: $ink-faint;
-    letter-spacing: 0.18em;
-  }
-
   &__title {
-    font-family: $font-serif;
+    font-family: $font-sans;
     font-size: 36px;
-    font-weight: 500;
+    font-weight: 700;
     color: $ink;
-    line-height: 1.1;
-    letter-spacing: -0.01em;
+    line-height: 1.2;
     display: block;
   }
 
   &__sub {
-    @include folio-em;
+    font-family: $font-sans;
     font-size: 20px;
-    color: $ink-soft;
+    color: $ink-faint;
     margin-top: 2rpx;
     display: block;
   }
@@ -71,7 +48,7 @@
 // ============================================================
 .ai-thread {
   flex: 1;
-  padding: bl(1.5) bl(1.5) 0;
+  padding: bl(1) bl(1.5) 0;
   box-sizing: border-box;
   overflow-y: auto;
 
@@ -80,51 +57,85 @@
   }
 }
 
-// 空态卡
+// ---- 空态 · 居中欢迎 + 推荐问题卡 ----
 .ai-empty {
-  padding: bl(2) bl(1) bl(1.5);
+  padding: bl(3) bl(0.5) bl(1.5);
   display: flex;
   flex-direction: column;
-  gap: bl(0.5);
-  margin-bottom: bl(1.5);
+  align-items: center;
+  text-align: center;
 
-  &__seal {
-    @include folio-seal;
-    font-size: 18px;
-    color: $ink-faint;
-    letter-spacing: 0.32em;
+  &__avatar {
+    width: 128rpx;
+    height: 128rpx;
+    border-radius: 50%;
+    background: $farm-green;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: bl(1.25);
+    box-shadow: $shadow-card;
+  }
+
+  &__avatar-txt {
+    font-family: $font-sans;
+    font-size: 34px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.05em;
   }
 
   &__greet {
-    font-family: $font-serif;
-    font-size: 36px;
-    font-weight: 500;
+    font-family: $font-sans;
+    font-size: 40px;
+    font-weight: 700;
     color: $ink;
     line-height: 1.2;
-    margin-top: bl(0.25);
   }
 
   &__hint {
-    @include folio-em;
-    font-size: 22px;
+    font-family: $font-sans;
+    font-size: 24px;
     color: $ink-soft;
     line-height: 1.5;
     margin-top: bl(0.5);
   }
 
-  &__rule {
-    width: 60rpx;
-    height: 2px;
-    background: $farm-green;
-    border-radius: $radius-full;
-    margin: bl(0.75) 0 bl(0.5);
+  &__cards {
+    width: 100%;
+    margin-top: bl(2);
+    display: flex;
+    flex-direction: column;
+    gap: bl(0.75);
   }
 
-  &__pick {
-    @include folio-mono;
-    font-size: 18px;
-    color: $ink-faint;
-    letter-spacing: 0.2em;
+  &__card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: bl(1);
+    padding: bl(1.1) bl(1.5);
+    background: #fff;
+    border-radius: $radius-md;
+    box-shadow: $shadow-card;
+    transition: transform 0.15s $ease-folio;
+
+    &:active { transform: scale(0.98); }
+  }
+
+  &__card-text {
+    font-family: $font-sans;
+    font-size: 24px;
+    font-weight: 500;
+    color: $ink;
+    line-height: 1.4;
+  }
+
+  &__card-arrow {
+    font-family: $font-sans;
+    font-size: 24px;
+    color: $farm-green;
+    flex-shrink: 0;
   }
 }
 
@@ -134,63 +145,53 @@
 .msg {
   margin-bottom: bl(1.25);
   display: flex;
-  flex-direction: column;
-  gap: 6rpx;
 
   &--user {
-    align-items: flex-end;
+    justify-content: flex-end;
   }
 
   &--ai {
+    justify-content: flex-start;
     align-items: flex-start;
+    gap: bl(0.6);
   }
 
-  // 降级气泡: meta seq 染成砖红, 让用户清楚这不是真 AI 答
-  &--fallback .msg__seq {
-    color: $clay;
-    letter-spacing: 0.3em;
-  }
-
-  &__meta {
+  &__avatar {
+    width: 64rpx;
+    height: 64rpx;
+    border-radius: 50%;
+    background: $farm-green;
     display: flex;
-    gap: bl(0.5);
-    align-items: baseline;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
   }
 
-  &__seq {
-    @include folio-mono;
-    font-size: 14px;
-    color: $ink-faint;
-    letter-spacing: 0.22em;
-  }
-
-  &__time {
-    @include folio-mono;
-    font-size: 14px;
-    color: $ink-faint;
-    letter-spacing: 0.06em;
+  &__avatar-txt {
+    font-family: $font-sans;
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
   }
 
   &__bubble {
-    max-width: 84%;
+    max-width: 78%;
     padding: bl(1) bl(1.25);
     line-height: 1.55;
     word-break: break-word;
     box-sizing: border-box;
 
     &--user {
-      // 用户气泡 · 墨色实心 · 贴右
       background: $farm-green;
-      color: #fff;
-      border-radius: $radius-full;
+      border-radius: 28rpx 28rpx 8rpx 28rpx;
 
-      .msg__text { color: $paper; }
+      .msg__text { color: #fff; }
     }
 
     &--ai {
-      // AI 气泡 · paper 浅底 · hairline 边 · 贴左
-      background: $paper-light;
-      @include hairline-all;
+      background: #fff;
+      border-radius: 8rpx 28rpx 28rpx 28rpx;
+      box-shadow: $shadow-card;
       color: $ink;
     }
 
@@ -200,10 +201,10 @@
   }
 
   &__text {
-    font-family: $font-serif;
+    font-family: $font-sans;
     font-size: 26px;
     color: $ink;
-    line-height: 1.5;
+    line-height: 1.55;
   }
 
   // 打字机末尾光标 (未 done 时)
@@ -216,56 +217,38 @@
     transform: translateY(-2rpx);
   }
 
-  // intent 印章 (AI 气泡顶部)
+  // intent 标签 (AI 气泡顶部)
   &__intent {
     display: inline-flex;
-    align-items: baseline;
-    gap: bl(0.4);
-    padding: 4rpx bl(0.5);
-    border: 1px solid $ink;
+    padding: 4rpx bl(0.75);
+    background: pastel($farm-green);
+    border-radius: $radius-full;
     margin-bottom: bl(0.5);
 
-    // 降级状态 · 砖红边 + 砖红文字
     &--warn {
-      border-color: $clay;
+      background: pastel($clay);
 
-      .msg__intent-key,
       .msg__intent-val { color: $clay; }
     }
   }
 
-  &__intent-key {
-    @include folio-mono;
-    font-size: 14px;
-    color: $ink;
-    letter-spacing: 0.32em;
-  }
-
   &__intent-val {
-    font-family: $font-serif;
+    font-family: $font-sans;
     font-size: 18px;
-    color: $ink;
+    font-weight: 500;
+    color: color.adjust($farm-green, $lightness: -8%);
   }
 
   // 建议块 (AI 气泡底部)
   &__suggest {
     margin-top: bl(0.75);
-    padding-top: bl(0.5);
-    @include hairline-soft-top;
-    display: flex;
-    flex-direction: column;
-    gap: 2rpx;
-  }
-
-  &__suggest-key {
-    @include folio-mono;
-    font-size: 15px;
-    color: $ink-faint;
-    letter-spacing: 0.32em;
+    padding: bl(0.6) bl(0.875);
+    background: $paper-light;
+    border-radius: $radius-sm;
   }
 
   &__suggest-val {
-    @include folio-em;
+    font-family: $font-sans;
     font-size: 22px;
     color: $ink-soft;
     line-height: 1.5;
@@ -274,7 +257,7 @@
   // 安全拦截警告
   &__warn {
     margin-top: bl(0.5);
-    @include folio-em;
+    font-family: $font-sans;
     font-size: 20px;
     color: $clay;
     line-height: 1.5;
@@ -282,34 +265,27 @@
   }
 }
 
-// 系统消息 · 居中 + 双 hairline 横线
+// 系统消息 · 居中灰色胶囊
 .msg-sys {
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: bl(0.5);
   margin: bl(1) 0;
 
   &__text {
-    @include folio-em;
+    font-family: $font-sans;
     font-size: 20px;
     color: $ink-faint;
     line-height: 1.4;
     text-align: center;
-  }
-
-  &__rule {
-    @include folio-mono;
-    font-size: 14px;
-    color: $line;
-    letter-spacing: 0.2em;
-    flex-shrink: 0;
+    background: $paper-light;
+    border-radius: $radius-full;
+    padding: bl(0.4) bl(1.25);
   }
 }
 
 // typing 三点呼吸
 .typing {
-  font-family: $font-serif;
+  font-family: $font-sans;
   font-size: 32px;
   letter-spacing: 0.2em;
   color: $ink-faint;
@@ -336,115 +312,70 @@
 }
 
 // ============================================================
-//  推荐问题钉 (input 上方)
-// ============================================================
-.ai-hints {
-  flex-shrink: 0;
-  padding: bl(0.75) bl(1.5);
-  @include hairline-top;
-  display: flex;
-  flex-wrap: wrap;
-  gap: bl(0.5);
-  background: $paper;
-
-  &__item {
-    display: inline-flex;
-    align-items: baseline;
-    gap: bl(0.4);
-    padding: bl(0.4) bl(0.75);
-    @include hairline-all;
-    background: $paper-light;
-    transition: background 0.15s $ease-folio;
-
-    &:active { background: $farm-green; }
-    &:active .ai-hints__no { color: $paper-light; }
-    &:active .ai-hints__text { color: $paper; }
-  }
-
-  &__no {
-    @include folio-mono;
-    font-size: 14px;
-    color: $ink-faint;
-    letter-spacing: 0.2em;
-  }
-
-  &__text {
-    font-family: $font-serif;
-    font-size: 20px;
-    color: $ink;
-    line-height: 1.3;
-  }
-}
-
-// ============================================================
-//  输入区 · 黏底
+//  输入区 · 黏底 · 圆角输入框 + 圆形发送键
 // ============================================================
 .ai-input {
   flex-shrink: 0;
   display: flex;
-  gap: bl(0.5);
+  align-items: center;
+  gap: bl(0.75);
   padding: bl(0.75) bl(1.5);
-  @include hairline-top;
   background: $paper;
 
   &__field {
     flex: 1;
-    @include hairline-all;
-    background: $paper-light;
-    padding: bl(0.625) bl(0.875);
-    font-family: $font-serif;
+    background: #fff;
+    border-radius: $radius-full;
+    box-shadow: $shadow-card;
+    padding: bl(0.7) bl(1.25);
+    font-family: $font-sans;
     font-size: 24px;
     color: $ink;
-    min-height: bl(2.4);
+    min-height: bl(2.6);
     box-sizing: border-box;
   }
 
   &__placeholder {
     color: $ink-faint;
-    font-family: $font-serif;
+    font-family: $font-sans;
   }
 
   &__send {
-    width: bl(5);
-    @include hairline-all;
-    background: $paper-light;
+    width: 84rpx;
+    height: 84rpx;
+    min-width: 84rpx;
+    border-radius: 50%;
+    background: $line-soft;
     color: $ink-faint;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: bl(0.25);
     transition: all 0.2s $ease-folio;
     padding: 0;
+    border: none;
 
     &::after { content: none; border: none; }
 
     &--ready {
       background: $farm-green;
-      border-color: $farm-green;
       color: #fff;
     }
 
     &[disabled] {
-      background: $paper-light;
+      background: $line-soft;
       color: $ink-faint;
-      border-color: $line-soft;
     }
 
     &:active:not([disabled]) {
-      transform: scale(0.96);
+      transform: scale(0.92);
     }
   }
 
-  &__send-text {
-    @include folio-mono;
-    font-size: 20px;
-    letter-spacing: 0.3em;
-    color: inherit;
-  }
-
   &__send-arrow {
-    font-family: $font-serif;
-    font-size: 22px;
+    font-family: $font-sans;
+    font-size: 34px;
+    font-weight: 700;
     color: inherit;
+    line-height: 1;
   }
 }

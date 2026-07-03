@@ -1,13 +1,22 @@
-import { View, Text } from '@tarojs/components'
+import { View, Text, Swiper, SwiperItem, Image } from '@tarojs/components'
 import Taro, { useDidShow, useLoad } from '@tarojs/taro'
 import { Heart, Message, Order, User } from '@nutui/icons-react-taro'
-import { useMemo } from 'react'
+import { useMemo, useRef, useState } from 'react'
+import { getMyAdoptions } from '@/api/adoption'
+import { getMyOperationTasks } from '@/api/task'
+import { getSensorSummary } from '@/api/plot'
+import type { SensorSummary } from '@/types'
 import { useAuthStore } from '@/store/auth'
 import { TAB_BAR_SYNC_EVT } from '@/custom-tab-bar/events'
 import DigitFlipper from '@/components/DigitFlipper'
 import Marquee from '@/components/Marquee'
 import { getCurrentPentad } from '@/lib/solar-terms'
+import { getWeatherNow, type WeatherNow } from '@/lib/weather'
+import recIrrigation from '@/assets/recs/irrigation.jpg'
+import recStorm from '@/assets/recs/storm.jpg'
+import recGrowth from '@/assets/recs/growth.jpg'
 import './index.scss'
+import BrandNavBar from '@/components/BrandNavBar'
 
 /**
  * §00 · HOME · Compact Folio (小程序适配版)
@@ -24,15 +33,15 @@ import './index.scss'
  *    · 顶部 1 条 ticker (实时元数据)
  *    · 关注三卡 + 此刻四读数 + 推荐三条 + 入口四卡 + 番外引文
  *    · 一屏内能看到 §00 hero / §01 关注 / §02 此刻 顶端
- *    · 数据全静态 mock, 不接后端
+ *    · 关注/此刻接真实后端, 推荐/ticker 为编辑内容
  * ============================================================ */
 
-// ---- 静态 mock --------------------------------------------------
+// ---- 编辑内容 --------------------------------------------------
 
 const FEATURE_RECS = [
-  { no: '01', title: '芒种宜浇水',           desc: '土壤湿度 60% 以下 · 当日剩余 7/10', tag: 'IRRIG' },
-  { no: '02', title: '雷雨预警 · 6 级东南风',  desc: '建议巡查卷帘机 + 排水口 · 19:30 影响', tag: 'WEATHER' },
-  { no: '03', title: '株高 +12cm / 周',      desc: '§02 大棚长势优于均值 8% · 进入开花期', tag: 'GROWTH' },
+  { no: '01', title: '芒种宜浇水',           desc: '土壤湿度 60% 以下 · 当日剩余 7/10', tag: 'IRRIG',   img: recIrrigation },
+  { no: '02', title: '雷雨预警 · 6 级东南风',  desc: '建议巡查卷帘机 + 排水口 · 19:30 影响', tag: 'WEATHER', img: recStorm },
+  { no: '03', title: '株高 +12cm / 周',      desc: '§02 大棚长势优于均值 8% · 进入开花期', tag: 'GROWTH',  img: recGrowth },
 ]
 
 const TICKER = [
@@ -44,12 +53,85 @@ const TICKER = [
   '§ FOLIO No.07',
 ]
 
+// ---- 首页实时数据 -------------------------------------------------
+
+interface HomeStats {
+  adoptionCount: number
+  todoCount: number
+  alertCount: number
+  plotName: string | null
+  summary: SensorSummary['summary']
+}
+
+const EMPTY_STATS: HomeStats = {
+  adoptionCount: 0,
+  todoCount: 0,
+  alertCount: 0,
+  plotName: null,
+  summary: [],
+}
+
+// 传感器类型 → 此刻展示的中文标签 (取前 4 个展示)
+const SENSOR_LABEL: Record<string, string> = {
+  temperature: '温度',
+  humidity: '湿度',
+  light: '光照',
+  co2: 'CO₂',
+  soil_moisture: '壤情',
+  soil_temperature: '地温',
+}
+
 // ---- 页面 -------------------------------------------------------
 
 export default function HomePage() {
   const userInfo = useAuthStore((s) => s.userInfo)
   const roleType = userInfo?.roleType || 'adopter'
   const greetName = userInfo?.nickname || '游客'
+
+  const [stats, setStats] = useState<HomeStats>(EMPTY_STATS)
+  const [weather, setWeather] = useState<WeatherNow | null>(null)
+  const fetchedAtRef = useRef(0)
+
+  async function refreshStats() {
+    // 30s 内不重拉, 避免切 tab 颤拖接口
+    if (Date.now() - fetchedAtRef.current < 30_000) return
+    fetchedAtRef.current = Date.now()
+    try {
+      const [adoptions, tasks] = await Promise.all([
+        getMyAdoptions({ status: 'active', pageSize: 50 }),
+        getMyOperationTasks({ pageSize: 50 }),
+      ])
+      const list = adoptions?.list ?? []
+      const taskList = tasks?.list ?? []
+      const todoCount = taskList.filter((t) =>
+        ['pending', 'queued', 'running'].includes(t.taskStatus),
+      ).length
+      const alertCount = taskList.filter((t) => t.taskStatus === 'failed').length
+
+      let plotName: string | null = null
+      let summary: SensorSummary['summary'] = []
+      const firstPlotId = list[0]?.plotId
+      if (firstPlotId) {
+        plotName = list[0]?.plotName ?? null
+        try {
+          const s = await getSensorSummary(firstPlotId)
+          summary = s?.summary ?? []
+        } catch (e) {
+          console.warn('[HomePage] sensor summary failed', e)
+        }
+      }
+      setStats({
+        adoptionCount: adoptions?.total ?? list.length,
+        todoCount,
+        alertCount,
+        plotName,
+        summary,
+      })
+    } catch (e) {
+      console.warn('[HomePage] refresh stats failed', e)
+      fetchedAtRef.current = 0
+    }
+  }
 
   const pentadInfo = useMemo(() => {
     try { return getCurrentPentad() } catch { return null }
@@ -67,6 +149,8 @@ export default function HomePage() {
   useLoad(() => { /* tabBar 自己同步 */ })
   useDidShow(() => {
     Taro.eventCenter.trigger(TAB_BAR_SYNC_EVT, '/pages/home/index')
+    void refreshStats()
+    void getWeatherNow().then((w) => { if (w) setWeather(w) })
   })
 
   function go(path: string, isTab = true) {
@@ -79,6 +163,7 @@ export default function HomePage() {
 
   return (
     <View className='home-page'>
+      <BrandNavBar />
       {/* ===== HERO · 紧凑印章条 (~180rpx) ===== */}
       <View className='hero'>
         <View className='hero__row'>
@@ -97,6 +182,16 @@ export default function HomePage() {
             <Text className='hero__role'>FOLIO No.07 / {roleLabelEn(roleType)}</Text>
           </View>
         </View>
+        {weather ? (
+          <View className='hero__chips'>
+            <View className='hero__chip'>
+              <Text className='hero__chip-text'>{weather.text} {weather.temp}°C</Text>
+            </View>
+            <View className='hero__chip'>
+              <Text className='hero__chip-text'>陇上示范农场 · 兰州</Text>
+            </View>
+          </View>
+        ) : null}
       </View>
 
       {/* ===== Ticker · 1 条工业元数据 ===== */}
@@ -104,42 +199,69 @@ export default function HomePage() {
         <Marquee items={TICKER} speed={42} />
       </View>
 
-      {/* ===== §01 · 我的关注 · 3 数字卡 ===== */}
+      {/* ===== §01 · 入口 · 四圆形图标 ===== */}
       <View className='section'>
         <View className='section__head'>
           <Text className='section__seal'>§ 01</Text>
+          <Text className='section__title'>入口</Text>
+          <Text className='section__title-en'>ENTRIES</Text>
+        </View>
+        <View className='entries'>
+          <View className='entry' onClick={() => go('/pages/adoptions/index')}>
+            <View className='entry__circle'><Heart size={26} /></View>
+            <Text className='entry__label'>我的认养</Text>
+          </View>
+          <View className='entry' onClick={() => go('/pages/ai-assist/index')}>
+            <View className='entry__circle'><Message size={26} /></View>
+            <Text className='entry__label'>AI 农技</Text>
+          </View>
+          <View className='entry' onClick={() => go('/pages/me/index')}>
+            <View className='entry__circle'><User size={26} /></View>
+            <Text className='entry__label'>个人中心</Text>
+          </View>
+          <View className='entry' onClick={() => go('/pages/brand-story/index', false)}>
+            <View className='entry__circle'><Order size={26} /></View>
+            <Text className='entry__label'>品牌故事</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* ===== §02 · 我的关注 · 3 数字卡 ===== */}
+      <View className='section'>
+        <View className='section__head'>
+          <Text className='section__seal'>§ 02</Text>
           <Text className='section__title'>关注</Text>
           <Text className='section__title-en'>FOCUS</Text>
         </View>
         <View className='focus-grid'>
           <View className='focus-cell' onClick={() => go('/pages/adoptions/index')}>
             <View className='focus-cell__num'>
-              <DigitFlipper value={2} unit='块' size='hero' />
+              <DigitFlipper value={String(stats.adoptionCount)} unit='块' size='hero' />
             </View>
             <Text className='focus-cell__label'>认养地块</Text>
             <View className='focus-cell__rule' />
           </View>
-          <View className='focus-cell' onClick={() => go('/pages/adoptions/index')}>
+          <View className='focus-cell' onClick={() => go('/pages/task/index', false)}>
             <View className='focus-cell__num'>
-              <DigitFlipper value={3} unit='件' size='hero' />
+              <DigitFlipper value={String(stats.todoCount)} unit='件' size='hero' />
             </View>
-            <Text className='focus-cell__label'>待办任务</Text>
+            <Text className='focus-cell__label'>进行中任务</Text>
             <View className='focus-cell__rule' />
           </View>
-          <View className='focus-cell' onClick={() => go('/pages/adoptions/index')}>
-            <View className='focus-cell__num focus-cell__num--alert'>
-              <DigitFlipper value={1} unit='项' size='hero' alert />
+          <View className='focus-cell' onClick={() => go('/pages/task/index', false)}>
+            <View className={`focus-cell__num ${stats.alertCount > 0 ? 'focus-cell__num--alert' : ''}`}>
+              <DigitFlipper value={String(stats.alertCount)} unit='项' size='hero' alert={stats.alertCount > 0} />
             </View>
-            <Text className='focus-cell__label focus-cell__label--alert'>告警</Text>
-            <View className='focus-cell__rule focus-cell__rule--alert' />
+            <Text className={`focus-cell__label ${stats.alertCount > 0 ? 'focus-cell__label--alert' : ''}`}>异常任务</Text>
+            <View className={`focus-cell__rule ${stats.alertCount > 0 ? 'focus-cell__rule--alert' : ''}`} />
           </View>
         </View>
       </View>
 
-      {/* ===== §02 · 此刻 · 4 mini cells ===== */}
+      {/* ===== §03 · 此刻 · 4 mini cells ===== */}
       <View className='section'>
         <View className='section__head'>
-          <Text className='section__seal'>§ 02</Text>
+          <Text className='section__seal'>§ 03</Text>
           <Text className='section__title'>此刻</Text>
           <Text className='section__title-en'>NOW</Text>
           <View className='rec'>
@@ -147,86 +269,63 @@ export default function HomePage() {
             <Text className='rec__text'>REC</Text>
           </View>
         </View>
-        <Text className='now-plot'>PLOT 01 · 西区大棚</Text>
-        <View className='now-grid'>
-          <NowCell label='温度' value='24.2' unit='°' trend='up' />
-          <NowCell label='湿度' value='65.1' unit='%' trend='flat' />
-          <NowCell label='光照' value='12.4k' unit='lx' trend='down' />
-          <NowCell label='CO₂'  value='410'  unit='ppm' trend='up' />
-        </View>
-        <View className='now-cta' onClick={() => go('/pages/adoptions/index')}>
-          <Text className='now-cta__text'>进入地块详情</Text>
-          <Text className='now-cta__arrow'>→</Text>
-        </View>
-      </View>
-
-      {/* ===== §03 · 今日推荐 · Editorial 序号 ===== */}
-      <View className='section'>
-        <View className='section__head'>
-          <Text className='section__seal'>§ 03</Text>
-          <Text className='section__title'>推荐</Text>
-          <Text className='section__title-en'>FEATURED</Text>
-        </View>
-        {FEATURE_RECS.map((r) => (
-          <View key={r.no} className='rec-row'>
-            <Text className='rec-row__no'>{r.no}</Text>
-            <View className='rec-row__body'>
-              <View className='rec-row__head'>
-                <Text className='rec-row__title'>{r.title}</Text>
-                <Text className='rec-row__tag'>{r.tag}</Text>
-              </View>
-              <Text className='rec-row__desc'>{r.desc}</Text>
+        {stats.summary.length > 0 ? (
+          <>
+            <Text className='now-plot'>{stats.plotName || '我的地块'}</Text>
+            <View className='now-grid'>
+              {stats.summary.slice(0, 4).map((s) => (
+                <NowCell
+                  key={s.sensorType}
+                  label={s.label || SENSOR_LABEL[s.sensorType] || s.sensorType}
+                  value={s.value != null ? String(s.value) : '—'}
+                  unit={s.unit || ''}
+                  trend='flat'
+                />
+              ))}
             </View>
+            <View className='now-cta' onClick={() => go('/pages/adoptions/index')}>
+              <Text className='now-cta__text'>进入地块详情</Text>
+              <Text className='now-cta__arrow'>→</Text>
+            </View>
+          </>
+        ) : (
+          <View className='now-cta' onClick={() => go('/pages/adoptions/index')}>
+            <Text className='now-cta__text'>还没有认养地块 · 去看看</Text>
+            <Text className='now-cta__arrow'>→</Text>
           </View>
-        ))}
+        )}
       </View>
 
-      {/* ===== §04 · 入口 · 角色感知 ===== */}
+      {/* ===== §04 · 今日推荐 · 图片轮播 ===== */}
       <View className='section'>
         <View className='section__head'>
           <Text className='section__seal'>§ 04</Text>
-          <Text className='section__title'>入口</Text>
-          <Text className='section__title-en'>ENTRIES</Text>
+          <Text className='section__title'>推荐</Text>
+          <Text className='section__title-en'>FEATURED</Text>
         </View>
-        <View className='entries'>
-          {(roleType === 'operator' || roleType === 'agronomist') && (
-            <View
-              className='entry entry--primary'
-              onClick={() => go('/pages/operator-workbench/index')}
-            >
-              <View className='entry__seal'><Order size={24} /></View>
-              <View className='entry__body'>
-                <Text className='entry__title'>运营工作台</Text>
-                <Text className='entry__sub'>待领 · 责任域 · 异常</Text>
+        <Swiper
+          className='rec-swiper'
+          circular
+          autoplay
+          interval={4000}
+          indicatorDots
+          indicatorColor='rgba(255, 255, 255, 0.4)'
+          indicatorActiveColor='#ffffff'
+        >
+          {FEATURE_RECS.map((r) => (
+            <SwiperItem key={r.no}>
+              <View className='rec-slide'>
+                <Image className='rec-slide__img' src={r.img} mode='aspectFill' />
+                <View className='rec-slide__mask' />
+                <View className='rec-slide__body'>
+                  <Text className='rec-slide__tag'>{r.tag}</Text>
+                  <Text className='rec-slide__title'>{r.title}</Text>
+                  <Text className='rec-slide__desc'>{r.desc}</Text>
+                </View>
               </View>
-              <Text className='entry__arrow'>→</Text>
-            </View>
-          )}
-          <View className='entry' onClick={() => go('/pages/adoptions/index')}>
-            <View className='entry__seal'><Heart size={24} /></View>
-            <View className='entry__body'>
-              <Text className='entry__title'>我的认养</Text>
-              <Text className='entry__sub'>地块 · 操作 · 农事</Text>
-            </View>
-            <Text className='entry__arrow'>→</Text>
-          </View>
-          <View className='entry' onClick={() => go('/pages/ai-assist/index')}>
-            <View className='entry__seal'><Message size={24} /></View>
-            <View className='entry__body'>
-              <Text className='entry__title'>AI 农技</Text>
-              <Text className='entry__sub'>问答 · 诊断 · 节气建议</Text>
-            </View>
-            <Text className='entry__arrow'>→</Text>
-          </View>
-          <View className='entry' onClick={() => go('/pages/me/index')}>
-            <View className='entry__seal'><User size={24} /></View>
-            <View className='entry__body'>
-              <Text className='entry__title'>个人中心</Text>
-              <Text className='entry__sub'>账号 · 设置 · 退出</Text>
-            </View>
-            <Text className='entry__arrow'>→</Text>
-          </View>
-        </View>
+            </SwiperItem>
+          ))}
+        </Swiper>
       </View>
 
       {/* ===== §05 · 番外 · 一句引文 ===== */}

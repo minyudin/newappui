@@ -11,6 +11,7 @@ import { useAuthStore } from '@/store/auth'
 import { useRequireRole } from '@/hooks/useRequireRole'
 import type { AiChatResponse } from '@/types'
 import './index.scss'
+import BrandNavBar from '@/components/BrandNavBar'
 
 /**
  * §6 · AI 问答 · Folio 风对话
@@ -271,6 +272,7 @@ export default function AiChatPage() {
 
   return (
     <View className='ai-page'>
+      <BrandNavBar />
       {/* --- 页头 --- */}
       <View className='ai-head'>
         <Text className='ai-head__seal'>§ 06 · AI 助手</Text>

@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/auth'
 import type { UserInfo } from '@/types'
 import { TAB_BAR_SYNC_EVT } from '@/custom-tab-bar/events'
 import './index.scss'
+import BrandNavBar from '@/components/BrandNavBar'
 
 /**
  * §03 · 我的 (TabBar 第三页)
@@ -73,6 +74,7 @@ export default function MePage() {
 
   return (
     <View className='me-page'>
+      <BrandNavBar />
       {/* --- 页头 · Folio 封面 --- */}
       <View className='me-head'>
         <Text className='me-head__seal'>§ 03 · 我的</Text>

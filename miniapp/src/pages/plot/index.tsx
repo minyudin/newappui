@@ -34,6 +34,7 @@ import SectionFin from '@/components/SectionFin'
 import DigitFlipper from '@/components/DigitFlipper'
 import PageQuote from '@/components/PageQuote'
 import './index.scss'
+import BrandNavBar from '@/components/BrandNavBar'
 
 /**
  * §2 · 地块详情 · Plot Detail
@@ -251,6 +252,7 @@ export default function PlotPage() {
 
   return (
     <View className='plot-page'>
+      <BrandNavBar />
       {/* --- 页头 --- */}
       <View className='plot-head'>
         <Text className='plot-head__seal'>§ 02 · 地块详情</Text>

@@ -8,10 +8,11 @@ import type { AdoptionListItem, OrderStatus } from '@/types'
 import { TAB_BAR_SYNC_EVT } from '@/custom-tab-bar/events'
 import { useRequireRole } from '@/hooks/useRequireRole'
 import { usePageRefresh } from '@/hooks/usePageRefresh'
-import { cropGlyph } from '@/lib/crop-glyph'
+import { cropGlyph, cropIcon } from '@/lib/crop-glyph'
 import PlotMicroBar from '@/components/PlotMicroBar'
 import DigitFlipper from '@/components/DigitFlipper'
 import './index.scss'
+import BrandNavBar from '@/components/BrandNavBar'
 
 /**
  * §1 · 我的认养 (首页 · 登录后着陆页)
@@ -155,6 +156,7 @@ export default function AdoptionsPage() {
 
   return (
     <View className='adoptions-page'>
+      <BrandNavBar />
       {/* --- 页头 · Folio 封面 + 右上 meta (logout 已移到我的 tab) --- */}
       <View className='adoptions-head'>
         <View className='adoptions-head__left'>
@@ -200,7 +202,15 @@ export default function AdoptionsPage() {
                     />
                   ) : (
                     <View className='plot-card__cover-fallback'>
-                      <Text className='plot-card__cover-char'>{cropGlyph(item.cropName)}</Text>
+                      {cropIcon(item.cropName) ? (
+                        <Image
+                          className='plot-card__cover-icon'
+                          src={cropIcon(item.cropName)!}
+                          mode='aspectFit'
+                        />
+                      ) : (
+                        <Text className='plot-card__cover-char'>{cropGlyph(item.cropName)}</Text>
+                      )}
                       <Text className='plot-card__cover-id'>
                         {String(item.plotId).slice(-4)}
                       </Text>
@@ -257,6 +267,19 @@ export default function AdoptionsPage() {
         <Text className='action-btn__text'>兑换认养码</Text>
         <Text className='action-btn__arrow'>→</Text>
       </Button>
+
+      {/* --- 空态附加 · 二维码占位 + 联系工作人员 --- */}
+      {list.length === 0 && !loading && (
+        <View className='contact-qr'>
+          <View className='contact-qr__box'>
+            <View className='contact-qr__corner contact-qr__corner--tl' />
+            <View className='contact-qr__corner contact-qr__corner--tr' />
+            <View className='contact-qr__corner contact-qr__corner--bl' />
+            <Text className='contact-qr__glyph'>QR</Text>
+          </View>
+          <Text className='contact-qr__hint'>请联系我们的工作人员获取地块吧</Text>
+        </View>
+      )}
     </View>
   )
 }

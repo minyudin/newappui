@@ -5,6 +5,16 @@
  *  在类型系统里需要显式声明才不被 tsc 报未定义。
  * ============================================================ */
 
+declare module '*.png' {
+  const src: string
+  export default src
+}
+
+declare module '*.jpg' {
+  const src: string
+  export default src
+}
+
 declare function defineAppConfig<T = Record<string, unknown>>(config: T): T
 declare function definePageConfig<T = Record<string, unknown>>(config: T): T
 

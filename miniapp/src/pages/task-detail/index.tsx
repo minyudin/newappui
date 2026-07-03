@@ -8,6 +8,7 @@ import SectionFin from '@/components/SectionFin'
 import DigitFlipper from '@/components/DigitFlipper'
 import Typewriter from '@/components/Typewriter'
 import './index.scss'
+import BrandNavBar from '@/components/BrandNavBar'
 
 /**
  * §4.1 · 任务详情 · 派工单印刷页
@@ -264,6 +265,7 @@ export default function TaskDetailPage() {
   if (err) {
     return (
       <View className='wo-page'>
+        <BrandNavBar />
         <View className='wo-err-box'>
           <Text className='wo-err-box__seal'>§ ERR · 加载失败</Text>
           <Text className='wo-err-box__msg'>{err}</Text>
@@ -289,6 +291,7 @@ export default function TaskDetailPage() {
   if (!detail && loading) {
     return (
       <View className='wo-page'>
+        <BrandNavBar />
         <Text className='wo-placeholder'>LOADING · 工单读取中</Text>
       </View>
     )
@@ -297,6 +300,7 @@ export default function TaskDetailPage() {
   if (!detail) {
     return (
       <View className='wo-page'>
+        <BrandNavBar />
         <Text className='wo-placeholder'>NOT FOUND · 无此工单</Text>
       </View>
     )
@@ -342,6 +346,7 @@ export default function TaskDetailPage() {
 
   return (
     <View className='wo-page'>
+      <BrandNavBar />
       {/* --- 页头 · WORK ORDER --- */}
       <View className='wo-head'>
         <View className='wo-head__rule' />

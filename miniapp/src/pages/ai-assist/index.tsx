@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/auth'
 import type { AiChatResponse } from '@/types'
 import { TAB_BAR_SYNC_EVT } from '@/custom-tab-bar/events'
 import './index.scss'
+import BrandNavBar from '@/components/BrandNavBar'
 
 /**
  * §02 · AI 询问 (Compact Folio 对话)
@@ -182,12 +183,9 @@ export default function AiAssistPage() {
 
   return (
     <View className='ai-page'>
-      {/* === Hero · 紧凑印章条 === */}
+      <BrandNavBar />
+      {/* === Hero · 简洁标题 === */}
       <View className='ai-hero'>
-        <View className='ai-hero__row'>
-          <Text className='ai-hero__seal'>§ 02 · AI</Text>
-          <Text className='ai-hero__stamp'>SESSION {sessionIdRef.current.slice(-6)}</Text>
-        </View>
         <Text className='ai-hero__title'>AI 农技助手</Text>
         <Text className='ai-hero__sub'>问答 · 病虫害诊断 · 节气建议</Text>
       </View>
@@ -200,17 +198,22 @@ export default function AiAssistPage() {
         scrollWithAnimation
         enableBackToTop
       >
-        {/* 空态 · 问候卡 */}
+        {/* 空态 · 居中欢迎 + 推荐问题卡 */}
         {isEmpty && (
           <View className='ai-empty'>
-            <Text className='ai-empty__seal'>§ 00 · 起手</Text>
+            <View className='ai-empty__avatar'>
+              <Text className='ai-empty__avatar-txt'>AI</Text>
+            </View>
             <Text className='ai-empty__greet'>你好, {greetName}</Text>
-            <Text className='ai-empty__hint'>
-              本页不绑定地块, 适合通用农业问答 ·
-              想问具体地块? 进 §01 认养 → 选地块 → 问 AI
-            </Text>
-            <View className='ai-empty__rule' />
-            <Text className='ai-empty__pick'>试试这些问题 ↓</Text>
+            <Text className='ai-empty__hint'>我是陇上 AI 农技助手, 种植养护的问题都可以问我</Text>
+            <View className='ai-empty__cards'>
+              {HINTS.map((h) => (
+                <View key={h} className='ai-empty__card' onClick={() => handleSend(h)}>
+                  <Text className='ai-empty__card-text'>{h}</Text>
+                  <Text className='ai-empty__card-arrow'>→</Text>
+                </View>
+              ))}
+            </View>
           </View>
         )}
 
@@ -218,12 +221,6 @@ export default function AiAssistPage() {
           if (m.kind === 'user') {
             return (
               <View key={m.id} className='msg msg--user'>
-                <View className='msg__meta'>
-                  <Text className='msg__seq'>
-                    No.{String(m.seq).padStart(2, '0')}
-                  </Text>
-                  <Text className='msg__time'>{m.time}</Text>
-                </View>
                 <View className='msg__bubble msg__bubble--user'>
                   <Text className='msg__text'>{m.text}</Text>
                 </View>
@@ -233,19 +230,14 @@ export default function AiAssistPage() {
           if (m.kind === 'system') {
             return (
               <View key={m.id} className='msg-sys'>
-                <Text className='msg-sys__rule'>————</Text>
-                <Text className='msg-sys__text'>· {m.text}</Text>
-                <Text className='msg-sys__rule'>————</Text>
+                <Text className='msg-sys__text'>{m.text}</Text>
               </View>
             )
           }
           if (m.kind === 'typing') {
             return (
               <View key={m.id} className='msg msg--ai'>
-                <View className='msg__meta'>
-                  <Text className='msg__seq'>AI</Text>
-                  <Text className='msg__time'>思考中</Text>
-                </View>
+                <View className='msg__avatar'><Text className='msg__avatar-txt'>AI</Text></View>
                 <View className='msg__bubble msg__bubble--ai msg__bubble--typing'>
                   <Text className='typing'>
                     <Text className='typing__dot typing__dot--1'>·</Text>
@@ -269,18 +261,10 @@ export default function AiAssistPage() {
           const isFallback = m.response.intent === 'fallback_unavailable'
           return (
             <View key={m.id} className={`msg msg--ai ${isFallback ? 'msg--fallback' : ''}`}>
-              <View className='msg__meta'>
-                <Text className='msg__seq'>
-                  {isFallback ? 'SYSTEM · 降级' : `AI · No.${String(m.seq).padStart(2, '0')}`}
-                </Text>
-                <Text className='msg__time'>{m.time}</Text>
-              </View>
+              <View className='msg__avatar'><Text className='msg__avatar-txt'>AI</Text></View>
               <View className='msg__bubble msg__bubble--ai'>
                 {showAux && m.response.intent && m.response.intent !== 'general_query' ? (
                   <View className={`msg__intent ${isFallback ? 'msg__intent--warn' : ''}`}>
-                    <Text className='msg__intent-key'>
-                      {isFallback ? 'STATUS' : 'INTENT'}
-                    </Text>
                     <Text className='msg__intent-val'>
                       {INTENT_LABEL[m.response.intent] || m.response.intent}
                     </Text>
@@ -292,9 +276,6 @@ export default function AiAssistPage() {
                 </Text>
                 {showAux && m.response.suggestion ? (
                   <View className='msg__suggest'>
-                    <Text className='msg__suggest-key'>
-                      {isFallback ? '配置提示' : '建议'}
-                    </Text>
                     <Text className='msg__suggest-val'>{m.response.suggestion}</Text>
                   </View>
                 ) : null}
@@ -310,26 +291,12 @@ export default function AiAssistPage() {
         <View className='ai-thread__tail' />
       </ScrollView>
 
-      {/* === 推荐问题钉 (始终在 input 上方) === */}
-      <View className='ai-hints'>
-        {HINTS.map((h, i) => (
-          <View
-            key={h}
-            className='ai-hints__item'
-            onClick={() => handleSend(h)}
-          >
-            <Text className='ai-hints__no'>{String(i + 1).padStart(2, '0')}</Text>
-            <Text className='ai-hints__text'>{h}</Text>
-          </View>
-        ))}
-      </View>
-
       {/* === 输入区 · 黏底 === */}
       <View className='ai-input'>
         <Input
           className='ai-input__field'
           value={input}
-          placeholder='问点什么? 例 · 番茄叶子发黄怎么办'
+          placeholder='有问题尽管问我…'
           placeholderClass='ai-input__placeholder'
           maxlength={200}
           disabled={sending}
@@ -342,8 +309,7 @@ export default function AiAssistPage() {
           disabled={sending || !input.trim()}
           onClick={() => handleSend()}
         >
-          <Text className='ai-input__send-text'>{sending ? '…' : 'SEND'}</Text>
-          <Text className='ai-input__send-arrow'>→</Text>
+          <Text className='ai-input__send-arrow'>{sending ? '…' : '↑'}</Text>
         </Button>
       </View>
     </View>

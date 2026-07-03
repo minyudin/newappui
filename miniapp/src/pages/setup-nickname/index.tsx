@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from 'react'
 import { changeNickname, checkNicknameAvailability, setupNickname } from '@/api/auth'
 import { useAuthStore } from '@/store/auth'
 import './index.scss'
+import BrandNavBar from '@/components/BrandNavBar'
 
 /**
  * §0.5 · 注册补昵称 / 改昵称 · 双模式复用
@@ -195,6 +196,7 @@ export default function SetupNicknamePage() {
 
   return (
     <View className='setup-nick-page'>
+      <BrandNavBar />
       <View className='setup-nick-page__body'>
         <View className='setup-nick-head'>
           <Text className='setup-nick-head__seal'>

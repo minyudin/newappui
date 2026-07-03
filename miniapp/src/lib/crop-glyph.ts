@@ -8,6 +8,28 @@
  *    · 未识别的作物 → 回退 "田"
  * ============================================================ */
 
+import wheatIcon from '@/assets/crops/wheat.png'
+import tomatoIcon from '@/assets/crops/tomato.png'
+import eggplantIcon from '@/assets/crops/eggplant.png'
+
+/** 作物矢量图标映射 · 命中返回图标路径, 未命中返回 null (回退印章字) */
+const ICON_RULES: Array<{ test: RegExp; icon: string }> = [
+  { test: /小麦|麦/, icon: wheatIcon },
+  { test: /番茄|西红柿/, icon: tomatoIcon },
+  { test: /茄子|茄/, icon: eggplantIcon },
+]
+
+/** 取作物矢量图标 · 无匹配返回 null */
+export function cropIcon(cropName: string | null | undefined): string | null {
+  if (!cropName) return null
+  const name = cropName.trim()
+  if (!name) return null
+  for (const rule of ICON_RULES) {
+    if (rule.test.test(name)) return rule.icon
+  }
+  return null
+}
+
 /** 作物核心字映射 · 按优先级查找 · 第一个命中即返回 */
 const GLYPH_RULES: Array<{ test: RegExp; glyph: string }> = [
   { test: /小麦|麦/, glyph: '麦' },

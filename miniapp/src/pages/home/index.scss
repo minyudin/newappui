@@ -112,6 +112,27 @@
     font-weight: 400;
     color: rgba(255, 255, 255, 0.5);
   }
+
+  // 天气 / 节气 chips
+  &__chips {
+    display: flex;
+    gap: bl(0.6);
+    margin-top: bl(1);
+    flex-wrap: wrap;
+  }
+
+  &__chip {
+    padding: bl(0.35) bl(1);
+    background: rgba(255, 255, 255, 0.16);
+    border-radius: $radius-full;
+  }
+
+  &__chip-text {
+    font-family: $font-sans;
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.92);
+    line-height: 1.4;
+  }
 }
 
 // ============================================================
@@ -342,137 +363,107 @@
 }
 
 // ============================================================
-//  §03 推荐 · Editorial 序号
+//  §03 推荐 · 图片轮播
 // ============================================================
-.rec-row {
-  display: grid;
-  grid-template-columns: bl(4) 1fr;
-  gap: bl(1);
-  align-items: center;
-  padding: bl(1.25) bl(1.25);
-  @include card($radius-md);
+.rec-swiper {
+  height: 320rpx;
+  border-radius: $radius-lg;
+  overflow: hidden;
+}
 
-  & + & { margin-top: bl(0.75); }
+.rec-slide {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: $radius-lg;
+  overflow: hidden;
 
-  &__no {
-    @include icon-chip($fog, 64px, $radius-sm);
-    font-family: $font-sans;
-    font-size: 26px;
-    font-weight: 700;
+  &__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  // 底部渐暗遮罩, 保证文字可读
+  &__mask {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0.55) 100%);
   }
 
   &__body {
+    position: absolute;
+    left: bl(1.5);
+    right: bl(1.5);
+    bottom: bl(1.25);
     display: flex;
     flex-direction: column;
-    gap: 4rpx;
-    min-width: 0;
-  }
-
-  &__head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: bl(0.5);
-  }
-
-  &__title {
-    font-family: $font-sans;
-    font-size: 26px;
-    color: $ink;
-    font-weight: 600;
-    line-height: 1.3;
+    gap: 6rpx;
   }
 
   &__tag {
     @include folio-mono;
     font-size: 16px;
     font-weight: 500;
-    color: color.adjust($slate, $lightness: -8%);
-    background: pastel($slate);
-    border-radius: $radius-full;
-    padding: 2rpx bl(0.75);
-  }
-
-  &__desc {
-    @include folio-em;
-    font-size: 20px;
-    color: $ink-faint;
-    line-height: 1.5;
-  }
-}
-
-// ============================================================
-//  §04 入口 · 角色感知 4 卡
-// ============================================================
-.entries {
-  display: flex;
-  flex-direction: column;
-  gap: bl(1.25);
-}
-
-.entry {
-  display: grid;
-  grid-template-columns: bl(4) 1fr bl(2);
-  gap: bl(1.25);
-  padding: bl(1.5) bl(1.5);
-  align-items: center;
-  @include card($radius-md);
-  cursor: pointer;
-  transition: transform 0.15s $ease-folio;
-
-  &:active { transform: scale(0.98); }
-
-  &--primary {
-    background: $navy;
-    box-shadow: $shadow-float;
-
-    .entry__title,
-    .entry__arrow {
-      color: #fff;
-    }
-    .entry__seal { background: $navy-chip; color: #fff; }
-    .entry__sub { color: rgba(255, 255, 255, 0.7); }
-  }
-
-  &__seal {
-    @include icon-chip($sage, 64px, $radius-sm);
-    font-size: 22px;
-    font-weight: 700;
-  }
-
-  &:nth-child(odd) .entry__seal { background: pastel($sand); color: color.adjust($sand, $lightness: -18%); }
-  &--primary .entry__seal { background: $navy-chip; color: #fff; }
-
-  &__body {
-    display: flex;
-    flex-direction: column;
-    gap: 2rpx;
-    min-width: 0;
+    color: rgba(255, 255, 255, 0.85);
+    letter-spacing: 0.1em;
   }
 
   &__title {
     font-family: $font-sans;
-    font-size: 26px;
-    color: $ink;
-    font-weight: 600;
-    line-height: 1.2;
+    font-size: 32px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.3;
   }
 
-  &__sub {
-    @include folio-em;
-    font-size: 18px;
-    color: $ink-faint;
+  &__desc {
+    font-family: $font-sans;
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.8);
     line-height: 1.4;
   }
+}
 
-  &__arrow {
-    font-family: $font-sans;
-    font-size: 24px;
-    color: $ink-faint;
-    text-align: right;
+// ============================================================
+//  §04 入口 · 圆形图标横排
+// ============================================================
+.entries {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  padding: bl(0.5) 0 bl(0.25);
+}
+
+.entry {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: bl(0.75);
+  cursor: pointer;
+  transition: transform 0.15s $ease-folio;
+
+  &:active { transform: scale(0.94); }
+
+  &__circle {
+    width: 120rpx;
+    height: 120rpx;
+    border-radius: 50%;
+    background: $paper-light;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $farm-green;
   }
 
-  &--primary .entry__title { font-size: 28px; }
+  &__label {
+    font-family: $font-sans;
+    font-size: 22px;
+    font-weight: 600;
+    color: $ink;
+    line-height: 1.2;
+  }
 }
 
 // ============================================================

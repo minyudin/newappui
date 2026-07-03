@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from 'react'
 import { wechatLogin } from '@/api/auth'
 import { useAuthStore } from '@/store/auth'
 import './index.scss'
+import BrandNavBar from '@/components/BrandNavBar'
 
 const STUB_DEVICE_KEY = 'stub_device_id'
 
@@ -86,6 +87,7 @@ export default function OperatorLoginPage() {
 
   return (
     <View className='op-login-page'>
+      <BrandNavBar />
       <View className='op-login-page__body'>
       <View className='op-login-head'>
         <Text className='op-login-head__seal'>§ · 操作员</Text>
