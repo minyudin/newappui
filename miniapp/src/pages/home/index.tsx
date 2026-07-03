@@ -187,9 +187,11 @@ export default function HomePage() {
             <View className='hero__chip'>
               <Text className='hero__chip-text'>{weather.text} {weather.temp}°C</Text>
             </View>
-            <View className='hero__chip'>
-              <Text className='hero__chip-text'>陇上示范农场 · 兰州</Text>
-            </View>
+            {weather.city ? (
+              <View className='hero__chip'>
+                <Text className='hero__chip-text'>{weather.city}</Text>
+              </View>
+            ) : null}
           </View>
         ) : null}
       </View>
