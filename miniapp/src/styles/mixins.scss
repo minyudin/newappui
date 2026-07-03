@@ -23,6 +23,7 @@
   background: $paper-light;
   border-radius: $radius;
   box-shadow: $shadow-card;
+  animation: card-in 0.4s $ease-folio both;
 }
 
 // ---- 马卡龙图标组件底 (圆角方块, 参考图的"可爱小组件") ----

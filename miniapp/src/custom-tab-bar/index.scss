@@ -35,7 +35,7 @@
     }
 
     &--active {
-      .tab-bar__seal {
+      .tab-bar__icon {
         background: pastel($slate);
         color: $farm-green;
       }
@@ -47,15 +47,15 @@
     }
   }
 
-  &__seal {
-    @include folio-mono;
-    font-size: 16px;
-    font-weight: 600;
+  &__icon {
     color: $ink-faint;
     line-height: 1;
     padding: bl(0.4) bl(1);
     border-radius: $radius-full;
     background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   &__label {

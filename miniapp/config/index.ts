@@ -57,8 +57,11 @@ export default defineConfig(async (merge, { command, mode }) => {
   const baseConfig = {
     projectName: 'longarch-miniapp',
     date: '2026-04-24',
-    designWidth: 750,
+    // NutUI 组件按 375 设计稿编写, 其余业务样式仍按 750
+    designWidth: (input: { file?: string }) =>
+      input?.file && input.file.replace(/\\/g, '/').indexOf('@nutui') > -1 ? 375 : 750,
     deviceRatio: {
+      375: 2 / 1,
       640: 2.34 / 2,
       750: 1,
       828: 1.81 / 2,
@@ -68,7 +71,7 @@ export default defineConfig(async (merge, { command, mode }) => {
     //  - h5/weapp 产物分目录，避免互相清理导致 Windows 下 emptyDirectory/unlink 报错
     //  - 也避免 “先 build:h5 后 build:weapp” 把 dist 结构搞乱
     outputRoot: process.env.TARO_ENV === 'h5' ? 'dist/h5' : 'dist/weapp',
-    plugins: [],
+    plugins: ['@tarojs/plugin-html'],
     defineConstants: {
       'process.env.TARO_APP_API_BASE': JSON.stringify(apiBase),
       'process.env.TARO_APP_CAMERA_H5_BASE': JSON.stringify(cameraH5Base),

@@ -16,6 +16,26 @@
   --paper-current:       #{$paper};
 }
 
+/* ---- NutUI 主题 · 对齐清新卡片风 ---- */
+page {
+  --nutui-color-primary: #{$farm-green};
+  --nutui-color-primary-stop-1: #{$farm-green};
+  --nutui-color-primary-stop-2: #{color.adjust($farm-green, $lightness: -6%)};
+  --nutui-dialog-content-border-radius: #{$radius-md};
+}
+
+/* Dialog 按钮 · 主按钮实底靛蓝, 取消浅灰底 */
+.nut-dialog-footer-ok.nut-button {
+  background: $farm-green;
+  color: #fff;
+  border-radius: $radius-full;
+}
+.nut-dialog-footer-cancel.nut-button {
+  background: $paper-deep;
+  color: $ink;
+  border-radius: $radius-full;
+}
+
 page {
   background: $paper;
   color: $ink;
@@ -233,6 +253,29 @@ button {
   // N52 · TASK_STATUS_LABEL.cancelled tone='ink-faint' · plot 页操作列表 / 其他
   //       若只是默认背景会让 cancelled 任务和正常任务混在一起无区分
   &--ink-faint { background: $paper-deep; color: $ink-faint; }
+}
+
+/* ============================================================
+ *  卡片入场渐显 · 所有 card() 共用
+ * ============================================================ */
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+ *  插图占位 · 找到图后替换为 <Image mode='aspectFill'>
+ *  建议尺寸: hero 横图 686×300rpx · 卡片封面 1:1 · 空状态 480×360rpx
+ * ============================================================ */
+.illo-slot {
+  border-radius: $radius-md;
+  background: pastel($fog);
+  border: 2px dashed rgba(106, 168, 232, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: color.adjust($fog, $lightness: -14%);
+  font-size: 22px;
 }
 
 /* ============================================================

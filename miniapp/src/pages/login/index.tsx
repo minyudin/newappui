@@ -1,5 +1,6 @@
 import { View, Text, Button } from '@tarojs/components'
 import Taro, { useLoad, useUnload } from '@tarojs/taro'
+import { Clock, ShieldCheck, Video } from '@nutui/icons-react-taro'
 import { useRef, useState } from 'react'
 import { wechatLogin } from '@/api/auth'
 import { useAuthStore } from '@/store/auth'
@@ -207,7 +208,7 @@ export default function LoginPage() {
       {/* --- 特性表 (hairline 行, 简化为单列) --- */}
       <View className='login-features'>
         <View className='login-feature'>
-          <Text className='login-feature__no'>01</Text>
+          <View className='login-feature__no'><Clock size={22} /></View>
           <View className='login-feature__body'>
             <Text className='login-feature__title'>实时监测</Text>
             <Text className='login-feature__sub'>温湿 · 光照 · 土壤数据</Text>
@@ -215,7 +216,7 @@ export default function LoginPage() {
         </View>
 
         <View className='login-feature'>
-          <Text className='login-feature__no'>02</Text>
+          <View className='login-feature__no'><Video size={22} /></View>
           <View className='login-feature__body'>
             <Text className='login-feature__title'>远程看田</Text>
             <Text className='login-feature__sub'>手机查看现场画面</Text>
@@ -223,7 +224,7 @@ export default function LoginPage() {
         </View>
 
         <View className='login-feature'>
-          <Text className='login-feature__no'>03</Text>
+          <View className='login-feature__no'><ShieldCheck size={22} /></View>
           <View className='login-feature__body'>
             <Text className='login-feature__title'>可信溯源</Text>
             <Text className='login-feature__sub'>种 · 养 · 收 · 全程可查</Text>

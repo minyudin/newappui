@@ -1,5 +1,6 @@
 import { View, Text, Button } from '@tarojs/components'
 import Taro, { useLoad, useDidShow } from '@tarojs/taro'
+import { Dialog } from '@nutui/nutui-react-taro'
 import { useRef, useState } from 'react'
 import { getCurrentUser, logout } from '@/api/auth'
 import { useAuthStore } from '@/store/auth'
@@ -18,6 +19,7 @@ export default function MePage() {
   const setUserInfo = useAuthStore((s) => s.setUserInfo)
   const clearAuth = useAuthStore((s) => s.clearAuth)
   const [logoutPending, setLogoutPending] = useState(false)
+  const [logoutConfirmVisible, setLogoutConfirmVisible] = useState(false)
   // M4 · ref 瞬时锁, 防 modal 关闭前双击触发两次 logout 请求
   const logoutPendingRef = useRef(false)
 
@@ -53,15 +55,6 @@ export default function MePage() {
     if (logoutPendingRef.current) return
     logoutPendingRef.current = true
     try {
-      const confirm = await Taro.showModal({
-        title: '确认退出登录?',
-        content: '退出后需重新用微信登录',
-        confirmText: '退出',
-        cancelText: '取消',
-        confirmColor: '#c5826a',
-      })
-      if (!confirm.confirm) return
-
       setLogoutPending(true)
       try {
         await logout()
@@ -170,12 +163,26 @@ export default function MePage() {
       <Button
         className='me-logout'
         disabled={logoutPending}
-        onClick={handleLogout}
+        onClick={() => setLogoutConfirmVisible(true)}
       >
         <Text className='me-logout__text'>
           {logoutPending ? '退出中…' : '退出登录'}
         </Text>
       </Button>
+
+      <Dialog
+        visible={logoutConfirmVisible}
+        title='确认退出登录?'
+        confirmText='退出'
+        cancelText='取消'
+        onConfirm={() => {
+          setLogoutConfirmVisible(false)
+          handleLogout()
+        }}
+        onCancel={() => setLogoutConfirmVisible(false)}
+      >
+        退出后需重新用微信登录
+      </Dialog>
 
       {/* --- 版本号 --- */}
       <Text className='me-footer'>陇上管家 · v0.1.0</Text>
