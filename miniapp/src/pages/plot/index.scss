@@ -13,7 +13,7 @@
   padding: bl(3) bl(2.5) calc(bl(5) + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
-  gap: bl(2);
+  gap: bl(2.5);
 
   &__err {
     @include folio-mono;
@@ -75,22 +75,24 @@
   }
 }
 
-// ---- §分段 ----
+// ---- §分段 · 白卡分组 ----
 .plot-section {
   display: flex;
   flex-direction: column;
   gap: 0;
+  @include card;
+  padding: bl(1.75) bl(1.75);
 
   &__title {
     font-family: $font-sans;
     font-size: 22px;
-    font-weight: 500;
+    font-weight: 600;
     color: $ink;
     letter-spacing: 0.04em;
-    padding-bottom: bl(0.75);
-    @include hairline-soft-bottom;
+    @include section-bar($sage);
+    padding-bottom: bl(0.25);
     display: block;
-    margin-bottom: bl(0.5);
+    margin-bottom: bl(1);
   }
 
   // 分段标题 + 右侧动作 (如 AI 的重新分析)
@@ -98,9 +100,8 @@
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    padding-bottom: bl(0.75);
-    @include hairline-soft-bottom;
-    margin-bottom: bl(0.5);
+    padding-bottom: bl(0.25);
+    margin-bottom: bl(1);
   }
 
   &__title-row &__title {

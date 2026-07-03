@@ -407,14 +407,14 @@
 .entries {
   display: flex;
   flex-direction: column;
-  gap: bl(0.75);
+  gap: bl(1.25);
 }
 
 .entry {
   display: grid;
   grid-template-columns: bl(4) 1fr bl(2);
-  gap: bl(1);
-  padding: bl(1) bl(1.25);
+  gap: bl(1.25);
+  padding: bl(1.5) bl(1.5);
   align-items: center;
   @include card($radius-md);
   cursor: pointer;

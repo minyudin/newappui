@@ -183,7 +183,7 @@
 // ---- 导航行 · 可点, 带箭头 ----
 .me-nav {
   display: grid;
-  grid-template-columns: 1fr bl(2);
+  grid-template-columns: 1fr auto;
   align-items: center;
   gap: bl(1);
   padding: bl(1.25) 0;
@@ -223,6 +223,7 @@
     font-weight: 400;
     color: $ink-faint;
     text-align: right;
+    white-space: nowrap;
   }
 }
 
